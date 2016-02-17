@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+
+    id 'eclipse'
+    id 'idea'
+
+    id 'maven-publish'
+    id 'nebula.provided-base' version '3.0.3'
+
+    id 'net.minecrell.licenser' version '0.1.1'
+}
+
+group = 'org.spongepowered'
+version = '0.1-SNAPSHOT'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+
+    provided 'com.google.code.findbugs:jsr305:1.3.9'
+}
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar
+        }
+    }
+}
+
+license {
+    header = file('HEADER.txt')
+    ext {
+        name = project.name
+        organization = project.organization
+        url = project.url
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.11'
+}
