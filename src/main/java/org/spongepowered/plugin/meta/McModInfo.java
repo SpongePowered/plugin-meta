@@ -38,9 +38,13 @@ import org.spongepowered.plugin.meta.gson.ModMetadataCollectionAdapter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -48,6 +52,8 @@ import java.util.List;
 public final class McModInfo {
 
     public static final String STANDARD_FILENAME = "mcmod.info";
+
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
     private static final String INDENT = "    ";
 
     public static final McModInfo DEFAULT = new McModInfo(ModMetadataCollectionAdapter.DEFAULT);
@@ -67,9 +73,13 @@ public final class McModInfo {
     }
 
     public List<PluginMetadata> read(Path path) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(path)) {
+        try (BufferedReader reader = Files.newBufferedReader(path, CHARSET)) {
             return read(reader);
         }
+    }
+
+    public List<PluginMetadata> read(InputStream in) throws IOException {
+        return this.adapter.fromJson(new BufferedReader(new InputStreamReader(in, CHARSET)));
     }
 
     public List<PluginMetadata> read(Reader reader) throws IOException {
@@ -99,7 +109,7 @@ public final class McModInfo {
     }
 
     public void write(Path path, List<PluginMetadata> meta) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, CHARSET)) {
             write(writer, meta);
         }
     }
