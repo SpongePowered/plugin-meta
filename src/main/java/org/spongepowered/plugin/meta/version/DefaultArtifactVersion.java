@@ -25,40 +25,49 @@
 
 package org.spongepowered.plugin.meta.version;
 
-// Note: This file contains custom modifications for plugin-meta licensed under
-// the MIT License.
+import static com.google.common.base.Preconditions.checkNotNull;
 
-// @formatter:off
+import javax.annotation.Nonnull;
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+public final class DefaultArtifactVersion implements ArtifactVersion {
 
-/**
- * Occurs when a version is invalid.
- *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
- */
-public class InvalidVersionSpecificationException
-    extends Exception
-{
-    public InvalidVersionSpecificationException( String message )
-    {
-        super( message );
+    private final ComparableVersion version;
+
+    public DefaultArtifactVersion(String version) {
+        checkNotNull(version, "version");
+        this.version = new ComparableVersion(version);
     }
+
+    @Override
+    public int compareTo(@Nonnull ArtifactVersion version) {
+        if (version instanceof DefaultArtifactVersion) {
+            return this.version.compareTo(((DefaultArtifactVersion) version).version);
+        } else {
+            return compareTo(new DefaultArtifactVersion(version.toString()));
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DefaultArtifactVersion that = (DefaultArtifactVersion) o;
+        return this.version.equals(that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.version.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.version.toString();
+    }
+
 }

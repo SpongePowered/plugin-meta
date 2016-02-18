@@ -199,6 +199,7 @@ public final class PluginMetadata {
 
         public Dependency(String id, String version) {
             this.id = checkNotNull(id, "id");
+            checkArgument(!id.isEmpty(), "id cannot be empty");
             this.version = emptyToNull(version);
         }
 
