@@ -4,7 +4,7 @@ plugins {
     id 'eclipse'
     id 'idea'
 
-    id 'maven-publish'
+    id 'maven'
     id 'nebula.provided-base' version '3.0.3'
 
     id 'net.minecrell.licenser' version '0.1.2'
@@ -32,14 +32,8 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            artifact sourceJar
-        }
-    }
+artifacts {
+    archives sourceJar
 }
 
 license {
@@ -48,6 +42,62 @@ license {
         name = project.name
         organization = project.organization
         url = project.url
+    }
+}
+
+// Support uploading with FTP
+configurations {
+    deployerJars // Deployment dependency
+}
+
+dependencies {
+    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.10'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+
+            // This is set by the build server when deploying to the repo
+            if (project.hasProperty('spongeRepo')) {
+                repository(url: project.spongeRepo) {
+                    if (project.hasProperty('spongeUsername') && project.hasProperty('spongePassword')) {
+                        authentication(userName: project.spongeUsername, password: project.spongePassword)
+                    }
+                }
+            }
+
+            pom {
+                artifactId = project.archivesBaseName
+
+                project {
+                    name = project.archivesBaseName
+                    description = project.description
+                    packaging = 'jar'
+                    url = project.url
+
+                    scm {
+                        url = "https://github.com/$project.organization/$project.name"
+                        connection = "scm:git:https://github.com/$project.organization/${project.name}.git"
+                        developerConnection = "scm:git:git@github.com:$project.organization/${project.name}.git"
+                    }
+
+                    issueManagement {
+                        system = 'GitHub Issues'
+                        url = "https://github.com/$project.organization/$project.name/issues"
+                    }
+
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'http://opensource.org/licenses/MIT'
+                            distribution = 'repo'
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
