@@ -7,7 +7,7 @@ plugins {
     id 'maven-publish'
     id 'nebula.provided-base' version '3.0.3'
 
-    id 'net.minecrell.licenser' version '0.1.1'
+    id 'net.minecrell.licenser' version '0.1.2'
 }
 
 group = 'org.spongepowered'
