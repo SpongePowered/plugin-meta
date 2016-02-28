@@ -46,37 +46,22 @@ public final class ModMetadataCollectionAdapter extends TypeAdapter<List<PluginM
 
     @Override
     public List<PluginMetadata> read(JsonReader in) throws IOException {
-        switch (in.peek()) {
-            case BEGIN_ARRAY:
-                in.beginArray();
-                ImmutableList.Builder<PluginMetadata> result = ImmutableList.builder();
-                while (in.hasNext()) {
-                    result.add(this.metadataAdapter.read(in));
-                }
-                in.endArray();
-                return result.build();
-            case BEGIN_OBJECT:
-                return ImmutableList.of(this.metadataAdapter.read(in));
-            default:
-                throw new IllegalStateException("Expected BEGIN_OBJECT or BEGIN_ARRAY, but got " + in.peek() + " instead");
+        in.beginArray();
+        ImmutableList.Builder<PluginMetadata> result = ImmutableList.builder();
+        while (in.hasNext()) {
+            result.add(this.metadataAdapter.read(in));
         }
+        in.endArray();
+        return result.build();
     }
 
     @Override
     public void write(JsonWriter out, List<PluginMetadata> values) throws IOException {
-        switch (values.size()) {
-            case 0:
-                return;
-            case 1:
-                this.metadataAdapter.write(out, values.get(0));
-                return;
-            default:
-                out.beginArray();
-                for (PluginMetadata meta : values) {
-                    this.metadataAdapter.write(out, meta);
-                }
-                out.endArray();
+        out.beginArray();
+        for (PluginMetadata meta : values) {
+            this.metadataAdapter.write(out, meta);
         }
+        out.endArray();
     }
 
 }
