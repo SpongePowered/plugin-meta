@@ -95,6 +95,9 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                 case "url":
                     result.setUrl(in.nextString());
                     break;
+                case "assets":
+                    result.setAssetDirectory(in.nextString());
+                    break;
                 case "authorList":
                     in.beginArray();
                     while (in.hasNext()) {
@@ -146,6 +149,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         writeIfPresent(out, "version", meta.getVersion());
         writeIfPresent(out, "description", meta.getDescription());
         writeIfPresent(out, "url", meta.getUrl());
+        writeIfPresent(out, "assets", meta.getAssetDirectory());
 
         if (!meta.getAuthors().isEmpty()) {
             out.name("authorList").beginArray();
