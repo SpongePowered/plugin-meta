@@ -48,6 +48,7 @@ public final class PluginMetadata {
 
     @Nullable private String description;
     @Nullable private String url;
+    @Nullable private String assets;
 
     private final List<String> authors = new ArrayList<>();
 
@@ -105,6 +106,15 @@ public final class PluginMetadata {
 
     public void setUrl(@Nullable String url) {
         this.url = emptyToNull(url);
+    }
+
+    @Nullable
+    public String getAssetDirectory() {
+        return this.assets;
+    }
+
+    public void setAssetDirectory(String assets) {
+        this.assets = emptyToNull(assets);
     }
 
     public List<String> getAuthors() {
@@ -184,6 +194,7 @@ public final class PluginMetadata {
                 .add("version", this.version)
                 .add("description", this.description)
                 .add("url", this.url)
+                .add("assets", this.assets)
                 .add("authors", this.authors)
                 .add("dependencies", this.dependencies)
                 .add("loadBefore", this.loadBefore)
