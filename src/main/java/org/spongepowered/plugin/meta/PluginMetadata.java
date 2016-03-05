@@ -121,7 +121,7 @@ public final class PluginMetadata {
     }
 
     public Set<Dependency> getRequiredDependencies() {
-        return this.loadAfter;
+        return this.dependencies;
     }
 
     public Set<Dependency> getLoadBefore() {
