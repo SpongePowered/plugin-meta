@@ -6,6 +6,7 @@ plugins {
 
     id 'maven'
     id 'nebula.provided-base' version '3.0.3'
+    id 'com.jfrog.bintray' version '1.6'
 
     id 'net.minecrell.licenser' version '0.1.3'
 }
@@ -54,49 +55,83 @@ dependencies {
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.10'
 }
 
+def pom = {
+    artifactId = project.archivesBaseName
+
+    project {
+        name = project.archivesBaseName
+        description = project.description
+        packaging = 'jar'
+        url = project.url
+
+        scm {
+            url = "https://github.com/$project.organization/$project.name"
+            connection = "scm:git:https://github.com/$project.organization/${project.name}.git"
+            developerConnection = "scm:git:git@github.com:$project.organization/${project.name}.git"
+        }
+
+        issueManagement {
+            system = 'GitHub Issues'
+            url = "https://github.com/$project.organization/$project.name/issues"
+        }
+
+        licenses {
+            license {
+                name = 'MIT License'
+                url = 'http://opensource.org/licenses/MIT'
+                distribution = 'repo'
+            }
+        }
+    }
+}
+
 uploadArchives {
-    repositories {
-        mavenDeployer {
-            configuration = configurations.deployerJars
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
 
-            // This is set by the build server when deploying to the repo
-            if (project.hasProperty('spongeRepo')) {
-                repository(url: project.spongeRepo) {
-                    if (project.hasProperty('spongeUsername') && project.hasProperty('spongePassword')) {
-                        authentication(userName: project.spongeUsername, password: project.spongePassword)
-                    }
+        // This is set by the build server when deploying to the repo
+        if (project.hasProperty('spongeRepo')) {
+            repository(url: project.spongeRepo) {
+                if (project.hasProperty('spongeUsername') && project.hasProperty('spongePassword')) {
+                    authentication(userName: project.spongeUsername, password: project.spongePassword)
                 }
             }
+        }
 
-            pom {
-                artifactId = project.archivesBaseName
+        it.pom pom
+    }
+}
 
-                project {
-                    name = project.archivesBaseName
-                    description = project.description
-                    packaging = 'jar'
-                    url = project.url
+install {
+    repositories.mavenInstaller {
+        it.pom pom
+    }
+}
 
-                    scm {
-                        url = "https://github.com/$project.organization/$project.name"
-                        connection = "scm:git:https://github.com/$project.organization/${project.name}.git"
-                        developerConnection = "scm:git:git@github.com:$project.organization/${project.name}.git"
-                    }
+bintray {
+    if (project.hasProperty('bintrayUser')) {
+        user = project.bintrayUser
+        key = project.bintrayKey
+    }
 
-                    issueManagement {
-                        system = 'GitHub Issues'
-                        url = "https://github.com/$project.organization/$project.name/issues"
-                    }
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = project.name
+        userOrg = 'spongepowered'
+        desc = project.description
+        licenses = ['MIT']
 
-                    licenses {
-                        license {
-                            name = 'MIT License'
-                            url = 'http://opensource.org/licenses/MIT'
-                            distribution = 'repo'
-                        }
-                    }
-                }
-            }
+        websiteUrl = project.github
+        issueTrackerUrl = "$websiteUrl/issues"
+        vcsUrl = "${websiteUrl}.git"
+
+        labels = ['minecraft', 'sponge']
+
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
         }
     }
 }
