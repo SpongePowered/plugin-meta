@@ -55,50 +55,56 @@ dependencies {
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.10'
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            configuration = configurations.deployerJars
+def pom = {
+    artifactId = project.archivesBaseName
 
-            // This is set by the build server when deploying to the repo
-            if (project.hasProperty('spongeRepo')) {
-                repository(url: project.spongeRepo) {
-                    if (project.hasProperty('spongeUsername') && project.hasProperty('spongePassword')) {
-                        authentication(userName: project.spongeUsername, password: project.spongePassword)
-                    }
-                }
+    project {
+        name = project.archivesBaseName
+        description = project.description
+        packaging = 'jar'
+        url = project.url
+
+        scm {
+            url = "https://github.com/$project.organization/$project.name"
+            connection = "scm:git:https://github.com/$project.organization/${project.name}.git"
+            developerConnection = "scm:git:git@github.com:$project.organization/${project.name}.git"
+        }
+
+        issueManagement {
+            system = 'GitHub Issues'
+            url = "https://github.com/$project.organization/$project.name/issues"
+        }
+
+        licenses {
+            license {
+                name = 'MIT License'
+                url = 'http://opensource.org/licenses/MIT'
+                distribution = 'repo'
             }
+        }
+    }
+}
 
-            pom {
-                artifactId = project.archivesBaseName
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
 
-                project {
-                    name = project.archivesBaseName
-                    description = project.description
-                    packaging = 'jar'
-                    url = project.url
-
-                    scm {
-                        url = "https://github.com/$project.organization/$project.name"
-                        connection = "scm:git:https://github.com/$project.organization/${project.name}.git"
-                        developerConnection = "scm:git:git@github.com:$project.organization/${project.name}.git"
-                    }
-
-                    issueManagement {
-                        system = 'GitHub Issues'
-                        url = "https://github.com/$project.organization/$project.name/issues"
-                    }
-
-                    licenses {
-                        license {
-                            name = 'MIT License'
-                            url = 'http://opensource.org/licenses/MIT'
-                            distribution = 'repo'
-                        }
-                    }
+        // This is set by the build server when deploying to the repo
+        if (project.hasProperty('spongeRepo')) {
+            repository(url: project.spongeRepo) {
+                if (project.hasProperty('spongeUsername') && project.hasProperty('spongePassword')) {
+                    authentication(userName: project.spongeUsername, password: project.spongePassword)
                 }
             }
         }
+
+        it.pom pom
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        it.pom pom
     }
 }
 
