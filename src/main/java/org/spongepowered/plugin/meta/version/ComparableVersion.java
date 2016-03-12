@@ -96,7 +96,11 @@ public class ComparableVersion
 
     private ListItem items;
 
-    private interface Item
+    public ListItem getItems() {
+        return this.items;
+    }
+
+    public interface Item
     {
         int INTEGER_ITEM = 0;
         int STRING_ITEM = 1;
@@ -112,7 +116,7 @@ public class ComparableVersion
     /**
      * Represents a numeric item in the version item list.
      */
-    private static class IntegerItem
+    public static class IntegerItem
         implements Item
     {
         private static final BigInteger BIG_INTEGER_ZERO = new BigInteger( "0" );
@@ -129,6 +133,10 @@ public class ComparableVersion
         public IntegerItem( String str )
         {
             this.value = new BigInteger( str );
+        }
+
+        public BigInteger getValue() {
+            return this.value;
         }
 
         public int getType()
@@ -173,7 +181,7 @@ public class ComparableVersion
     /**
      * Represents a string in the version item list, usually a qualifier.
      */
-    private static class StringItem
+    public static class StringItem
         implements Item
     {
         private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
@@ -217,6 +225,10 @@ public class ComparableVersion
                 }
             }
             this.value = ALIASES.getProperty( value , value );
+        }
+
+        public String getValue() {
+            return this.value;
         }
 
         public int getType()
@@ -282,7 +294,7 @@ public class ComparableVersion
      * Represents a version list item. This class is used both for the global item list and for sub-lists (which start
      * with '-(number)' in the version specification).
      */
-    private static class ListItem
+    public static class ListItem
         extends ArrayList<Item>
         implements Item
     {
