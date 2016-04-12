@@ -27,9 +27,13 @@ package org.spongepowered.plugin.meta;
 
 import static com.google.common.base.Strings.emptyToNull;
 
+import java.util.regex.Pattern;
+
 import javax.annotation.Nullable;
 
 public final class SpongeExtension {
+
+    public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_.]?");
 
     @Nullable private String assets;
 
