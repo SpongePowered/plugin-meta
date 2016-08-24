@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 public final class SpongeExtension {
 
-    public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_.]*");
+    public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_.]{0,63}");
 
     @Nullable private String assets;
 
