@@ -529,4 +529,30 @@ public class ComparableVersion
             prev = c;
         }
     }
+
+    // plugin-meta: Add getFirstString method
+    /**
+     * Returns the first string in this {@link ComparableVersion}. Usually this
+     * refers to the qualifier of the version.
+     *
+     * @return The first string, or null if not found
+     */
+    public String getFirstString() {
+        return getFirstString(items);
+    }
+    private static String getFirstString(ListItem items) {
+        for (Item item : items) {
+            if (item instanceof StringItem) {
+                return ((StringItem) item).value;
+            } else if (item instanceof ListItem) {
+                String result = getFirstString((ListItem) item);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
+
 }
