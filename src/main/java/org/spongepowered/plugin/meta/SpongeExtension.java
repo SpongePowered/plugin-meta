@@ -25,25 +25,10 @@
 
 package org.spongepowered.plugin.meta;
 
-import static com.google.common.base.Strings.emptyToNull;
-
 import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
 
 public final class SpongeExtension {
 
     public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_.]{0,63}");
-
-    @Nullable private String assets;
-
-    @Nullable
-    public String getAssetDirectory() {
-        return this.assets;
-    }
-
-    public void setAssetDirectory(String assets) {
-        this.assets = emptyToNull(assets);
-    }
 
 }
