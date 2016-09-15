@@ -560,7 +560,7 @@ public class ComparableVersion
             }
 
             if (item.getType() == Item.LIST_ITEM) {
-                item = getFirstItem(items, type);
+                item = getFirstItem((ListItem) item, type);
                 if (item != null) {
                     return item;
                 }
