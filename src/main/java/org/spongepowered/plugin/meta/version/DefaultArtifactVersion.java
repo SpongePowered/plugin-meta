@@ -38,6 +38,10 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
         this.version = new ComparableVersion(version);
     }
 
+    public ComparableVersion getVersion() {
+        return version;
+    }
+
     @Override
     public int compareTo(@Nonnull ArtifactVersion version) {
         if (version instanceof DefaultArtifactVersion) {

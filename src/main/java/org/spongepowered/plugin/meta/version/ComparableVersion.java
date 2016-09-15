@@ -530,7 +530,7 @@ public class ComparableVersion
         }
     }
 
-    // plugin-meta: Add getFirstString method
+    // plugin-meta start: Add extra methods
     /**
      * Returns the first string in this {@link ComparableVersion}. Usually this
      * refers to the qualifier of the version.
@@ -538,21 +538,37 @@ public class ComparableVersion
      * @return The first string, or null if not found
      */
     public String getFirstString() {
-        return getFirstString(items);
+        Item item = getFirstItem(items, Item.STRING_ITEM);
+        return item != null ? ((StringItem) item).value : null;
     }
-    private static String getFirstString(ListItem items) {
+
+    /**
+     * Returns the first integer in this {@link ComparableVersion}. Usually this
+     * refers to the major version.
+     *
+     * @return The first integer, or null if not found
+     */
+    public BigInteger getFirstInteger() {
+        Item item = getFirstItem(items, Item.INTEGER_ITEM);
+        return item != null ? ((IntegerItem) item).value : null;
+    }
+
+    private static Item getFirstItem(ListItem items, int type) {
         for (Item item : items) {
-            if (item instanceof StringItem) {
-                return ((StringItem) item).value;
-            } else if (item instanceof ListItem) {
-                String result = getFirstString((ListItem) item);
-                if (result != null) {
-                    return result;
+            if (item.getType() == type) {
+                return item;
+            }
+
+            if (item.getType() == Item.LIST_ITEM) {
+                item = getFirstItem(items, type);
+                if (item != null) {
+                    return item;
                 }
             }
         }
 
         return null;
     }
+    // plugin-meta end
 
 }
