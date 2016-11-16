@@ -95,9 +95,6 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                 case "url":
                     result.setUrl(in.nextString());
                     break;
-                case "mcversion":
-                    result.setMinecraftVersion(in.nextString());
-                    break;
                 case "authorList":
                     in.beginArray();
                     while (in.hasNext()) {
@@ -149,7 +146,6 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         writeIfPresent(out, "version", meta.getVersion());
         writeIfPresent(out, "description", meta.getDescription());
         writeIfPresent(out, "url", meta.getUrl());
-        writeIfPresent(out, "mcversion", meta.getMinecraftVersion());
 
         if (!meta.getAuthors().isEmpty()) {
             out.name("authorList").beginArray();
