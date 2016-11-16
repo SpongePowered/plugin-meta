@@ -102,7 +102,7 @@ public class ComparableVersion
         int STRING_ITEM = 1;
         int LIST_ITEM = 2;
 
-        int compareTo(Item item);
+        int compareTo( Item item );
 
         int getType();
 
@@ -176,10 +176,8 @@ public class ComparableVersion
     private static class StringItem
         implements Item
     {
-        private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
-
-        @SuppressWarnings( "checkstyle:constantname" )
-        private static final List<String> _QUALIFIERS = Arrays.asList( QUALIFIERS );
+        private static final List<String> QUALIFIERS =
+            Arrays.asList( "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" );
 
         private static final Properties ALIASES = new Properties();
         static
@@ -193,7 +191,7 @@ public class ComparableVersion
          * A comparable value for the empty-string qualifier. This one is used to determine if a given qualifier makes
          * the version older than one without a qualifier, or more recent.
          */
-        private static final String RELEASE_VERSION_INDEX = String.valueOf( _QUALIFIERS.indexOf( "" ) );
+        private static final String RELEASE_VERSION_INDEX = String.valueOf( QUALIFIERS.indexOf( "" ) );
 
         private String value;
 
@@ -244,9 +242,9 @@ public class ComparableVersion
          */
         public static String comparableQualifier( String qualifier )
         {
-            int i = _QUALIFIERS.indexOf( qualifier );
+            int i = QUALIFIERS.indexOf( qualifier );
 
-            return i == -1 ? ( _QUALIFIERS.size() + "-" + qualifier ) : String.valueOf( i );
+            return i == -1 ? ( QUALIFIERS.size() + "-" + qualifier ) : String.valueOf( i );
         }
 
         public int compareTo( Item item )
