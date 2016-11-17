@@ -23,42 +23,22 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.plugin.meta.gson;
+package org.spongepowered.plugin.meta.util;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import org.spongepowered.plugin.meta.PluginMetadata;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
+import javax.annotation.meta.TypeQualifierDefault;
 
-public final class ModDependencyAdapter extends TypeAdapter<PluginMetadata.Dependency> {
-
-    public static final ModDependencyAdapter INSTANCE = new ModDependencyAdapter();
-
-    private static final char VERSION_SEPARATOR = '@';
-
-    private ModDependencyAdapter() {
-    }
-
-    @Override
-    public PluginMetadata.Dependency read(JsonReader in) throws IOException {
-        final String version = in.nextString();
-        int pos = version.indexOf(VERSION_SEPARATOR);
-        if (pos < 0) {
-            return new PluginMetadata.Dependency(version, null);
-        } else {
-            return new PluginMetadata.Dependency(version.substring(0, pos), version.substring(pos + 1));
-        }
-    }
-
-    @Override
-    public void write(JsonWriter out, PluginMetadata.Dependency value) throws IOException {
-        if (value.getVersion() == null) {
-            out.value(value.getId());
-        } else {
-            out.value(value.getId() + VERSION_SEPARATOR + value.getVersion());
-        }
-    }
+@Nonnull
+@TypeQualifierDefault({
+        ElementType.FIELD,
+        ElementType.METHOD,
+        ElementType.PARAMETER
+})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NonnullByDefault {
 
 }

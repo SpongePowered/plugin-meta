@@ -32,12 +32,12 @@ import static com.google.common.base.Strings.emptyToNull;
 import com.google.common.base.Objects;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -64,9 +64,7 @@ public final class PluginMetadata {
 
     private final List<String> authors = new ArrayList<>();
 
-    private final Set<Dependency> dependencies = new HashSet<>();
-    private final Set<Dependency> loadBefore = new HashSet<>();
-    private final Set<Dependency> loadAfter = new HashSet<>();
+    private final Map<String, PluginDependency> dependencies = new HashMap<>();
 
     private final Map<String, Object> extensions = new LinkedHashMap<>();
 
@@ -92,6 +90,8 @@ public final class PluginMetadata {
      * Sets the plugin ID that is represented by this {@link PluginMetadata}.
      *
      * @param id The plugin ID, must match {@link #ID_PATTERN}
+     * @throws IllegalArgumentException If the plugin ID does not match
+     *     {@link #ID_PATTERN}
      */
     public void setId(String id) {
         checkNotNull(id, "id");
@@ -188,9 +188,10 @@ public final class PluginMetadata {
     }
 
     /**
-     * Adds an author to the list of authors for this plugin.
+     * Adds an author to the {@link List} of authors for this plugin.
      *
      * @param author The author to add
+     * @throws IllegalArgumentException If the author is empty
      */
     public void addAuthor(String author) {
         checkNotNull(author, "author");
@@ -198,57 +199,82 @@ public final class PluginMetadata {
         this.authors.add(author);
     }
 
-    @Deprecated
-    public Set<Dependency> getRequiredDependencies() {
-        return this.dependencies;
-    }
-
-    @Deprecated
-    public Set<Dependency> getLoadBefore() {
-        return this.loadBefore;
-    }
-
-    @Deprecated
-    public Set<Dependency> getLoadAfter() {
-        return this.loadAfter;
-    }
-
-    @Deprecated
-    public void addRequiredDependency(Dependency dependency) {
-        checkNotNull(dependency, "dependency");
-        this.dependencies.add(dependency);
-    }
-
-    @Deprecated
-    public void loadBefore(Dependency dependency) {
-        checkNotNull(dependency, "dependency");
-        this.loadBefore.add(dependency);
-    }
-
-    @Deprecated
-    public void loadBefore(Dependency dependency, boolean required) {
-        loadBefore(dependency);
-        if (required) {
-            addRequiredDependency(dependency);
-        }
-    }
-
-    @Deprecated
-    public void loadAfter(Dependency dependency) {
-        checkNotNull(dependency, "dependency");
-        this.loadAfter.add(dependency);
-    }
-
-    @Deprecated
-    public void loadAfter(Dependency dependency, boolean required) {
-        loadAfter(dependency);
-        if (required) {
-            addRequiredDependency(dependency);
-        }
+    /**
+     * Removes an author from the {@link List} of authors for this plugin.
+     *
+     * @param author The author to remove
+     * @return True if the operation was successful
+     */
+    public boolean removeAuthor(String author) {
+        return this.authors.remove(author);
     }
 
     /**
-     * Returns a map with additional properties for this {@link PluginMetadata}.
+     * Returns a {@link Collection} with all dependencies of the plugin
+     * represented by this {@link PluginMetadata}.
+     *
+     * <p>It is possible to remove elements from the returned collection,
+     * however new elements must be added using
+     * {@link #addDependency(PluginDependency)}.</p>
+     *
+     * @return A collection with all dependencies
+     */
+    public Collection<PluginDependency> getDependencies() {
+        return this.dependencies.values();
+    }
+
+    /**
+     * Returns the {@link PluginDependency} that is currently associated with
+     * the specified plugin ID.
+     *
+     * @param id The plugin ID of the dependency
+     * @return The dependency or {@code null} if there is no such dependency
+     */
+    @Nullable
+    public PluginDependency getDependency(String id) {
+        return this.dependencies.get(id);
+    }
+
+    /**
+     * Adds a new {@link PluginDependency} to this {@link PluginMetadata}.
+     *
+     * @param dependency The dependency to add
+     * @throws IllegalArgumentException If this plugin already has a dependency
+     *     with the specified plugin ID
+     */
+    public void addDependency(PluginDependency dependency) {
+        String id = dependency.getId();
+        checkArgument(!this.dependencies.containsKey(id), "Duplicate dependency with plugin ID: %s", id);
+        this.dependencies.put(id, dependency);
+    }
+
+    /**
+     * Replaces the current {@link PluginDependency} with the same plugin ID
+     * with a new one. Unlike {@link #addDependency(PluginDependency)} this
+     * method doesn't throw an exception if a dependency with the same plugin
+     * ID exists already.
+     *
+     * @param dependency The dependency to add
+     * @return The dependency that was previously registered for the plugin ID
+     *     or {@code null} if this is a new dependency
+     */
+    public PluginDependency replaceDependency(PluginDependency dependency) {
+        return this.dependencies.put(id, dependency);
+    }
+
+    /**
+     * Removes a dependency from this {@link PluginMetadata}.
+     *
+     * @param id The plugin ID of the dependency to remove
+     * @return True if the operation was successful
+     */
+    public boolean removeDependency(String id) {
+        return this.dependencies.remove(id) != null;
+    }
+
+    /**
+     * Returns a {@link Map} with additional properties for this
+     * {@link PluginMetadata}.
      *
      * <p>To serialize arbitrary objects, it may be necessary to register a
      * custom serializer for the extension object.</p>
@@ -269,6 +295,8 @@ public final class PluginMetadata {
      * @param key The key of the extension
      * @param <T> The type to cast the extension to
      * @return The extension or {@code null} if not set
+     * @throws ClassCastException If the given type does not match the type of
+     *     the extension
      */
     @Nullable
     @SuppressWarnings("unchecked")
@@ -291,9 +319,10 @@ public final class PluginMetadata {
      * Removes an extension from this {@link PluginMetadata}.
      *
      * @param key The key of the extension
+     * @return True if the operation was successful
      */
-    public void removeExtension(String key) {
-        this.extensions.remove(key);
+    public boolean removeExtension(String key) {
+        return this.extensions.remove(key) != null;
     }
 
     @Override
@@ -307,110 +336,8 @@ public final class PluginMetadata {
                 .add("url", this.url)
                 .add("authors", this.authors)
                 .add("dependencies", this.dependencies)
-                .add("loadBefore", this.loadBefore)
-                .add("loadAfter", this.loadAfter)
                 .add("extensions", this.extensions)
                 .toString();
     }
-
-    /**
-     * Represents a dependency on another plugin.
-     */
-    public static final class Dependency {
-
-        private final String id;
-        @Nullable private final String version;
-
-        /**
-         * Constructs a new {@link Dependency} with the given plugin ID.
-         *
-         * @param id The plugin ID of the dependency
-         */
-        public Dependency(String id) {
-            this(id, null);
-        }
-
-        /**
-         * Constructs a new {@link Dependency} with the given plugin ID and
-         * version range.
-         *
-         * @param id The plugin ID of the dependency
-         * @param version The version range of the dependency or {@code null}
-         *
-         * @see #getVersion() Version range syntax
-         */
-        public Dependency(String id, @Nullable String version) {
-            this.id = checkNotNull(id, "id");
-            checkArgument(!id.isEmpty(), "id cannot be empty");
-            this.version = emptyToNull(version);
-        }
-
-        /**
-         * Returns the plugin ID of this {@link Dependency}.
-         *
-         * @return The plugin ID
-         */
-        public String getId() {
-            return this.id;
-        }
-
-        /**
-         * Returns the version range this {@link Dependency} should match.
-         *
-         * <p>The version range should use the <b>Maven version range
-         * syntax</b>:</p>
-         *
-         * <table>
-         * <caption>Maven version range syntax</caption>
-         * <tr><th>Range</th><th>Meaning</th></tr>
-         * <tr><td>1.0</td><td>Any dependency version, 1.0 is recommended</td></tr>
-         * <tr><td>[1.0]</td><td>x == 1.0</td></tr>
-         * <tr><td>[1.0,)</td><td>x &gt;= 1.0</td></tr>
-         * <tr><td>(1.0,)</td><td>x &gt; 1.0</td></tr>
-         * <tr><td>(,1.0]</td><td>x &lt;= 1.0</td></tr>
-         * <tr><td>(,1.0)</td><td>x &lt; 1.0</td></tr>
-         * <tr><td>(1.0,2.0)</td><td>1.0 &lt; x &lt; 2.0</td></tr>
-         * <tr><td>[1.0,2.0]</td><td>1.0 &lt;= x &lt;= 2.0</td></tr>
-         * </table>
-         *
-         * @return The version range, or {@code null} if unspecified
-         * @see <a href="https://goo.gl/edrup4">Maven version range specification</a>
-         * @see <a href="https://goo.gl/WBsFIu">Maven version design document</a>
-         */
-        @Nullable
-        public String getVersion() {
-            return this.version;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof Dependency)) {
-                return false;
-            }
-
-            Dependency that = (Dependency) o;
-            return this.id.equals(that.id)
-                    && Objects.equal(this.version, that.version);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(this.id, this.version);
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(this)
-                    .omitNullValues()
-                    .add("id", this.id)
-                    .add("version", this.version)
-                    .toString();
-        }
-
-    }
-
 
 }

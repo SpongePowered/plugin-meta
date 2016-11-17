@@ -31,16 +31,22 @@ import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.spongepowered.plugin.meta.PluginDependency;
 import org.spongepowered.plugin.meta.PluginMetadata;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
     public static final ModMetadataAdapter DEFAULT = new ModMetadataAdapter(new Gson(), ImmutableMap.of());
+
+    private static final char VERSION_SEPARATOR = '@';
 
     private final Gson gson;
     private final ImmutableMap<String, Class<?>> extensions;
@@ -71,6 +77,8 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         final PluginMetadata result = new PluginMetadata("unknown");
         String id = null;
+
+        Set<String> requiredDependencies = new HashSet<>();
 
         while (in.hasNext()) {
             final String name = in.nextName();
@@ -105,21 +113,32 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                 case "requiredMods":
                     in.beginArray();
                     while (in.hasNext()) {
-                        result.addRequiredDependency(ModDependencyAdapter.INSTANCE.read(in));
+                        // The version in requiredMods is redundant, we can just ignore it
+                        PluginDependency dependency = readDependency(in);
+
+                        // Attempt to update existing dependency
+                        PluginDependency existing = result.getDependency(dependency.getId());
+                        if (existing != null) {
+                            // Make existing dependency required
+                            result.replaceDependency(existing.required());
+                        } else {
+                            // Register dependency as required
+                            requiredDependencies.add(dependency.getId());
+                        }
                     }
                     in.endArray();
                     break;
                 case "dependencies":
                     in.beginArray();
                     while (in.hasNext()) {
-                        result.loadAfter(ModDependencyAdapter.INSTANCE.read(in));
-                    }
-                    in.endArray();
-                    break;
-                case "dependants":
-                    in.beginArray();
-                    while (in.hasNext()) {
-                        result.loadBefore(ModDependencyAdapter.INSTANCE.read(in));
+                        PluginDependency dependency = readDependency(in);
+
+                        // Make dependency required if we already know it is required
+                        if (requiredDependencies.contains(dependency.getId())) {
+                            dependency = dependency.required();
+                        }
+
+                        result.addDependency(dependency);
                     }
                     in.endArray();
                     break;
@@ -155,36 +174,52 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
             out.endArray();
         }
 
-        writeDependencies(out, "requiredMods", meta.getRequiredDependencies());
-        writeDependencies(out, "dependencies", meta.getLoadAfter());
-        writeDependencies(out, "dependants", meta.getLoadBefore());
+        Set<PluginDependency> requiredDependencies = new HashSet<>(meta.getDependencies());
+        requiredDependencies.removeIf(PluginDependency::isOptional);
+        writeDependencies(out, "requiredMods", requiredDependencies);
 
-        if (!meta.getExtensions().isEmpty()) {
-            for (Map.Entry<String, Object> entry : meta.getExtensions().entrySet()) {
-                final String key = entry.getKey();
-                final Object value = entry.getValue();
+        for (Map.Entry<String, Object> entry : meta.getExtensions().entrySet()) {
+            final String key = entry.getKey();
+            final Object value = entry.getValue();
 
-                out.name(key);
-                this.gson.toJson(value, getExtension(key), out);
-            }
+            out.name(key);
+            this.gson.toJson(value, getExtension(key), out);
         }
 
         out.endObject();
     }
 
-    private static void writeIfPresent(JsonWriter out, String key, String value) throws IOException {
+    private static void writeIfPresent(JsonWriter out, String key, @Nullable String value) throws IOException {
         if (value != null) {
             out.name(key).value(value);
         }
     }
 
-    private static void writeDependencies(JsonWriter out, String key, Set<PluginMetadata.Dependency> dependencies) throws IOException {
+    private static void writeDependencies(JsonWriter out, String key, Collection<PluginDependency> dependencies) throws IOException {
         if (!dependencies.isEmpty()) {
             out.name(key).beginArray();
-            for (PluginMetadata.Dependency dependency : dependencies) {
-                ModDependencyAdapter.INSTANCE.write(out, dependency);
+            for (PluginDependency dependency : dependencies) {
+                writeDependency(out, dependency);
             }
             out.endArray();
+        }
+    }
+
+    private static PluginDependency readDependency(JsonReader in) throws IOException {
+        final String version = in.nextString();
+        int pos = version.indexOf(VERSION_SEPARATOR);
+        if (pos < 0) {
+            return new PluginDependency(version, null, false);
+        } else {
+            return new PluginDependency(version.substring(0, pos), version.substring(pos + 1), false);
+        }
+    }
+
+    private static void writeDependency(JsonWriter out, PluginDependency dependency) throws IOException {
+        if (dependency.getVersion() == null) {
+            out.value(dependency.getId());
+        } else {
+            out.value(dependency.getId() + VERSION_SEPARATOR + dependency.getVersion());
         }
     }
 
