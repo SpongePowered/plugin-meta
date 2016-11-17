@@ -229,6 +229,15 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     }
 
     /**
+     * Returns a {@link Map} with all dependencies grouped by their plugin ID.
+     *
+     * @return A map with all dependencies and their plugin IDs
+     */
+    public Map<String, PluginDependency> getDependenciesById() {
+        return Collections.unmodifiableMap(this.dependencies);
+    }
+
+    /**
      * Collects all dependencies of this {@link PluginMetadata} that are not
      * optional.
      *
