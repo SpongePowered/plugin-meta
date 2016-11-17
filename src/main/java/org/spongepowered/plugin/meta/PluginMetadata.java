@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ import javax.annotation.Nullable;
 /**
  * Represents additional metadata for a specific version of a plugin.
  */
-public final class PluginMetadata {
+public final class PluginMetadata implements Consumer<PluginMetadata> {
 
     /**
      * The pattern plugin IDs must match. Plugin IDs must be lower case, and
@@ -378,6 +379,64 @@ public final class PluginMetadata {
      */
     public boolean removeExtension(String key) {
         return this.extensions.remove(key) != null;
+    }
+
+    /**
+     * Replaces the properties in this {@link PluginMetadata} with all
+     * properties of the specified {@link PluginMetadata} that are not
+     * empty.
+     *
+     * @param other The plugin metadata to apply
+     * @throws IllegalArgumentException If the plugin IDs don't match
+     */
+    @Override
+    public void accept(PluginMetadata other) {
+        checkArgument(this.id.equals(other.id), "Plugin IDs don't match");
+
+        if (other.name != null) {
+            this.name = other.name;
+        }
+
+        if (other.version != null) {
+            this.version = other.version;
+        }
+
+        if (other.description != null) {
+            this.description = other.description;
+        }
+
+        if (other.url != null) {
+            this.url = other.url;
+        }
+
+        if (!other.authors.isEmpty()) {
+            this.authors.clear();
+            this.authors.addAll(other.authors);
+        }
+
+        // Replace all our dependencies with the ones in the other metadata
+        other.getDependencies().forEach(this::replaceDependency);
+
+        // Attempt to merge extensions
+        other.getExtensions().forEach(this::mergeExtension);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void mergeExtension(String key, Object extension) {
+        Object currentValue = this.extensions.get(key);
+        if (currentValue == null) {
+            this.extensions.put(key, extension);
+            return;
+        }
+
+        // Standard Java map
+        if (currentValue instanceof Map && extension instanceof Map) {
+            ((Map) currentValue).putAll((Map) extension);
+            return;
+        }
+
+        // Can't merge; replace extension completely
+        this.extensions.put(key, extension);
     }
 
     @Override

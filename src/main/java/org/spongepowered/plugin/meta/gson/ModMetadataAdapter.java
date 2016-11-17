@@ -210,7 +210,6 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
         }
 
-
         writeDependencies(out, "dependencies", dependencies.get(PluginDependency.LoadOrder.BEFORE));
         writeDependencies(out, "dependants", dependencies.get(PluginDependency.LoadOrder.AFTER));
         writeDependencies(out, "requiredMods", meta.collectRequiredDependencies());
