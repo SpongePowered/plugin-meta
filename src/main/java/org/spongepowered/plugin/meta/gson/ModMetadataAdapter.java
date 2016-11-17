@@ -151,13 +151,19 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private static void readDependencies(JsonReader in, PluginMetadata result, PluginDependency.LoadOrder loadOrder,
-            Map<String, ?> requiredDependencies) throws IOException {
+            Map<String, PluginDependency> requiredDependencies) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
             PluginDependency dependency = readDependency(in, loadOrder, true);
 
             // Make dependency required if we already know it is required
-            if (requiredDependencies.remove(dependency.getId()) != null) {
+            PluginDependency required = requiredDependencies.remove(dependency.getId());
+            if (required != null) {
+                if (required.getVersion() != null && !required.getVersion().equals(dependency.getVersion())) {
+                    throw new IllegalArgumentException("Found conflicting version in required dependency: "
+                            + dependency.getVersion() + " != " + required.getVersion());
+                }
+
                 dependency = dependency.required();
             }
 
@@ -195,6 +201,16 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         }
 
         Map<PluginDependency.LoadOrder, Set<PluginDependency>> dependencies = meta.groupDependenciesByLoadOrder();
+
+        // Check if there are any dependencies we can't represent in the resulting file
+        // (Optional dependencies with LoadOrder.NONE)
+        for (PluginDependency dependency : dependencies.get(PluginDependency.LoadOrder.NONE)) {
+            if (dependency.isOptional()) {
+                throw new IllegalArgumentException("Cannot represent optional dependency with LoadOrder.NONE: " + dependency);
+            }
+        }
+
+
         writeDependencies(out, "dependencies", dependencies.get(PluginDependency.LoadOrder.BEFORE));
         writeDependencies(out, "dependants", dependencies.get(PluginDependency.LoadOrder.AFTER));
         writeDependencies(out, "requiredMods", meta.collectRequiredDependencies());
