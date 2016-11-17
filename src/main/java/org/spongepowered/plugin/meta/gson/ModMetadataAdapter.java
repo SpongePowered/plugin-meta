@@ -34,7 +34,7 @@ import org.spongepowered.plugin.meta.PluginDependency;
 import org.spongepowered.plugin.meta.PluginMetadata;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +77,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         final PluginMetadata result = new PluginMetadata("unknown");
         String id = null;
 
-        Set<String> requiredDependencies = new HashSet<>();
+        Map<String, PluginDependency> requiredDependencies = new HashMap<>();
 
         while (in.hasNext()) {
             final String name = in.nextName();
@@ -113,7 +113,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                     in.beginArray();
                     while (in.hasNext()) {
                         // The version in requiredMods is redundant, we can just ignore it
-                        PluginDependency dependency = readDependency(in);
+                        PluginDependency dependency = readDependency(in, PluginDependency.LoadOrder.NONE, false);
 
                         // Attempt to update existing dependency
                         PluginDependency existing = result.getDependency(dependency.getId());
@@ -121,25 +121,17 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                             // Make existing dependency required
                             result.replaceDependency(existing.required());
                         } else {
-                            // Register dependency as required
-                            requiredDependencies.add(dependency.getId());
+                            // Register dependency as required (delayed until later if there is a dependency with load order for the same plugin)
+                            requiredDependencies.put(dependency.getId(), dependency);
                         }
                     }
                     in.endArray();
                     break;
                 case "dependencies":
-                    in.beginArray();
-                    while (in.hasNext()) {
-                        PluginDependency dependency = readDependency(in);
-
-                        // Make dependency required if we already know it is required
-                        if (requiredDependencies.contains(dependency.getId())) {
-                            dependency = dependency.required();
-                        }
-
-                        result.addDependency(dependency);
-                    }
-                    in.endArray();
+                    readDependencies(in, result, PluginDependency.LoadOrder.BEFORE, requiredDependencies);
+                    break;
+                case "dependants":
+                    readDependencies(in, result, PluginDependency.LoadOrder.AFTER, requiredDependencies);
                     break;
                 default:
                     result.setExtension(name, this.gson.fromJson(in, getExtension(name)));
@@ -152,7 +144,36 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
             throw new JsonParseException("Mod metadata is missing required element 'modid'");
         }
 
+        // Add rest of required dependencies with load order NONE
+        requiredDependencies.values().forEach(result::addDependency);
+
         return result;
+    }
+
+    private static void readDependencies(JsonReader in, PluginMetadata result, PluginDependency.LoadOrder loadOrder,
+            Map<String, ?> requiredDependencies) throws IOException {
+        in.beginArray();
+        while (in.hasNext()) {
+            PluginDependency dependency = readDependency(in, loadOrder, true);
+
+            // Make dependency required if we already know it is required
+            if (requiredDependencies.remove(dependency.getId()) != null) {
+                dependency = dependency.required();
+            }
+
+            result.addDependency(dependency);
+        }
+        in.endArray();
+    }
+
+    private static PluginDependency readDependency(JsonReader in, PluginDependency.LoadOrder loadOrder, boolean optional) throws IOException {
+        final String version = in.nextString();
+        int pos = version.indexOf(VERSION_SEPARATOR);
+        if (pos < 0) {
+            return new PluginDependency(loadOrder, version, null, optional);
+        } else {
+            return new PluginDependency(loadOrder, version.substring(0, pos), version.substring(pos + 1), optional);
+        }
     }
 
     @Override
@@ -173,9 +194,10 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
             out.endArray();
         }
 
-        Set<PluginDependency> requiredDependencies = new HashSet<>(meta.getDependencies());
-        requiredDependencies.removeIf(PluginDependency::isOptional);
-        writeDependencies(out, "requiredMods", requiredDependencies);
+        Map<PluginDependency.LoadOrder, Set<PluginDependency>> dependencies = meta.groupDependenciesByLoadOrder();
+        writeDependencies(out, "dependencies", dependencies.get(PluginDependency.LoadOrder.BEFORE));
+        writeDependencies(out, "dependants", dependencies.get(PluginDependency.LoadOrder.AFTER));
+        writeDependencies(out, "requiredMods", meta.collectRequiredDependencies());
 
         for (Map.Entry<String, Object> entry : meta.getExtensions().entrySet()) {
             final String key = entry.getKey();
@@ -194,23 +216,13 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         }
     }
 
-    private static void writeDependencies(JsonWriter out, String key, Collection<PluginDependency> dependencies) throws IOException {
-        if (!dependencies.isEmpty()) {
+    private static void writeDependencies(JsonWriter out, String key, @Nullable Set<PluginDependency> dependencies) throws IOException {
+        if (dependencies != null && !dependencies.isEmpty()) {
             out.name(key).beginArray();
             for (PluginDependency dependency : dependencies) {
                 writeDependency(out, dependency);
             }
             out.endArray();
-        }
-    }
-
-    private static PluginDependency readDependency(JsonReader in) throws IOException {
-        final String version = in.nextString();
-        int pos = version.indexOf(VERSION_SEPARATOR);
-        if (pos < 0) {
-            return new PluginDependency(version, null, false);
-        } else {
-            return new PluginDependency(version.substring(0, pos), version.substring(pos + 1), false);
         }
     }
 

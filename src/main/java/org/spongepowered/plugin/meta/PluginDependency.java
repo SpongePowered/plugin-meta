@@ -37,27 +37,62 @@ import javax.annotation.Nullable;
  */
 public final class PluginDependency {
 
-    // TODO: Load order
+    /**
+     * Defines when the dependency should be loaded in relation to the plugin.
+     */
+    public enum LoadOrder {
+
+        /**
+         * The plugin and the dependency can be loaded in any order.
+         */
+        NONE,
+
+        /**
+         * The dependency should be loaded <b>before</b> the plugin.
+         */
+        BEFORE,
+
+        /**
+         * The dependency should be loaded <b>after</b> the plugin.
+         */
+        AFTER
+
+    }
+
+    private final LoadOrder loadOrder;
 
     private final String id;
     @Nullable private final String version;
+
     private final boolean optional;
 
     /**
      * Constructs a new {@link PluginDependency} with the given plugin ID and
      * version range.
      *
+     * @param loadOrder The order to load the dependency in relation to the
+     *     plugin
      * @param id The plugin ID of the dependency
      * @param version The version range of the dependency or {@code null}
      * @param optional Whether the dependency is optional
      * @throws IllegalArgumentException If the plugin ID is empty
      * @see #getVersion() Version range syntax
      */
-    public PluginDependency(String id, @Nullable String version, boolean optional) {
+    public PluginDependency(LoadOrder loadOrder, String id, @Nullable String version, boolean optional) {
+        this.loadOrder = checkNotNull(loadOrder, "loadOrder");
         this.id = checkNotNull(id, "id");
         checkArgument(!id.isEmpty(), "id cannot be empty");
         this.version = emptyToNull(version);
         this.optional = optional;
+    }
+
+    /**
+     * Returns the order to load the dependency in relation to the plugin.
+     *
+     * @return The load order
+     */
+    public LoadOrder getLoadOrder() {
+        return this.loadOrder;
     }
 
     /**
@@ -104,7 +139,7 @@ public final class PluginDependency {
      * @return True if the dependency is optional
      */
     public boolean isOptional() {
-        return optional;
+        return this.optional;
     }
 
     /**
@@ -132,7 +167,7 @@ public final class PluginDependency {
             return this;
         }
 
-        return new PluginDependency(this.id, this.version, optional);
+        return new PluginDependency(this.loadOrder, this.id, this.version, optional);
     }
 
     @Override
@@ -145,20 +180,22 @@ public final class PluginDependency {
         }
 
         PluginDependency that = (PluginDependency) o;
-        return this.id.equals(that.id)
+        return this.loadOrder == that.loadOrder
+                && this.id.equals(that.id)
                 && Objects.equal(this.version, that.version)
                 && this.optional == that.optional;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.id, this.version, this.optional);
+        return Objects.hashCode(this.loadOrder, this.id, this.version, this.optional);
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .omitNullValues()
+                .addValue(this.loadOrder)
                 .add("id", this.id)
                 .add("version", this.version)
                 .add("optional", this.optional)

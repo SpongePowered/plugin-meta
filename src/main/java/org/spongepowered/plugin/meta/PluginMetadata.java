@@ -29,14 +29,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.emptyToNull;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -220,6 +225,57 @@ public final class PluginMetadata {
      */
     public Collection<PluginDependency> getDependencies() {
         return this.dependencies.values();
+    }
+
+    /**
+     * Collects all dependencies of this {@link PluginMetadata} that are not
+     * optional.
+     *
+     * @return An immutable set of all required dependencies
+     */
+    public Set<PluginDependency> collectRequiredDependencies() {
+        if (this.dependencies.isEmpty()) {
+            return ImmutableSet.of();
+        }
+
+        ImmutableSet.Builder<PluginDependency> builder = ImmutableSet.builder();
+
+        for (PluginDependency dependency : this.dependencies.values()) {
+            if (!dependency.isOptional()) {
+                builder.add(dependency);
+            }
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * Groups the dependencies of this {@link PluginMetadata} based on their
+     * {@link PluginDependency.LoadOrder}.
+     *
+     * @return An immutable map with all dependencies grouped by their load
+     *     order
+     */
+    public Map<PluginDependency.LoadOrder, Set<PluginDependency>> groupDependenciesByLoadOrder() {
+        if (this.dependencies.isEmpty()) {
+            return ImmutableMap.of();
+        }
+
+        EnumMap<PluginDependency.LoadOrder, Set<PluginDependency>> map = new EnumMap<>(PluginDependency.LoadOrder.class);
+
+        for (PluginDependency.LoadOrder order : PluginDependency.LoadOrder.values()) {
+            ImmutableSet.Builder<PluginDependency> dependencies = ImmutableSet.builder();
+
+            for (PluginDependency dependency : this.dependencies.values()) {
+                if (dependency.getLoadOrder() == order) {
+                    dependencies.add(dependency);
+                }
+            }
+
+            map.put(order, dependencies.build());
+        }
+
+        return Maps.immutableEnumMap(map);
     }
 
     /**
