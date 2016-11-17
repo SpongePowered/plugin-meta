@@ -31,13 +31,11 @@ import static com.google.common.base.Strings.emptyToNull;
 
 import com.google.common.base.Objects;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * Represents a dependency on another plugin.
  */
-@Nonnull
 public final class PluginDependency {
 
     // TODO: Load order
@@ -139,11 +137,11 @@ public final class PluginDependency {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PluginDependency)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 

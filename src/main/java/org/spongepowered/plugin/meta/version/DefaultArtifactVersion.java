@@ -27,8 +27,11 @@ package org.spongepowered.plugin.meta.version;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import javax.annotation.Nonnull;
+import org.spongepowered.plugin.meta.util.NonnullByDefault;
 
+import javax.annotation.Nullable;
+
+@NonnullByDefault
 public final class DefaultArtifactVersion implements ArtifactVersion {
 
     private final ComparableVersion version;
@@ -43,7 +46,7 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
     }
 
     @Override
-    public int compareTo(@Nonnull ArtifactVersion version) {
+    public int compareTo(ArtifactVersion version) {
         if (version instanceof DefaultArtifactVersion) {
             return this.version.compareTo(((DefaultArtifactVersion) version).version);
         } else {
@@ -52,7 +55,7 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
