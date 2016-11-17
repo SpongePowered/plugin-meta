@@ -49,6 +49,7 @@ artifacts {
 
 license {
     header = file('HEADER.txt')
+    newLine = false
     ext {
         name = project.name
         organization = project.organization

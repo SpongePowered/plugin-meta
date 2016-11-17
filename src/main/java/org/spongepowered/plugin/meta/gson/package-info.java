@@ -22,6 +22,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 @org.spongepowered.plugin.meta.util.NonnullByDefault
 package org.spongepowered.plugin.meta.gson;
