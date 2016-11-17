@@ -314,7 +314,7 @@ public final class PluginMetadata {
      *     or {@code null} if this is a new dependency
      */
     public PluginDependency replaceDependency(PluginDependency dependency) {
-        return this.dependencies.put(id, dependency);
+        return this.dependencies.put(dependency.getId(), dependency);
     }
 
     /**

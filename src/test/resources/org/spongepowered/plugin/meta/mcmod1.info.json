@@ -1,0 +1,23 @@
+[
+    {
+        "modid": "testplugin",
+        "name": "TestPlugin",
+        "version": "1.0-SNAPSHOT",
+        "description": "This is a test plugin",
+        "url": "http://example.com/testplugin",
+        "authorList": [
+            "Minecrell"
+        ],
+        "dependencies": [
+            "testdependency@[1.0.0]",
+            "optionaldependency"
+        ],
+        "requiredMods": [
+            "testdependency",
+            "requireddependency"
+        ]
+    },
+    {
+        "modid": "testplugin2"
+    }
+]
