@@ -204,9 +204,12 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         // Check if there are any dependencies we can't represent in the resulting file
         // (Optional dependencies with LoadOrder.NONE)
-        for (PluginDependency dependency : dependencies.get(PluginDependency.LoadOrder.NONE)) {
-            if (dependency.isOptional()) {
-                throw new IllegalArgumentException("Cannot represent optional dependency with LoadOrder.NONE: " + dependency);
+        Set<PluginDependency> loadOrderNone = dependencies.get(PluginDependency.LoadOrder.NONE);
+        if (loadOrderNone != null) {
+            for (PluginDependency dependency : loadOrderNone) {
+                if (dependency.isOptional()) {
+                    throw new IllegalArgumentException("Cannot represent optional dependency with LoadOrder.NONE: " + dependency);
+                }
             }
         }
 
