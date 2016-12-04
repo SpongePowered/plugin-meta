@@ -76,7 +76,8 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     /**
      * Constructs a new {@link PluginMetadata} with the specified plugin ID.
      *
-     * @param id The plugin ID, must match {@link #ID_PATTERN}
+     * @param id The plugin ID
+     * @throws IllegalArgumentException If the plugin ID is empty
      */
     public PluginMetadata(String id) {
         setId(id);
@@ -94,13 +95,12 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     /**
      * Sets the plugin ID that is represented by this {@link PluginMetadata}.
      *
-     * @param id The plugin ID, must match {@link #ID_PATTERN}
-     * @throws IllegalArgumentException If the plugin ID does not match
-     *     {@link #ID_PATTERN}
+     * @param id The plugin ID
+     * @throws IllegalArgumentException If the plugin ID is empty
      */
     public void setId(String id) {
         checkNotNull(id, "id");
-        checkArgument(ID_PATTERN.matcher(id).matches(), "id must match pattern %s", ID_PATTERN);
+        checkArgument(!id.isEmpty(), "id cannot be empty");
         this.id = id;
     }
 
