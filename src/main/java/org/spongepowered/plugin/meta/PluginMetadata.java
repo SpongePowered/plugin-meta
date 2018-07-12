@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.emptyToNull;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -99,8 +99,8 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws IllegalArgumentException If the plugin ID is empty
      */
     public void setId(String id) {
-        checkNotNull(id, "id");
-        checkArgument(!id.isEmpty(), "id cannot be empty");
+        checkNotNull(id, "The plugin ID cannot be null.");
+        checkArgument(!id.isEmpty(), "The plugin ID cannot be empty.");
         this.id = id;
     }
 
@@ -323,6 +323,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @return The dependency that was previously registered for the plugin ID
      *     or {@code null} if this is a new dependency
      */
+    @Nullable
     public PluginDependency replaceDependency(PluginDependency dependency) {
         return this.dependencies.put(dependency.getId(), dependency);
     }
@@ -376,7 +377,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param extension The extension
      */
     public void setExtension(String key, Object extension) {
-        checkNotNull(extension, "extension");
+        checkNotNull(extension, "The extension cannot be null.");
         this.extensions.put(key, extension);
     }
 
@@ -400,7 +401,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      */
     @Override
     public void accept(PluginMetadata other) {
-        checkArgument(this.id.equals(other.id), "Plugin IDs don't match");
+        checkArgument(this.id.equals(other.id), "The plugin IDs must match.");
 
         if (other.name != null) {
             this.name = other.name;
@@ -450,7 +451,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .omitNullValues()
                 .add("id", this.id)
                 .add("name", this.name)

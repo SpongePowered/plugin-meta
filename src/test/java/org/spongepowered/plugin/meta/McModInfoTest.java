@@ -24,9 +24,9 @@
  */
 package org.spongepowered.plugin.meta;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,21 +45,21 @@ public class McModInfoTest {
             meta = McModInfo.DEFAULT.read(in);
         }
 
-        assertEquals("Parsed data should have 2 elements", 2, meta.size());
+        assertEquals(2, meta.size(), "Parsed data should have 2 elements.");
 
-        PluginMetadata testplugin = meta.get(0);
-        PluginMetadata testplugin2 = meta.get(1);
+        final PluginMetadata testPlugin = meta.get(0);
+        final PluginMetadata testPluginTwo = meta.get(1);
 
-        assertEquals("testplugin", testplugin.getId());
-        assertEquals("testplugin2", testplugin2.getId());
+        assertEquals("testplugin", testPlugin.getId());
+        assertEquals("testplugin2", testPluginTwo.getId());
 
-        assertEquals("TestPlugin", testplugin.getName());
-        assertEquals("1.0-SNAPSHOT", testplugin.getVersion());
-        assertEquals("This is a test plugin", testplugin.getDescription());
-        assertEquals("http://example.com/testplugin", testplugin.getUrl());
-        assertEquals(Collections.singletonList("Minecrell"), testplugin.getAuthors());
+        assertEquals("TestPlugin", testPlugin.getName());
+        assertEquals("1.0-SNAPSHOT", testPlugin.getVersion());
+        assertEquals("This is a test plugin", testPlugin.getDescription());
+        assertEquals("http://example.com/testplugin", testPlugin.getUrl());
+        assertEquals(Collections.singletonList("Minecrell"), testPlugin.getAuthors());
 
-        Collection<PluginDependency> dependencies = new HashSet<>(testplugin.getDependencies());
+        Collection<PluginDependency> dependencies = new HashSet<>(testPlugin.getDependencies());
         assertEquals(3, dependencies.size());
 
         assertEquals(new HashSet<>(Arrays.asList(
