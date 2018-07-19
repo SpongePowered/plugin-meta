@@ -96,12 +96,14 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Sets the plugin ID that is represented by this {@link PluginMetadata}.
      *
      * @param id The plugin ID
+     * @return This object
      * @throws IllegalArgumentException If the plugin ID is empty
      */
-    public void setId(String id) {
+    public PluginMetadata setId(String id) {
         checkNotNull(id, "id");
         checkArgument(!id.isEmpty(), "id cannot be empty");
         this.id = id;
+        return this;
     }
 
     /**
@@ -118,9 +120,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Sets the plugin name.
      *
      * @param name The plugin name or {@code null} to reset
+     * @return This object
      */
-    public void setName(@Nullable String name) {
+    public PluginMetadata setName(@Nullable String name) {
         this.name = emptyToNull(name);
+        return this;
     }
 
     /**
@@ -137,9 +141,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Sets the plugin version.
      *
      * @param version The plugin version or {@code null} to reset
+     * @return This object
      */
-    public void setVersion(@Nullable String version) {
+    public PluginMetadata setVersion(@Nullable String version) {
         this.version = emptyToNull(version);
+        return this;
     }
 
     /**
@@ -156,9 +162,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Sets the plugin description.
      *
      * @param description The plugin description or {@code null} to reset
+     * @return This object
      */
-    public void setDescription(@Nullable String description) {
+    public PluginMetadata setDescription(@Nullable String description) {
         this.description = emptyToNull(description);
+        return this;
     }
 
     /**
@@ -175,9 +183,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Sets a URL where additional information about a plugin may be found.
      *
      * @param url The URL or {@code null} to reset
+     * @return This object
      */
-    public void setUrl(@Nullable String url) {
+    public PluginMetadata setUrl(@Nullable String url) {
         this.url = emptyToNull(url);
+        return this;
     }
 
     /**
@@ -196,12 +206,14 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Adds an author to the {@link List} of authors for this plugin.
      *
      * @param author The author to add
+     * @return This object
      * @throws IllegalArgumentException If the author is empty
      */
-    public void addAuthor(String author) {
+    public PluginMetadata addAuthor(String author) {
         checkNotNull(author, "author");
         checkArgument(!author.isEmpty(), "Author cannot be empty");
         this.authors.add(author);
+        return this;
     }
 
     /**
@@ -304,13 +316,16 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Adds a new {@link PluginDependency} to this {@link PluginMetadata}.
      *
      * @param dependency The dependency to add
-     * @throws IllegalArgumentException If this plugin already has a dependency
-     *     with the specified plugin ID
+     * @return This object
+     * @throws IllegalArgumentException If the dependency is null or the 
+     *     plugin already has a dependency with the specified plugin ID
      */
-    public void addDependency(PluginDependency dependency) {
+    public PluginMetadata addDependency(PluginDependency dependency) {
+    	checkNotNull(dependency, "dependency");
         String id = dependency.getId();
         checkArgument(!this.dependencies.containsKey(id), "Duplicate dependency with plugin ID: %s", id);
         this.dependencies.put(id, dependency);
+        return this;
     }
 
     /**
@@ -374,10 +389,12 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @param key The key of the extension
      * @param extension The extension
+     * @return This object
      */
-    public void setExtension(String key, Object extension) {
+    public PluginMetadata setExtension(String key, Object extension) {
         checkNotNull(extension, "extension");
         this.extensions.put(key, extension);
+        return this;
     }
 
     /**
