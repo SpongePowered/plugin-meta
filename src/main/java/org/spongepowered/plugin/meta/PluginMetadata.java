@@ -205,6 +205,20 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     }
 
     /**
+     * Adds the authors to the {@link List} of authors for this plugin.
+     *
+     * @param authors The authors to add
+     * @throws IllegalArgumentException If the author is empty or has any invalid authors
+     */
+    public void addAuthors(String... authors) {
+        checkNotNull(authors, "authors");
+        checkArgument(authors.length > 0, "Author list cannot be empty");
+        for (String author : authors) {
+            addAuthor(author);
+        }
+    }
+
+    /**
      * Removes an author from the {@link List} of authors for this plugin.
      *
      * @param author The author to remove
@@ -311,6 +325,19 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
         String id = dependency.getId();
         checkArgument(!this.dependencies.containsKey(id), "Duplicate dependency with plugin ID: %s", id);
         this.dependencies.put(id, dependency);
+    }
+
+    /**
+     * Adds the list of {@link PluginDependency} to this {@link PluginMetadata}.
+     *
+     * @param dependencies The dependencies to add
+     * @throws IllegalArgumentException If the plugins are null or invalid
+     */
+    public void addDependencies(PluginDependency... dependencies) {
+        checkNotNull(dependencies, "dependencies");
+        for (PluginDependency dependency : dependencies) {
+            addDependency(dependency);
+        }
     }
 
     /**
