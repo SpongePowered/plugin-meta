@@ -211,7 +211,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @return This object
      * @throws IllegalArgumentException If the author is empty or has any invalid authors
      */
-    public PluginMetadata addAuthors(String... authors) {
+    public void addAuthors(String... authors) {
         checkNotNull(authors, "authors");
         checkArgument(authors.length > 0, "Author list cannot be empty");
         for(String author : authors) {
@@ -336,7 +336,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @return This object
      * @throws IllegalArgumentException If the plugins are null or invalid
      */
-    public PluginMetadata addDependencies(PluginDependency... dependencies) {
+    public void addDependencies(PluginDependency... dependencies) {
     	checkNotNull(dependencies, "dependencies");
     	for (PluginDependency dependency : dependencies) {
     		addDependency(dependency);	
