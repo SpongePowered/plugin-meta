@@ -208,7 +208,6 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Adds the authors to the {@link List} of authors for this plugin.
      *
      * @param author The authors to add
-     * @return This object
      * @throws IllegalArgumentException If the author is empty or has any invalid authors
      */
     public void addAuthors(String... authors) {
@@ -332,7 +331,6 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * Adds the list of {@link PluginDependency}'s to this {@link PluginMetadata}.
      *
      * @param dependency The dependency to add
-     * @return This object
      * @throws IllegalArgumentException If the plugins are null or invalid
      */
     public void addDependencies(PluginDependency... dependencies) {
