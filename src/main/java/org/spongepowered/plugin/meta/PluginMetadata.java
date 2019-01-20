@@ -55,10 +55,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     /**
      * The pattern plugin IDs must match. Plugin IDs must be lower case, and
      * start with an alphabetic character. It may only contain alphanumeric
-     * characters, dashes or underscores. It cannot be longer than
-     * 64 characters.
+     * characters, dashes or underscores. It must be at least 2 characters, and
+     * cannot be longer than 64 characters.
      */
-    public static final Pattern ID_PATTERN = Pattern.compile("[a-z][a-z0-9-_]{0,63}");
+    public static final Pattern ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-_]{1,63}$");
 
     private String id;
     @Nullable private String name;
