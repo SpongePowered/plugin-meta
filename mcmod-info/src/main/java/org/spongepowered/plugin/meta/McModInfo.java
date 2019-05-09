@@ -32,6 +32,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.framework.qual.DefaultQualifier;
 import org.spongepowered.plugin.meta.gson.ModMetadataAdapter;
 import org.spongepowered.plugin.meta.gson.ModMetadataCollectionAdapter;
 

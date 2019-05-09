@@ -20,7 +20,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("com.google.code.findbugs:jsr305:3.0.1")
+        compileOnly("org.checkerframework:checker-qual:2.8.1")
 
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.2.0")

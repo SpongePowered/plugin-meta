@@ -24,9 +24,6 @@
  */
 package org.spongepowered.plugin.meta.version;
 
-import org.spongepowered.plugin.meta.util.NonnullByDefault;
-
-@NonnullByDefault
 public interface ArtifactVersion extends Comparable<ArtifactVersion> {
 
 }
