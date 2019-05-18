@@ -26,11 +26,11 @@ package org.spongepowered.plugin.meta.version;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.plugin.meta.util.NonnullByDefault;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.framework.qual.DefaultQualifier;
 
-import javax.annotation.Nullable;
-
-@NonnullByDefault
+@DefaultQualifier(NonNull.class)
 public final class DefaultArtifactVersion implements ArtifactVersion {
 
     private final ComparableVersion version;

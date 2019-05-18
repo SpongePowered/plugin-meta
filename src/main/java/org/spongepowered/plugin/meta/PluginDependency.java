@@ -30,8 +30,7 @@ import static com.google.common.base.Strings.emptyToNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents a dependency on another plugin.
