@@ -110,9 +110,8 @@ allprojects {
     signing {
         val signingKey: String? by project
         val signingPassword: String? by project
-        // TODO - get signing jar to configure with ci/cd
-//    useInMemoryPgpKeys(signingKey, signingPassword)
-//    sign(tasks["jar"])
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(jar.get())
     }
     val spongeSnapshotRepo: String? by project
     val spongeReleaseRepo: String? by project

@@ -31,7 +31,9 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SPONGE_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SPONGE_SIGNING_PASSWORD }}
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
       - name: Publish to Sponge Maven & GitHub Packages
@@ -43,5 +45,7 @@ jobs:
           ORG_GRADLE_PROJECT_spongeReleaseRepo: ${{ secrets.SPONGE_MAVEN_RELEASE_REPO_URL }}
           ORG_GRADLE_PROJECT_spongeUsername: ${{ secrets.SPONGE_MAVEN_REPO_USER }}
           ORG_GRADLE_PROJECT_spongePassword: ${{ secrets.SPONGE_MAVEN_REPO_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SPONGE_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SPONGE_SIGNING_PASSWORD }}
 
 
