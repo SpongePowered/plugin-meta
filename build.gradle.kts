@@ -43,6 +43,8 @@ allprojects {
 
     java {
         sourceCompatibility = JavaVersion.VERSION_1_8
+        withJavadocJar()
+        withSourcesJar()
     }
 
     checkstyle {
@@ -81,11 +83,7 @@ allprojects {
         }
     }
 
-    val javadocJar by tasks.registering(Jar::class) {
-        group = "build"
-        classifier = "javadoc"
-        from(javadoc)
-    }
+
 
     tasks.getByName<Test>("test") {
         useJUnitPlatform()
@@ -95,20 +93,6 @@ allprojects {
             exceptionFormat = TestExceptionFormat.FULL
             showStandardStreams = true
         }
-    }
-
-    val sourceJar by tasks.registering(Jar::class) {
-        classifier = "sources"
-        group = "build"
-        from(sourceOutput)
-    }
-
-
-    artifacts {
-        archives(sourceJar)
-        archives(javadocJar)
-//        add("archives", sourceJar)
-//        add("archives", javadocJar)
     }
 
     license {
@@ -163,9 +147,7 @@ allprojects {
         publications {
 
             register("sponge", MavenPublication::class) {
-                artifact(jar.get())
-                artifact(sourceJar.get())
-                artifact(javadocJar.get())
+                from(components["java"])
                 pom {
                     this.name.set("plugin-meta")
                     setDescription(description)
@@ -189,10 +171,6 @@ allprojects {
     }
 
 
-}
-
-dependencies {
-    implementation("com.google.guava:guava:21.0")
 }
 
 subprojects {
