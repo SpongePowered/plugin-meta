@@ -2,12 +2,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     java
-
     signing
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.4"
-
-    id("net.minecrell.licenser") version "0.3"
+    id("com.jfrog.bintray") version "1.8.5"
+    id("net.minecrell.licenser") version "0.4.1"
 }
 
 allprojects {
@@ -181,13 +179,13 @@ allprojects {
 }
 
 dependencies {
-    compile("com.google.guava:guava:21.0")
+    implementation("com.google.guava:guava:21.0")
 }
 
 subprojects {
     group = "${rootProject.group}.${rootProject.name}"
 
     dependencies {
-        compile(rootProject)
+        implementation(rootProject)
     }
 }
