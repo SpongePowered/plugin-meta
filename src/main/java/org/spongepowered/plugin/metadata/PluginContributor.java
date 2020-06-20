@@ -31,6 +31,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Specification for an entity considered to be a "contributor" to a plugin.
+ *
+ * Required: Name
+ * Optional: Description
+ *
+ * How these values are used is not enforced on an implementation, consult the documentation
+ * of that entity for more details.
+ */
 public final class PluginContributor {
 
     private final String name, description;

@@ -24,19 +24,38 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 import java.util.Objects;
 
+/**
+ * Specification for an entity considered to be a "dependency" for a plugin.
+ *
+ * Required: Id, Version, LoadOrder (defaults to {@link LoadOrder#UNDEFINED}),
+ * IsOptional (defaults to false)
+ *
+ * How these values are used is not enforced on an implementation, consult the documentation
+ * of that entity for more details.
+ */
 public final class PluginDependency {
 
     private final String id, version;
+    private final LoadOrder loadOrder;
+    private final boolean isOptional;
 
     private PluginDependency(final Builder builder) {
         this.id = builder.id;
         this.version = builder.version;
+        this.loadOrder = builder.loadOrder;
+        this.isOptional = builder.isOptional;
     }
 
+    /**
+     * Returns a new {@link Builder} for creating a PluginDependency.
+     *
+     * @return A builder
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -47,6 +66,14 @@ public final class PluginDependency {
 
     public String getVersion() {
         return this.version;
+    }
+
+    private LoadOrder getLoadOrder() {
+        return this.loadOrder;
+    }
+
+    private boolean isOptional() {
+        return this.isOptional;
     }
 
     @Override
@@ -66,6 +93,16 @@ public final class PluginDependency {
         return Objects.hash(this.id);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", this.id)
+                .add("version", this.version)
+                .add("loadOrder", this.loadOrder)
+                .add("isOptional", this.isOptional)
+                .toString();
+    }
+
     /**
      * Represents the ordering of the dependency being loaded vs. the plugin by the implementation
      */
@@ -83,7 +120,7 @@ public final class PluginDependency {
     public static class Builder {
 
         String id, version;
-        boolean optional;
+        boolean isOptional = false;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
 
         public Builder setId(final String id) {
@@ -97,7 +134,7 @@ public final class PluginDependency {
         }
 
         public Builder setOptional(final boolean optional) {
-            this.optional = optional;
+            this.isOptional = optional;
             return this;
         }
 
