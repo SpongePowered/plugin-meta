@@ -4,7 +4,14 @@ plugins {
     java
     signing
     `maven-publish`
+    `java-library`
     id("net.minecrell.licenser") version "0.4.1"
+}
+
+dependencies {
+    api("org.checkerframework:checker-qual:3.4.1")
+    api("com.google.code.gson:gson:2.8.0")
+    api("com.google.guava:guava:21.0")
 }
 
 allprojects {
@@ -23,7 +30,6 @@ allprojects {
     val main by sourceSets
 
     dependencies {
-        compileOnly("org.checkerframework:checker-qual:3.4.1")
 
         main.allSource.srcDirs.forEach {
             add(sourceOutput.name, project.files(it.relativeTo(project.projectDir).path))
