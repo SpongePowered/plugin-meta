@@ -80,7 +80,7 @@ import java.util.Stack;
  *     Unknown qualifiers are considered after known qualifiers, with lexical order (always case insensitive),
  *   </li>
  * <li>a hyphen usually precedes a qualifier, and is always less important than something preceded with a dot.</li>
- * </ul></p>
+ * </ul>
  *
  * @see <a href="https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on Maven Wiki</a>
  * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>

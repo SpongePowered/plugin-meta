@@ -102,7 +102,6 @@ public class VersionRange
 
     /**
      * Create a version range from a string representation
-     * <p/>
      * Some spec examples are
      * <ul>
      * <li><code>1.0</code> Version 1.0</li>
@@ -114,7 +113,7 @@ public class VersionRange
      *
      * @param spec string representation of a version or version range
      * @return a new {@link VersionRange} object that represents the spec
-     * @throws InvalidVersionSpecificationException
+     * @throws InvalidVersionSpecificationException When the range is exclusive on itself
      *
      */
     public static VersionRange createFromVersionSpec( String spec )

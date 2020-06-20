@@ -4,14 +4,12 @@ plugins {
     java
     signing
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.5"
     id("net.minecrell.licenser") version "0.4.1"
 }
 
 allprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
-    apply(plugin = "com.jfrog.bintray")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "signing")
 
@@ -94,8 +92,10 @@ allprojects {
 
 
     artifacts {
-        add("archives", sourceJar)
-        add("archives", javadocJar)
+        archives(sourceJar)
+        archives(javadocJar)
+//        add("archives", sourceJar)
+//        add("archives", javadocJar)
     }
 
     license {
@@ -108,8 +108,8 @@ allprojects {
     signing {
         val signingKey: String? by project
         val signingPassword: String? by project
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(jar.get())
+//        useInMemoryPgpKeys(signingKey, signingPassword)
+//        sign(jar.get())
     }
     val spongeSnapshotRepo: String? by project
     val spongeReleaseRepo: String? by project
