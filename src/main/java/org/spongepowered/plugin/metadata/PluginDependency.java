@@ -42,13 +42,13 @@ public final class PluginDependency {
 
     private final String id, version;
     private final LoadOrder loadOrder;
-    private final boolean isOptional;
+    private final boolean optional;
 
     private PluginDependency(final Builder builder) {
         this.id = builder.id;
         this.version = builder.version;
         this.loadOrder = builder.loadOrder;
-        this.isOptional = builder.isOptional;
+        this.optional = builder.optional;
     }
 
     /**
@@ -73,7 +73,7 @@ public final class PluginDependency {
     }
 
     private boolean isOptional() {
-        return this.isOptional;
+        return this.optional;
     }
 
     @Override
@@ -99,7 +99,7 @@ public final class PluginDependency {
                 .add("id", this.id)
                 .add("version", this.version)
                 .add("loadOrder", this.loadOrder)
-                .add("isOptional", this.isOptional)
+                .add("optional", this.optional)
                 .toString();
     }
 
@@ -120,8 +120,8 @@ public final class PluginDependency {
     public static class Builder {
 
         String id, version;
-        boolean isOptional = false;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
+        boolean optional = false;
 
         public Builder setId(final String id) {
             this.id = Preconditions.checkNotNull(id);
@@ -133,13 +133,13 @@ public final class PluginDependency {
             return this;
         }
 
-        public Builder setOptional(final boolean optional) {
-            this.isOptional = optional;
+        public Builder setLoadOrder(final LoadOrder loadOrder) {
+            this.loadOrder = loadOrder;
             return this;
         }
 
-        public Builder setLoadOrder(final LoadOrder loadOrder) {
-            this.loadOrder = loadOrder;
+        public Builder setOptional(final boolean optional) {
+            this.optional = optional;
             return this;
         }
 
