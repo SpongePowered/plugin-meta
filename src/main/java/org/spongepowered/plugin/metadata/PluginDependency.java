@@ -66,8 +66,17 @@ public final class PluginDependency {
         return Objects.hash(this.id);
     }
 
+    /**
+     * Represents the ordering of the dependency being loaded vs. the plugin by the implementation
+     */
     public enum LoadOrder {
-        NONE,
+        /**
+         * The plugin can be loaded regardless of when the dependency is loaded.
+         */
+        UNDEFINED,
+        /**
+         * The plugin must be loaded after the dependency.
+         */
         AFTER
     }
 
@@ -75,7 +84,7 @@ public final class PluginDependency {
 
         String id, version;
         boolean optional;
-        LoadOrder loadOrder = LoadOrder.NONE;
+        LoadOrder loadOrder = LoadOrder.UNDEFINED;
 
         public Builder setId(final String id) {
             this.id = Preconditions.checkNotNull(id);

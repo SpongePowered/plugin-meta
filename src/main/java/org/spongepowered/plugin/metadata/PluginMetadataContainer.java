@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A simple container of one or more {@link PluginMetadata}.
+ */
 public final class PluginMetadataContainer {
 
     private final Map<String, PluginMetadata> pluginMetadata;
@@ -45,12 +48,24 @@ public final class PluginMetadataContainer {
         }
     }
 
+    /**
+     * Gets a {@link PluginMetadata} based on it's {@link PluginMetadata#getId()}.
+     * @param pluginId The id
+     * @return The metadata or {@link Optional#empty()} if not present
+     */
     public Optional<PluginMetadata> getMetadata(final String pluginId) {
         Preconditions.checkNotNull(pluginId);
 
         return Optional.ofNullable(this.pluginMetadata.get(pluginId));
     }
 
+    /**
+     * Gets all {@link PluginMetadata} in this container, mapped by the {@link PluginMetadata#getId()}.
+     *
+     * <p>The returned {@link Map} cannot be mutated.</p>
+     *
+     * @return The map of metadata
+     */
     public Map<String, PluginMetadata> getAllMetadata() {
         return Collections.unmodifiableMap(this.pluginMetadata);
     }
