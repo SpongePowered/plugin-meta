@@ -24,6 +24,8 @@
  */
 package org.spongepowered.plugin.metadata.parser;
 
+import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -40,6 +42,12 @@ import java.util.Map;
 import java.util.Set;
 
 public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
+
+    private final Gson gson;
+
+    public PluginMetadataAdapter(final Gson gson) {
+        this.gson = Preconditions.checkNotNull(gson);
+    }
 
     @Override
     public void write(final JsonWriter out, final PluginMetadata value) throws IOException {
@@ -70,6 +78,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
                 case "main-class":
                     builder.setMainClass(in.nextString());
                     break;
+                case "description":
+                    builder.setDescription(in.nextString());
+                    break;
                 case "links":
                     this.readLinks(in, builder);
                     break;
@@ -92,6 +103,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
                     builder.setExtraMetadata((Map<String, Object>) (Object) extraMetadata);
             }
         }
+        in.endObject();
         return builder.build();
     }
 

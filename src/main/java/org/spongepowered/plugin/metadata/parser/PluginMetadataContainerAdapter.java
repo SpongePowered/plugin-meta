@@ -39,6 +39,10 @@ public final class PluginMetadataContainerAdapter extends TypeAdapter<PluginMeta
         this.adapter = adapter;
     }
 
+    public PluginMetadataCollectionAdapter getCollectionAdapter() {
+        return this.adapter;
+    }
+
     @Override
     public void write(final JsonWriter out, final PluginMetadataContainer value) throws IOException {
         this.adapter.write(out, value.getAllMetadata().values());

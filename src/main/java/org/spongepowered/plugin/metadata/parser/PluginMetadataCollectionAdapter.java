@@ -42,6 +42,10 @@ public final class PluginMetadataCollectionAdapter extends TypeAdapter<Collectio
         this.adapter = adapter;
     }
 
+    public PluginMetadataAdapter getMetadataAdapter() {
+        return this.adapter;
+    }
+
     @Override
     public void write(final JsonWriter out, final Collection<PluginMetadata> value) throws IOException {
         out.beginArray();
