@@ -5,6 +5,7 @@ plugins {
     signing
     `maven-publish`
     `java-library`
+    checkstyle
     id("net.minecrell.licenser") version "0.4.1"
 }
 
@@ -19,6 +20,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "signing")
+    apply(plugin = "checkstyle")
 
     repositories {
         jcenter()
@@ -41,6 +43,11 @@ allprojects {
 
     java {
         sourceCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    checkstyle {
+        toolVersion = "8.6"
+        configFile = rootProject.file("config/checkstyle/checkstyle.xml")
     }
 
 
