@@ -116,6 +116,8 @@ allprojects {
             publication == publishing.publications["sponge"]
         }
     }
+
+
     val url: String by project
     val description: String by project
     publishing {

@@ -47,5 +47,5 @@
             <property name="arrayInitIndent" value="4"/>
         </module>
     </module>
-
+    <module name="NewlineAtEndOfFile"/>
 </module>
