@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -68,6 +69,12 @@ public final class PluginMetadataHelper {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public Collection<PluginMetadata> fromJson(final String json) throws IOException {
+        try (final JsonReader reader = new JsonReader(new StringReader(json))) {
+            return this.read(reader);
+        }
     }
 
     public Collection<PluginMetadata> read(final Path path) throws IOException {
