@@ -25,21 +25,29 @@
 package org.spongepowered.plugin.metadata.util;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.PluginMetadataContainer;
 import org.spongepowered.plugin.metadata.parser.PluginMetadataAdapter;
 import org.spongepowered.plugin.metadata.parser.PluginMetadataCollectionAdapter;
 import org.spongepowered.plugin.metadata.parser.PluginMetadataContainerAdapter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -48,12 +56,13 @@ import java.util.function.Consumer;
  *
  * @see <a href="https://github.com/SpongePowered/plugin-meta/wiki/Plugin-Metadata-Specification">Plugin Metadata Specification</a>
  */
-public final class PluginMeta {
+public final class PluginMetadataHelper {
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
+    private static final String INDENT = "    ";
     private final PluginMetadataContainerAdapter adapter;
 
-    private PluginMeta(final PluginMetadataContainerAdapter adapter) {
+    private PluginMetadataHelper(final PluginMetadataContainerAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -61,8 +70,25 @@ public final class PluginMeta {
         return new Builder();
     }
 
+    public Collection<PluginMetadata> read(final Path path) throws IOException {
+        try (final JsonReader reader = new JsonReader(Files.newBufferedReader(path, PluginMetadataHelper.CHARSET))) {
+            return this.read(reader);
+        }
+    }
+
+    public Collection<PluginMetadata> read(final Reader in) throws IOException {
+        try (final JsonReader reader = new JsonReader(in)) {
+            return this.read(reader);
+        }
+    }
+
     public Collection<PluginMetadata> read(final InputStream in) throws IOException {
-        final JsonReader reader = new JsonReader(new BufferedReader(new InputStreamReader(in)));
+        try (final JsonReader reader = new JsonReader(new BufferedReader(new InputStreamReader(in, PluginMetadataHelper.CHARSET)))) {
+            return this.read(reader);
+        }
+    }
+
+    public Collection<PluginMetadata> read(final JsonReader reader) throws IOException {
         reader.beginObject();
         try {
             while (reader.hasNext()) {
@@ -76,9 +102,30 @@ public final class PluginMeta {
         }
     }
 
-    public PluginMetadataContainer readAsContainer(final InputStream in) throws IOException {
-        final Collection<PluginMetadata> pluginMetadata = this.read(in);
-        return new PluginMetadataContainer(pluginMetadata);
+    public void write(final Path path, final Collection<PluginMetadata> metadata) throws IOException {
+        try (final BufferedWriter writer = Files.newBufferedWriter(path, PluginMetadataHelper.CHARSET)) {
+            this.write(writer, metadata);
+        }
+    }
+
+    public String toJson(final List<PluginMetadata> metadata) {
+        final StringWriter writer = new StringWriter();
+        try {
+            this.write(writer, metadata);
+        } catch (IOException e) {
+            throw new JsonIOException(e);
+        }
+        return writer.toString();
+    }
+
+    public void write(final Writer out, final Collection<PluginMetadata> metadata) throws IOException {
+        try (final JsonWriter writer = new JsonWriter(out)) {
+            writer.setIndent(PluginMetadataHelper.INDENT);
+            writer.name("plugins").beginObject();
+            this.adapter.getCollectionAdapter().write(writer, metadata);
+            writer.endObject();
+            out.write("\\n");
+        }
     }
 
     public static class Builder {
@@ -90,8 +137,8 @@ public final class PluginMeta {
             return this;
         }
 
-        public PluginMeta build() {
-            return new PluginMeta(new PluginMetadataContainerAdapter(new PluginMetadataCollectionAdapter(new PluginMetadataAdapter(this.gsonBuilder.create()))));
+        public PluginMetadataHelper build() {
+            return new PluginMetadataHelper(new PluginMetadataContainerAdapter(new PluginMetadataCollectionAdapter(new PluginMetadataAdapter(this.gsonBuilder.create()))));
         }
 
     }
