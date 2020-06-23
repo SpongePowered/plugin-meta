@@ -44,9 +44,9 @@ import java.util.function.Consumer;
 
 /**
  * A utility class for operating against this library's standard metadata
- * specification, the plugin.meta.
+ * specification, the plugins.json.
  *
- * TODO Link to the specification on the wiki
+ * @see <a href="https://github.com/SpongePowered/plugin-meta/wiki/Plugin-Metadata-Specification">Plugin Metadata Specification</a>
  */
 public final class PluginMeta {
 

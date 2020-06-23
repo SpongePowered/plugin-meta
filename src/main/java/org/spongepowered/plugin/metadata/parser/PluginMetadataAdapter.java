@@ -32,13 +32,16 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.spongepowered.plugin.metadata.PluginContributor;
 import org.spongepowered.plugin.metadata.PluginDependency;
+import org.spongepowered.plugin.metadata.PluginLinks;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
@@ -51,7 +54,17 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
     @Override
     public void write(final JsonWriter out, final PluginMetadata value) throws IOException {
-
+        out.beginObject();
+        out.name("id").value(value.getId());
+        this.writeStringIfPresent(out, "name", value.getName());
+        out.name("version").value(value.getVersion());
+        out.name("main-class").value(value.getMainClass());
+        this.writeStringIfPresent(out, "description", value.getDescription());
+        this.writeLinks(out, value.getLinks());
+        this.writeContributors(out, value.getContributors());
+        this.writeDependencies(out, value.getDependencies());
+        this.writeExtraMetadata(out, value.getExtraMetadata());
+        out.endObject();
     }
 
     @Override
@@ -110,6 +123,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private void readLinks(final JsonReader in, final PluginMetadata.Builder builder) throws IOException {
         in.beginObject();
         final Set<String> processedKeys = new HashSet<>();
+        final PluginLinks.Builder linksBuilder = PluginLinks.builder();
         while (in.hasNext()) {
             final String key = in.nextName();
             if (!processedKeys.add(key)) {
@@ -117,16 +131,17 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
             switch (key) {
                 case "homepage":
-                    builder.setHomepage(new URL(in.nextString()));
+                    linksBuilder.setHomepage(new URL(in.nextString()));
                     break;
                 case "source":
-                    builder.setSource(new URL(in.nextString()));
+                    linksBuilder.setSource(new URL(in.nextString()));
                     break;
                 case "issues":
-                    builder.setIssues(new URL(in.nextString()));
+                    linksBuilder.setIssues(new URL(in.nextString()));
                     break;
             }
         }
+        builder.setLinks(linksBuilder.build());
         in.endObject();
     }
 
@@ -198,5 +213,69 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         }
         in.endObject();
         return builder.build();
+    }
+
+    private void writeLinks(final JsonWriter out, final PluginLinks links) throws IOException {
+        if (!links.getHomepage().isPresent() && !links.getSource().isPresent() && !links.getIssues().isPresent()) {
+            return;
+        }
+        out.name("links").beginObject();
+        this.writeURLIfPresent(out, "homepage", links.getHomepage());
+        this.writeURLIfPresent(out, "source", links.getSource());
+        this.writeURLIfPresent(out, "issues", links.getIssues());
+        out.endObject();
+    }
+
+    private void writeContributors(final JsonWriter out, final List<PluginContributor> contributors) throws IOException {
+        if (contributors.isEmpty()) {
+            return;
+        }
+        out.name("contributors").beginArray();
+        for (final PluginContributor contributor : contributors) {
+            out.name("name").value(contributor.getName());
+            this.writeStringIfPresent(out, "description", contributor.getDescription());
+        }
+        out.endArray();
+    }
+
+    private void writeDependencies(final JsonWriter out, final List<PluginDependency> dependencies) throws IOException {
+        if (dependencies.isEmpty()) {
+            return;
+        }
+
+        out.name("dependencies").beginArray();
+        for (final PluginDependency dependency : dependencies) {
+            out.name("id").value(dependency.getId());
+            out.name("version").value(dependency.getVersion());
+            out.name("load-order").value(dependency.getLoadOrder().name());
+            out.name("optional").value(dependency.isOptional());
+        }
+
+        out.endArray();
+    }
+
+    private void writeExtraMetadata(final JsonWriter out, final Map<String, Object> extraMetadata) throws IOException {
+        if (extraMetadata.isEmpty()) {
+            return;
+        }
+
+        out.name("extra").beginObject();
+        for (final Map.Entry<String, Object> entry : extraMetadata.entrySet()) {
+            // TODO Figure out how to serialize properly
+            out.name(entry.getKey()).value(entry.getValue().toString());
+        }
+        out.endObject();
+    }
+
+    private void writeStringIfPresent(final JsonWriter out, final String name, final Optional<String> value) throws IOException {
+        if (value.isPresent()) {
+            out.name(name).value(value.get());
+        }
+    }
+
+    private void writeURLIfPresent(final JsonWriter out, final String name, final Optional<URL> value) throws IOException {
+        if (value.isPresent()) {
+            out.name(name).value(value.get().toString());
+        }
     }
 }

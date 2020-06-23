@@ -28,7 +28,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +35,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * The specification of a typical plugin's metadata as defined by this library
+ *
+ * Consult the documentation of the implementation to determine exactly what
+ * they classify as a plugin and how this metadata is used.
+ */
 public final class PluginMetadata {
 
     private final String id, name, version, mainClass, description;
-    private final URL homepage, source, issues;
+    private final PluginLinks links;
     private final List<PluginContributor> contributors;
     private final List<PluginDependency> dependencies;
     private final Map<String, Object> extraMetadata;
@@ -52,9 +57,7 @@ public final class PluginMetadata {
         this.version = builder.version;
         this.mainClass = builder.mainClass;
         this.description = builder.description;
-        this.homepage = builder.homepage;
-        this.source = builder.source;
-        this.issues = builder.issues;
+        this.links = builder.links;
         this.contributors = builder.contributors;
         this.dependencies = builder.dependencies;
         this.extraMetadata = builder.extraMetadata;
@@ -84,16 +87,8 @@ public final class PluginMetadata {
         return Optional.ofNullable(this.description);
     }
 
-    public Optional<URL> getHomepage() {
-        return Optional.ofNullable(this.homepage);
-    }
-
-    public Optional<URL> getSource() {
-        return Optional.ofNullable(this.source);
-    }
-
-    public Optional<URL> getIssues() {
-        return Optional.ofNullable(this.issues);
+    public PluginLinks getLinks() {
+        return this.links;
     }
 
     public List<PluginContributor> getContributors() {
@@ -116,9 +111,7 @@ public final class PluginMetadata {
             .add("version", this.version)
             .add("mainClass", this.mainClass)
             .add("description", this.description)
-            .add("homepage", this.homepage)
-            .add("source", this.source)
-            .add("issues", this.issues)
+            .add("links", this.links)
             .add("contributors", this.contributors)
             .add("dependencies", this.dependencies)
             .add("extraMetadata", this.extraMetadata)
@@ -128,7 +121,7 @@ public final class PluginMetadata {
     public static final class Builder {
 
         String id, name, version, mainClass, description;
-        URL homepage, source, issues;
+        PluginLinks links = new PluginLinks();
         List<PluginContributor> contributors = new ArrayList<>();
         List<PluginDependency> dependencies = new ArrayList<>();
         Map<String, Object> extraMetadata = new HashMap<>();
@@ -158,18 +151,8 @@ public final class PluginMetadata {
             return this;
         }
 
-        public Builder setHomepage(@Nullable final URL homepage) {
-            this.homepage = homepage;
-            return this;
-        }
-
-        public Builder setSource(@Nullable final URL source) {
-            this.source = source;
-            return this;
-        }
-
-        public Builder setIssues(@Nullable final URL issues) {
-            this.issues = issues;
+        public Builder setLinks(final PluginLinks links) {
+            this.links = Preconditions.checkNotNull(links);
             return this;
         }
 

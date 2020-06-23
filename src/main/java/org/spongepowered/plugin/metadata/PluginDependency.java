@@ -68,11 +68,11 @@ public final class PluginDependency {
         return this.version;
     }
 
-    private LoadOrder getLoadOrder() {
+    public LoadOrder getLoadOrder() {
         return this.loadOrder;
     }
 
-    private boolean isOptional() {
+    public boolean isOptional() {
         return this.optional;
     }
 
