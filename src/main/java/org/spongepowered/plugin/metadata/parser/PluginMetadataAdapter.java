@@ -232,8 +232,10 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         }
         out.name("contributors").beginArray();
         for (final PluginContributor contributor : contributors) {
+            out.beginObject();
             out.name("name").value(contributor.getName());
             this.writeStringIfPresent(out, "description", contributor.getDescription());
+            out.endObject();
         }
         out.endArray();
     }
@@ -245,10 +247,12 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         out.name("dependencies").beginArray();
         for (final PluginDependency dependency : dependencies) {
+            out.beginObject();
             out.name("id").value(dependency.getId());
             out.name("version").value(dependency.getVersion());
             out.name("load-order").value(dependency.getLoadOrder().name());
             out.name("optional").value(dependency.isOptional());
+            out.endObject();
         }
 
         out.endArray();
@@ -261,8 +265,10 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         out.name("extra").beginObject();
         for (final Map.Entry<String, Object> entry : extraMetadata.entrySet()) {
+            out.beginObject();
             // TODO Figure out how to serialize properly
             out.name(entry.getKey()).value(entry.getValue().toString());
+            out.endObject();
         }
         out.endObject();
     }

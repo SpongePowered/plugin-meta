@@ -128,10 +128,10 @@ public final class PluginMetadataHelper {
     public void write(final Writer out, final Collection<PluginMetadata> metadata) throws IOException {
         try (final JsonWriter writer = new JsonWriter(out)) {
             writer.setIndent(PluginMetadataHelper.INDENT);
-            writer.name("plugins").beginObject();
+            writer.beginObject();
             this.adapter.getCollectionAdapter().write(writer, metadata);
             writer.endObject();
-            out.write("\\n");
+            out.write("\n");
         }
     }
 
