@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.meta.gson;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -35,6 +34,7 @@ import org.spongepowered.plugin.meta.PluginDependency;
 import org.spongepowered.plugin.meta.PluginMetadata;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,14 +42,14 @@ import java.util.Set;
 
 public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
-    public static final ModMetadataAdapter DEFAULT = new ModMetadataAdapter(new Gson(), ImmutableMap.of());
+    public static final ModMetadataAdapter DEFAULT = new ModMetadataAdapter(new Gson(), Collections.emptyMap());
 
     private static final char VERSION_SEPARATOR = '@';
 
     private final Gson gson;
-    private final ImmutableMap<String, Class<?>> extensions;
+    private final Map<String, Class<?>> extensions;
 
-    public ModMetadataAdapter(Gson gson, ImmutableMap<String, Class<?>> extensions) {
+    public ModMetadataAdapter(Gson gson, Map<String, Class<?>> extensions) {
         this.gson = gson;
         this.extensions = extensions;
     }
@@ -58,8 +58,8 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         return this.gson;
     }
 
-    public ImmutableMap<String, Class<?>> getExtensions() {
-        return this.extensions;
+    public Map<String, Class<?>> getExtensions() {
+        return Collections.unmodifiableMap(this.extensions);
     }
 
     public Class<?> getExtension(String key) {

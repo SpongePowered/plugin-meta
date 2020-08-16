@@ -12,7 +12,6 @@ plugins {
 dependencies {
     api("org.checkerframework:checker-qual:3.4.1")
     api("com.google.code.gson:gson:2.8.0")
-    api("com.google.guava:guava:21.0")
 }
 
 allprojects {

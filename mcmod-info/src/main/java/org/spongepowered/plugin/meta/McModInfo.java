@@ -26,7 +26,6 @@ package org.spongepowered.plugin.meta;
 
 import static java.util.Arrays.asList;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -50,7 +49,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a serializer for {@link PluginMetadata} for the
@@ -265,7 +266,7 @@ public final class McModInfo {
     public static final class Builder {
 
         private final GsonBuilder gson = new GsonBuilder();
-        private final ImmutableMap.Builder<String, Class<?>> extensions = ImmutableMap.builder();
+        private final Map<String, Class<?>> extensions = new HashMap<>();
 
         private Builder() {
         }
@@ -319,7 +320,7 @@ public final class McModInfo {
          * @return The built serializer
          */
         public McModInfo build() {
-            return new McModInfo(new ModMetadataCollectionAdapter(new ModMetadataAdapter(this.gson.create(), this.extensions.build())));
+            return new McModInfo(new ModMetadataCollectionAdapter(new ModMetadataAdapter(this.gson.create(), this.extensions)));
         }
 
     }

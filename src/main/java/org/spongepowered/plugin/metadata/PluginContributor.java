@@ -24,12 +24,11 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Specification for an entity considered to be a "contributor" to a plugin.
@@ -80,9 +79,9 @@ public final class PluginContributor {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("name", this.name)
-            .add("description", this.description)
+        return new StringJoiner(", ", PluginContributor.class.getSimpleName() + "[", "]")
+            .add("name=" + this.name)
+            .add("description=" + this.description)
             .toString();
     }
 
@@ -91,7 +90,7 @@ public final class PluginContributor {
         String name, description;
 
         public Builder setName(final String name) {
-            this.name = Preconditions.checkNotNull(name);
+            this.name = Objects.requireNonNull(name);
             return this;
         }
 
@@ -101,7 +100,7 @@ public final class PluginContributor {
         }
 
         public PluginContributor build() {
-            Preconditions.checkNotNull(this.name);
+            Objects.requireNonNull(this.name);
 
             return new PluginContributor(this);
         }

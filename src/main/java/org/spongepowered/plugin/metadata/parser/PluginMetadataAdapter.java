@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.parser;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -41,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,7 +49,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private final Gson gson;
 
     public PluginMetadataAdapter(final Gson gson) {
-        this.gson = Preconditions.checkNotNull(gson);
+        this.gson = Objects.requireNonNull(gson);
     }
 
     @Override

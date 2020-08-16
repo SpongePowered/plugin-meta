@@ -24,8 +24,9 @@
  */
 package org.spongepowered.plugin.meta;
 
-import com.google.common.base.Strings;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,8 +49,8 @@ class PluginMetadataTest {
         assertFalse(ID_PATTERN.matcher("aB").matches());
 
         // up to 64 characters
-        assertTrue(ID_PATTERN.matcher(Strings.repeat("a", 64)).matches());
+        assertTrue(ID_PATTERN.matcher(String.join("", Collections.nCopies(64, "a"))).matches());
         // but no longer
-        assertFalse(ID_PATTERN.matcher(Strings.repeat("a", 65)).matches());
+        assertFalse(ID_PATTERN.matcher(String.join("", Collections.nCopies(65, "a"))).matches());
     }
 }

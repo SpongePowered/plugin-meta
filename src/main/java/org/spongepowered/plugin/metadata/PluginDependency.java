@@ -24,10 +24,8 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Specification for an entity considered to be a "dependency" for a plugin.
@@ -95,11 +93,11 @@ public final class PluginDependency {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", this.id)
-                .add("version", this.version)
-                .add("loadOrder", this.loadOrder)
-                .add("optional", this.optional)
+        return new StringJoiner(", ", PluginDependency.class.getSimpleName() + "[", "]")
+                .add("id=" + this.id)
+                .add("version=" + this.version)
+                .add("loadOrder=" + this.loadOrder)
+                .add("optional=" + this.optional)
                 .toString();
     }
 
@@ -124,12 +122,12 @@ public final class PluginDependency {
         boolean optional = false;
 
         public Builder setId(final String id) {
-            this.id = Preconditions.checkNotNull(id);
+            this.id = Objects.requireNonNull(id);
             return this;
         }
 
         public Builder setVersion(final String version) {
-            this.version = Preconditions.checkNotNull(version);
+            this.version = Objects.requireNonNull(version);
             return this;
         }
 
@@ -144,8 +142,8 @@ public final class PluginDependency {
         }
 
         public PluginDependency build() {
-            Preconditions.checkNotNull(this.id);
-            Preconditions.checkNotNull(this.version);
+            Objects.requireNonNull(this.id);
+            Objects.requireNonNull(this.version);
 
             return new PluginDependency(this);
         }

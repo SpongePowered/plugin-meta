@@ -24,11 +24,11 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.net.URL;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Specification for an entity representing the links to "web resources" of a plugin.
@@ -70,10 +70,10 @@ public final class PluginLinks {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("homepage", this.homepage)
-            .add("source", this.source)
-            .add("issues", this.issues)
+        return new StringJoiner(", ", PluginLinks.class.getSimpleName() + "[", "]")
+            .add("homepage=" + this.homepage)
+            .add("source=" + this.source)
+            .add("issues=" + this.issues)
             .toString();
     }
 

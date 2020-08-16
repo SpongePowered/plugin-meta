@@ -24,11 +24,10 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.Preconditions;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -39,7 +38,7 @@ public final class PluginMetadataContainer {
     private final Map<String, PluginMetadata> pluginMetadata;
 
     public PluginMetadataContainer(final Iterable<PluginMetadata> pluginMetadata) {
-        Preconditions.checkNotNull(pluginMetadata);
+        Objects.requireNonNull(pluginMetadata);
 
         this.pluginMetadata = new HashMap<>();
 
@@ -54,7 +53,7 @@ public final class PluginMetadataContainer {
      * @return The metadata or {@link Optional#empty()} if not present
      */
     public Optional<PluginMetadata> getMetadata(final String pluginId) {
-        Preconditions.checkNotNull(pluginId);
+        Objects.requireNonNull(pluginId);
 
         return Optional.ofNullable(this.pluginMetadata.get(pluginId));
     }

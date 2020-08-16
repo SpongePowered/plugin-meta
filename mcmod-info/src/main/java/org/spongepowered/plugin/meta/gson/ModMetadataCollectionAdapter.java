@@ -24,13 +24,14 @@
  */
 package org.spongepowered.plugin.meta.gson;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.spongepowered.plugin.meta.PluginMetadata;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class ModMetadataCollectionAdapter extends TypeAdapter<List<PluginMetadata>> {
@@ -46,12 +47,12 @@ public final class ModMetadataCollectionAdapter extends TypeAdapter<List<PluginM
     @Override
     public List<PluginMetadata> read(JsonReader in) throws IOException {
         in.beginArray();
-        ImmutableList.Builder<PluginMetadata> result = ImmutableList.builder();
+        final List<PluginMetadata> list = new ArrayList<>();
         while (in.hasNext()) {
-            result.add(this.metadataAdapter.read(in));
+            list.add(this.metadataAdapter.read(in));
         }
         in.endArray();
-        return result.build();
+        return Collections.unmodifiableList(list);
     }
 
     @Override
