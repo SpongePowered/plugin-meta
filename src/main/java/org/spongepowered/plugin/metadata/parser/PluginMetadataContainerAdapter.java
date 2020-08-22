@@ -30,13 +30,14 @@ import com.google.gson.stream.JsonWriter;
 import org.spongepowered.plugin.metadata.PluginMetadataContainer;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public final class PluginMetadataContainerAdapter extends TypeAdapter<PluginMetadataContainer> {
 
     private final PluginMetadataCollectionAdapter adapter;
 
     public PluginMetadataContainerAdapter(final PluginMetadataCollectionAdapter adapter) {
-        this.adapter = adapter;
+        this.adapter = Objects.requireNonNull(adapter);
     }
 
     public PluginMetadataCollectionAdapter getCollectionAdapter() {
@@ -45,11 +46,16 @@ public final class PluginMetadataContainerAdapter extends TypeAdapter<PluginMeta
 
     @Override
     public void write(final JsonWriter out, final PluginMetadataContainer value) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(value);
+
         this.adapter.write(out, value.getAllMetadata().values());
     }
 
     @Override
     public PluginMetadataContainer read(final JsonReader in) throws IOException {
+        Objects.requireNonNull(in);
+
         return new PluginMetadataContainer(this.adapter.read(in));
     }
 }

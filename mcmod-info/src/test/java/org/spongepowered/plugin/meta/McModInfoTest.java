@@ -24,8 +24,7 @@
  */
 package org.spongepowered.plugin.meta;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -45,24 +44,24 @@ public class McModInfoTest {
             meta = McModInfo.DEFAULT.read(in);
         }
 
-        assertEquals(2, meta.size(), "Parsed data should have 2 elements.");
+        Assertions.assertEquals(2, meta.size(), "Parsed data should have 2 elements.");
 
         final PluginMetadata testPlugin = meta.get(0);
         final PluginMetadata testPluginTwo = meta.get(1);
 
-        assertEquals("testplugin", testPlugin.getId());
-        assertEquals("testplugin2", testPluginTwo.getId());
+        Assertions.assertEquals("testplugin", testPlugin.getId());
+        Assertions.assertEquals("testplugin2", testPluginTwo.getId());
 
-        assertEquals("TestPlugin", testPlugin.getName());
-        assertEquals("1.0-SNAPSHOT", testPlugin.getVersion());
-        assertEquals("This is a test plugin", testPlugin.getDescription());
-        assertEquals("http://example.com/testplugin", testPlugin.getUrl());
-        assertEquals(Collections.singletonList("Minecrell"), testPlugin.getAuthors());
+        Assertions.assertEquals("TestPlugin", testPlugin.getName());
+        Assertions.assertEquals("1.0-SNAPSHOT", testPlugin.getVersion());
+        Assertions.assertEquals("This is a test plugin", testPlugin.getDescription());
+        Assertions.assertEquals("http://example.com/testplugin", testPlugin.getUrl());
+        Assertions.assertEquals(Collections.singletonList("Minecrell"), testPlugin.getAuthors());
 
         Collection<PluginDependency> dependencies = new HashSet<>(testPlugin.getDependencies());
-        assertEquals(3, dependencies.size());
+        Assertions.assertEquals(3, dependencies.size());
 
-        assertEquals(new HashSet<>(Arrays.asList(
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(
                 new PluginDependency(PluginDependency.LoadOrder.BEFORE, "testdependency", "[1.0.0]", false),
                 new PluginDependency(PluginDependency.LoadOrder.BEFORE, "optionaldependency", null, true),
                 new PluginDependency(PluginDependency.LoadOrder.NONE, "requireddependency", null, false)

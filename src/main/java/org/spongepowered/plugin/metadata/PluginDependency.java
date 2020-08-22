@@ -24,10 +24,10 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Specification for an entity considered to be a "dependency" for a plugin.
@@ -45,6 +45,10 @@ public final class PluginDependency {
     private final boolean optional;
 
     private PluginDependency(final Builder builder) {
+        Objects.requireNonNull(builder);
+        Objects.requireNonNull(builder.id);
+        Objects.requireNonNull(builder.version);
+
         this.id = builder.id;
         this.version = builder.version;
         this.loadOrder = builder.loadOrder;
@@ -95,11 +99,11 @@ public final class PluginDependency {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", this.id)
-                .add("version", this.version)
-                .add("loadOrder", this.loadOrder)
-                .add("optional", this.optional)
+        return new StringJoiner(", ", PluginDependency.class.getSimpleName() + "[", "]")
+                .add("id=" + this.id)
+                .add("version=" + this.version)
+                .add("loadOrder=" + this.loadOrder)
+                .add("optional=" + this.optional)
                 .toString();
     }
 
@@ -119,17 +123,20 @@ public final class PluginDependency {
 
     public static class Builder {
 
-        String id, version;
+        @Nullable String id, version;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
         boolean optional = false;
 
+        private Builder() {
+        }
+
         public Builder setId(final String id) {
-            this.id = Preconditions.checkNotNull(id);
+            this.id = Objects.requireNonNull(id);
             return this;
         }
 
         public Builder setVersion(final String version) {
-            this.version = Preconditions.checkNotNull(version);
+            this.version = Objects.requireNonNull(version);
             return this;
         }
 
@@ -144,8 +151,8 @@ public final class PluginDependency {
         }
 
         public PluginDependency build() {
-            Preconditions.checkNotNull(this.id);
-            Preconditions.checkNotNull(this.version);
+            Objects.requireNonNull(this.id);
+            Objects.requireNonNull(this.version);
 
             return new PluginDependency(this);
         }

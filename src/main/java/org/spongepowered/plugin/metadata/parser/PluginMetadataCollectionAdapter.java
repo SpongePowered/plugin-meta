@@ -24,21 +24,25 @@
  */
 package org.spongepowered.plugin.metadata.parser;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public final class PluginMetadataCollectionAdapter extends TypeAdapter<Collection<PluginMetadata>> {
 
     private final PluginMetadataAdapter adapter;
 
     public PluginMetadataCollectionAdapter(final PluginMetadataAdapter adapter) {
+        Objects.requireNonNull(adapter);
+
         this.adapter = adapter;
     }
 
@@ -48,6 +52,9 @@ public final class PluginMetadataCollectionAdapter extends TypeAdapter<Collectio
 
     @Override
     public void write(final JsonWriter out, final Collection<PluginMetadata> value) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(value);
+
         out.name("plugins").beginArray();
         for (final PluginMetadata pluginMetadata : value) {
             this.adapter.write(out, pluginMetadata);
@@ -57,12 +64,14 @@ public final class PluginMetadataCollectionAdapter extends TypeAdapter<Collectio
 
     @Override
     public List<PluginMetadata> read(final JsonReader in) throws IOException {
+        Objects.requireNonNull(in);
+
         in.beginArray();
-        final ImmutableList.Builder<PluginMetadata> builder = ImmutableList.builder();
+        final List<PluginMetadata> metadata = new ArrayList<>();
         while (in.hasNext()) {
-            builder.add(this.adapter.read(in));
+            metadata.add(this.adapter.read(in));
         }
         in.endArray();
-        return builder.build();
+        return Collections.unmodifiableList(metadata);
     }
 }

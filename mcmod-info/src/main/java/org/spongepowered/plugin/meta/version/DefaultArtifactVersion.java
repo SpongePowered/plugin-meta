@@ -24,11 +24,11 @@
  */
 package org.spongepowered.plugin.meta.version;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.DefaultQualifier;
+
+import java.util.Objects;
 
 @DefaultQualifier(NonNull.class)
 public final class DefaultArtifactVersion implements ArtifactVersion {
@@ -36,7 +36,8 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
     private final ComparableVersion version;
 
     public DefaultArtifactVersion(String version) {
-        checkNotNull(version, "version");
+        Objects.requireNonNull(version);
+
         this.version = new ComparableVersion(version);
     }
 
@@ -45,7 +46,9 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
     }
 
     @Override
-    public int compareTo(ArtifactVersion version) {
+    public int compareTo(final ArtifactVersion version) {
+        Objects.requireNonNull(version);
+
         if (version instanceof DefaultArtifactVersion) {
             return this.version.compareTo(((DefaultArtifactVersion) version).version);
         } else {
@@ -62,7 +65,7 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
             return false;
         }
 
-        DefaultArtifactVersion that = (DefaultArtifactVersion) o;
+        final DefaultArtifactVersion that = (DefaultArtifactVersion) o;
         return this.version.equals(that.version);
     }
 
@@ -75,5 +78,4 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
     public String toString() {
         return this.version.toString();
     }
-
 }

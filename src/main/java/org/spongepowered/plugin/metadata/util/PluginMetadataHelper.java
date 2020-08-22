@@ -49,6 +49,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -64,7 +65,7 @@ public final class PluginMetadataHelper {
     private final PluginMetadataContainerAdapter adapter;
 
     private PluginMetadataHelper(final PluginMetadataContainerAdapter adapter) {
-        this.adapter = adapter;
+        this.adapter = Objects.requireNonNull(adapter);
     }
 
     public static Builder builder() {
@@ -72,30 +73,40 @@ public final class PluginMetadataHelper {
     }
 
     public Collection<PluginMetadata> fromJson(final String json) throws IOException {
+        Objects.requireNonNull(json);
+
         try (final JsonReader reader = new JsonReader(new StringReader(json))) {
             return this.read(reader);
         }
     }
 
     public Collection<PluginMetadata> read(final Path path) throws IOException {
+        Objects.requireNonNull(path);
+
         try (final JsonReader reader = new JsonReader(Files.newBufferedReader(path, PluginMetadataHelper.CHARSET))) {
             return this.read(reader);
         }
     }
 
     public Collection<PluginMetadata> read(final Reader in) throws IOException {
+        Objects.requireNonNull(in);
+
         try (final JsonReader reader = new JsonReader(in)) {
             return this.read(reader);
         }
     }
 
     public Collection<PluginMetadata> read(final InputStream in) throws IOException {
+        Objects.requireNonNull(in);
+
         try (final JsonReader reader = new JsonReader(new BufferedReader(new InputStreamReader(in, PluginMetadataHelper.CHARSET)))) {
             return this.read(reader);
         }
     }
 
     public Collection<PluginMetadata> read(final JsonReader reader) throws IOException {
+        Objects.requireNonNull(reader);
+
         reader.beginObject();
         try {
             while (reader.hasNext()) {
@@ -110,12 +121,17 @@ public final class PluginMetadataHelper {
     }
 
     public void write(final Path path, final Collection<PluginMetadata> metadata) throws IOException {
+        Objects.requireNonNull(path);
+        Objects.requireNonNull(metadata);
+
         try (final BufferedWriter writer = Files.newBufferedWriter(path, PluginMetadataHelper.CHARSET)) {
             this.write(writer, metadata);
         }
     }
 
     public String toJson(final List<PluginMetadata> metadata) {
+        Objects.requireNonNull(metadata);
+
         final StringWriter writer = new StringWriter();
         try {
             this.write(writer, metadata);
@@ -126,6 +142,9 @@ public final class PluginMetadataHelper {
     }
 
     public void write(final Writer out, final Collection<PluginMetadata> metadata) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(metadata);
+
         try (final JsonWriter writer = new JsonWriter(out)) {
             writer.setIndent(PluginMetadataHelper.INDENT);
             writer.beginObject();
@@ -139,7 +158,9 @@ public final class PluginMetadataHelper {
 
         final GsonBuilder gsonBuilder = new GsonBuilder();
 
-        public Builder configureGson(Consumer<GsonBuilder> consumer) {
+        public Builder configureGson(final Consumer<GsonBuilder> consumer) {
+            Objects.requireNonNull(consumer);
+
             consumer.accept(this.gsonBuilder);
             return this;
         }
@@ -147,6 +168,5 @@ public final class PluginMetadataHelper {
         public PluginMetadataHelper build() {
             return new PluginMetadataHelper(new PluginMetadataContainerAdapter(new PluginMetadataCollectionAdapter(new PluginMetadataAdapter(this.gsonBuilder.create()))));
         }
-
     }
 }

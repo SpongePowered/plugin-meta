@@ -24,13 +24,10 @@
  */
 package org.spongepowered.plugin.meta;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.emptyToNull;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a dependency on another plugin.
@@ -60,10 +57,8 @@ public final class PluginDependency {
     }
 
     private final LoadOrder loadOrder;
-
     private final String id;
     @Nullable private final String version;
-
     private final boolean optional;
 
     /**
@@ -79,10 +74,12 @@ public final class PluginDependency {
      * @see #getVersion() Version range syntax
      */
     public PluginDependency(LoadOrder loadOrder, String id, @Nullable String version, boolean optional) {
-        this.loadOrder = checkNotNull(loadOrder, "loadOrder");
-        this.id = checkNotNull(id, "id");
-        checkArgument(!id.isEmpty(), "id cannot be empty");
-        this.version = emptyToNull(version);
+        this.loadOrder = Objects.requireNonNull(loadOrder);
+        this.id = Objects.requireNonNull(id);
+        if (id.isEmpty()) {
+            throw new IllegalArgumentException("Id cannot be empty");
+        }
+        this.version = version != null && !version.isEmpty() ? version : null;
         this.optional = optional;
     }
 
@@ -149,7 +146,7 @@ public final class PluginDependency {
      * @return The new optional dependency
      */
     public PluginDependency optional() {
-        return setOptional(true);
+        return this.setOptional(true);
     }
 
     /**
@@ -159,10 +156,10 @@ public final class PluginDependency {
      * @return The new required dependency
      */
     public PluginDependency required() {
-        return setOptional(false);
+        return this.setOptional(false);
     }
 
-    private PluginDependency setOptional(boolean optional) {
+    private PluginDependency setOptional(final boolean optional) {
         if (this.optional == optional) {
             return this;
         }
@@ -171,7 +168,7 @@ public final class PluginDependency {
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (this == o) {
             return true;
         }
@@ -179,27 +176,25 @@ public final class PluginDependency {
             return false;
         }
 
-        PluginDependency that = (PluginDependency) o;
+        final PluginDependency that = (PluginDependency) o;
         return this.loadOrder == that.loadOrder
                 && this.id.equals(that.id)
-                && Objects.equal(this.version, that.version)
+                && Objects.equals(this.version, that.version)
                 && this.optional == that.optional;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.loadOrder, this.id, this.version, this.optional);
+        return Objects.hash(this.loadOrder, this.id, this.version, this.optional);
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .omitNullValues()
-                .addValue(this.loadOrder)
-                .add("id", this.id)
-                .add("version", this.version)
-                .add("optional", this.optional)
+        return new StringJoiner(", ", PluginDependency.class.getSimpleName() + "[", "]")
+                .add(this.loadOrder.toString())
+                .add("id=" + this.id)
+                .add("version=" + this.version)
+                .add("optional=" + this.optional)
                 .toString();
     }
-
 }

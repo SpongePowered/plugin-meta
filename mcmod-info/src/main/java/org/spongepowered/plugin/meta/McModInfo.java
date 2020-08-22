@@ -26,14 +26,11 @@ package org.spongepowered.plugin.meta;
 
 import static java.util.Arrays.asList;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
 import org.spongepowered.plugin.meta.gson.ModMetadataAdapter;
 import org.spongepowered.plugin.meta.gson.ModMetadataCollectionAdapter;
 
@@ -50,7 +47,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a serializer for {@link PluginMetadata} for the
@@ -74,8 +74,8 @@ public final class McModInfo {
 
     private final ModMetadataCollectionAdapter adapter;
 
-    private McModInfo(ModMetadataCollectionAdapter adapter) {
-        this.adapter = adapter;
+    private McModInfo(final ModMetadataCollectionAdapter adapter) {
+        this.adapter = Objects.requireNonNull(adapter);
     }
 
     /**
@@ -85,11 +85,13 @@ public final class McModInfo {
      * @param json The JSON string
      * @return The deserialized metadata list
      */
-    public List<PluginMetadata> fromJson(String json) {
+    public List<PluginMetadata> fromJson(final String json) {
+        Objects.requireNonNull(json);
+
         try {
             return this.adapter.fromJson(json);
-        } catch (IOException e) {
-            throw new JsonIOException(e);
+        } catch (final IOException ex) {
+            throw new JsonIOException(ex);
         }
     }
 
@@ -101,9 +103,11 @@ public final class McModInfo {
      * @return The deserialized metadata list
      * @throws IOException If an error occurs while reading
      */
-    public List<PluginMetadata> read(Path path) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(path, CHARSET)) {
-            return read(reader);
+    public List<PluginMetadata> read(final Path path) throws IOException {
+        Objects.requireNonNull(path);
+
+        try (final BufferedReader reader = Files.newBufferedReader(path, CHARSET)) {
+            return this.read(reader);
         }
     }
 
@@ -115,7 +119,9 @@ public final class McModInfo {
      * @return The deserialized metadata list
      * @throws IOException If an error occurs while reading
      */
-    public List<PluginMetadata> read(InputStream in) throws IOException {
+    public List<PluginMetadata> read(final InputStream in) throws IOException {
+        Objects.requireNonNull(in);
+
         return this.adapter.fromJson(new BufferedReader(new InputStreamReader(in, CHARSET)));
     }
 
@@ -127,7 +133,9 @@ public final class McModInfo {
      * @return The deserialized metadata list
      * @throws IOException If an error occurs while reading
      */
-    public List<PluginMetadata> read(Reader reader) throws IOException {
+    public List<PluginMetadata> read(final Reader reader) throws IOException {
+        Objects.requireNonNull(reader);
+
         return this.adapter.fromJson(reader);
     }
 
@@ -139,7 +147,9 @@ public final class McModInfo {
      * @return The deserialized metadata list
      * @throws IOException If an error occurs while reading
      */
-    public List<PluginMetadata> read(JsonReader reader) throws IOException {
+    public List<PluginMetadata> read(final JsonReader reader) throws IOException {
+        Objects.requireNonNull(reader);
+
         return this.adapter.read(reader);
     }
 
@@ -149,8 +159,10 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @return The serialized JSON string
      */
-    public String toJson(PluginMetadata... meta) {
-        return toJson(asList(meta));
+    public String toJson(final PluginMetadata... meta) {
+        Objects.requireNonNull(meta);
+
+        return this.toJson(asList(meta));
     }
 
     /**
@@ -160,10 +172,12 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @return The serialized JSON string
      */
-    public String toJson(List<PluginMetadata> meta) {
-        StringWriter writer = new StringWriter();
+    public String toJson(final List<PluginMetadata> meta) {
+        Objects.requireNonNull(meta);
+
+        final StringWriter writer = new StringWriter();
         try {
-            write(writer, meta);
+            this.write(writer, meta);
         } catch (IOException e) {
             throw new JsonIOException(e);
         }
@@ -178,8 +192,11 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(Path path, PluginMetadata... meta) throws IOException {
-        write(path, asList(meta));
+    public void write(final Path path, final PluginMetadata... meta) throws IOException {
+        Objects.requireNonNull(path);
+        Objects.requireNonNull(meta);
+
+        this.write(path, asList(meta));
     }
 
     /**
@@ -190,9 +207,12 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(Path path, List<PluginMetadata> meta) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(path, CHARSET)) {
-            write(writer, meta);
+    public void write(final Path path, List<PluginMetadata> meta) throws IOException {
+        Objects.requireNonNull(path);
+        Objects.requireNonNull(meta);
+
+        try (final BufferedWriter writer = Files.newBufferedWriter(path, CHARSET)) {
+            this.write(writer, meta);
         }
     }
 
@@ -203,8 +223,11 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(Writer writer, PluginMetadata... meta) throws IOException {
-        write(writer, asList(meta));
+    public void write(final Writer writer, final PluginMetadata... meta) throws IOException {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(meta);
+
+        this.write(writer, asList(meta));
     }
 
     /**
@@ -215,8 +238,11 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(Writer writer, List<PluginMetadata> meta) throws IOException {
-        try (JsonWriter json = new JsonWriter(writer)) {
+    public void write(final Writer writer, final List<PluginMetadata> meta) throws IOException {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(meta);
+
+        try (final JsonWriter json = new JsonWriter(writer)) {
             json.setIndent(INDENT);
             write(json, meta);
             writer.write('\n'); // Add new line at the end of the file
@@ -230,7 +256,9 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(JsonWriter writer, PluginMetadata... meta) throws IOException {
+    public void write(final JsonWriter writer, final PluginMetadata... meta) throws IOException {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(meta);
         write(writer, asList(meta));
     }
 
@@ -242,7 +270,9 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(JsonWriter writer, List<PluginMetadata> meta) throws IOException {
+    public void write(final JsonWriter writer, final List<PluginMetadata> meta) throws IOException {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(meta);
         this.adapter.write(writer, meta);
     }
 
@@ -265,7 +295,7 @@ public final class McModInfo {
     public static final class Builder {
 
         private final GsonBuilder gson = new GsonBuilder();
-        private final ImmutableMap.Builder<String, Class<?>> extensions = ImmutableMap.builder();
+        private final Map<String, Class<?>> extensions = new HashMap<>();
 
         private Builder() {
         }
@@ -291,7 +321,8 @@ public final class McModInfo {
          * @param extensionClass The class to serialize the extension to
          * @return This builder instance
          */
-        public Builder registerExtension(String key, Class<?> extensionClass) {
+        public Builder registerExtension(final String key, final Class<?> extensionClass) {
+            Objects.requireNonNull(key);
             this.extensions.put(key, extensionClass);
             return this;
         }
@@ -307,8 +338,9 @@ public final class McModInfo {
          *
          * @see GsonBuilder#registerTypeAdapter(Type, Object)
          */
-        public Builder registerExtension(String key, Class<?> extensionClass, Object typeAdapter) {
-            registerExtension(key, extensionClass);
+        public Builder registerExtension(final String key, final Class<?> extensionClass, final Object typeAdapter) {
+            Objects.requireNonNull(key);
+            this.registerExtension(key, extensionClass);
             this.gson.registerTypeAdapter(extensionClass, typeAdapter);
             return this;
         }
@@ -319,9 +351,8 @@ public final class McModInfo {
          * @return The built serializer
          */
         public McModInfo build() {
-            return new McModInfo(new ModMetadataCollectionAdapter(new ModMetadataAdapter(this.gson.create(), this.extensions.build())));
+            return new McModInfo(new ModMetadataCollectionAdapter(new ModMetadataAdapter(this.gson.create(), this.extensions)));
         }
-
     }
 
 }

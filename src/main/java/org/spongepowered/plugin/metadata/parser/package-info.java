@@ -22,32 +22,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.meta;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-
-class PluginMetadataTest {
-    @Test
-    void testIdPattern() {
-        // must be at least 2 characters
-        Assertions.assertFalse(PluginMetadata.ID_PATTERN.matcher("a").matches());
-
-        Assertions.assertTrue(PluginMetadata.ID_PATTERN.matcher("ab").matches());
-        Assertions.assertTrue(PluginMetadata.ID_PATTERN.matcher("a0").matches());
-
-        // must start with a-z
-        Assertions.assertFalse(PluginMetadata.ID_PATTERN.matcher("0a").matches());
-
-        // cannot contain uppercase characters
-        Assertions.assertFalse(PluginMetadata.ID_PATTERN.matcher("Ab").matches());
-        Assertions.assertFalse(PluginMetadata.ID_PATTERN.matcher("aB").matches());
-
-        // up to 64 characters
-        Assertions.assertTrue(PluginMetadata.ID_PATTERN.matcher(String.join("", Collections.nCopies(64, "a"))).matches());
-        // but no longer
-        Assertions.assertFalse(PluginMetadata.ID_PATTERN.matcher(String.join("", Collections.nCopies(65, "a"))).matches());
-    }
-}
+@org.checkerframework.framework.qual.DefaultQualifier(org.checkerframework.checker.nullness.qual.NonNull.class)
+package org.spongepowered.plugin.metadata.parser;

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.meta.gson;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -35,6 +34,7 @@ import org.spongepowered.plugin.meta.PluginDependency;
 import org.spongepowered.plugin.meta.PluginMetadata;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,14 +42,14 @@ import java.util.Set;
 
 public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
-    public static final ModMetadataAdapter DEFAULT = new ModMetadataAdapter(new Gson(), ImmutableMap.of());
+    public static final ModMetadataAdapter DEFAULT = new ModMetadataAdapter(new Gson(), new HashMap<>());
 
     private static final char VERSION_SEPARATOR = '@';
 
     private final Gson gson;
-    private final ImmutableMap<String, Class<?>> extensions;
+    private final Map<String, Class<?>> extensions;
 
-    public ModMetadataAdapter(Gson gson, ImmutableMap<String, Class<?>> extensions) {
+    public ModMetadataAdapter(Gson gson, Map<String, Class<?>> extensions) {
         this.gson = gson;
         this.extensions = extensions;
     }
@@ -58,8 +58,8 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         return this.gson;
     }
 
-    public ImmutableMap<String, Class<?>> getExtensions() {
-        return this.extensions;
+    public Map<String, Class<?>> getExtensions() {
+        return Collections.unmodifiableMap(this.extensions);
     }
 
     public Class<?> getExtension(String key) {
@@ -68,7 +68,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     @Override
-    public PluginMetadata read(JsonReader in) throws IOException {
+    public PluginMetadata read(final JsonReader in) throws IOException {
         in.beginObject();
 
         final Set<String> processedKeys = new HashSet<>();
@@ -149,8 +149,8 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         return result;
     }
 
-    private static void readDependencies(JsonReader in, PluginMetadata result, PluginDependency.LoadOrder loadOrder,
-            Map<String, PluginDependency> requiredDependencies) throws IOException {
+    private static void readDependencies(final JsonReader in, final PluginMetadata result, final PluginDependency.LoadOrder loadOrder,
+            final Map<String, PluginDependency> requiredDependencies) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
             PluginDependency dependency = readDependency(in, loadOrder, true);
@@ -171,7 +171,8 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         in.endArray();
     }
 
-    private static PluginDependency readDependency(JsonReader in, PluginDependency.LoadOrder loadOrder, boolean optional) throws IOException {
+    private static PluginDependency readDependency(final JsonReader in, final PluginDependency.LoadOrder loadOrder, final boolean optional)
+            throws IOException {
         final String version = in.nextString();
         int pos = version.indexOf(VERSION_SEPARATOR);
         if (pos < 0) {
@@ -182,8 +183,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void write(JsonWriter out, PluginMetadata meta) throws IOException {
+    public void write(final JsonWriter out, final PluginMetadata meta) throws IOException {
         out.beginObject();
         out.name("modid").value(meta.getId());
         writeIfPresent(out, "name", meta.getName());
@@ -227,13 +227,13 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         out.endObject();
     }
 
-    private static void writeIfPresent(JsonWriter out, String key, @Nullable String value) throws IOException {
+    private static void writeIfPresent(final JsonWriter out, final String key, @Nullable final String value) throws IOException {
         if (value != null) {
             out.name(key).value(value);
         }
     }
 
-    private static void writeDependencies(JsonWriter out, String key, @Nullable Set<PluginDependency> dependencies) throws IOException {
+    private static void writeDependencies(final JsonWriter out, final String key, @Nullable final Set<PluginDependency> dependencies) throws IOException {
         if (dependencies != null && !dependencies.isEmpty()) {
             out.name(key).beginArray();
             for (PluginDependency dependency : dependencies) {
@@ -243,7 +243,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         }
     }
 
-    private static void writeDependency(JsonWriter out, PluginDependency dependency) throws IOException {
+    private static void writeDependency(final JsonWriter out, final PluginDependency dependency) throws IOException {
         if (dependency.getVersion() == null) {
             out.value(dependency.getId());
         } else {

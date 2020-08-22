@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.parser;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -41,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,12 +49,16 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private final Gson gson;
 
     public PluginMetadataAdapter(final Gson gson) {
-        this.gson = Preconditions.checkNotNull(gson);
+        this.gson = Objects.requireNonNull(gson);
     }
 
     @Override
     public void write(final JsonWriter out, final PluginMetadata value) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(value);
+
         out.beginObject();
+        out.name("loader").value(value.getLoader());
         out.name("id").value(value.getId());
         this.writeStringIfPresent(out, "name", value.getName());
         out.name("version").value(value.getVersion());
@@ -69,6 +73,8 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
     @Override
     public PluginMetadata read(final JsonReader in) throws IOException {
+        Objects.requireNonNull(in);
+
         in.beginObject();
         final Set<String> processedKeys = new HashSet<>();
         final PluginMetadata.Builder builder = PluginMetadata.builder();
@@ -79,6 +85,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
 
             switch (key) {
+                case "loader":
+                    builder.setLoader(in.nextString());
+                    break;
                 case "id":
                     builder.setId(in.nextString());
                     break;
@@ -121,6 +130,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void readLinks(final JsonReader in, final PluginMetadata.Builder builder) throws IOException {
+        Objects.requireNonNull(in);
+        Objects.requireNonNull(builder);
+
         in.beginObject();
         final Set<String> processedKeys = new HashSet<>();
         final PluginLinks.Builder linksBuilder = PluginLinks.builder();
@@ -146,6 +158,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void readContributors(final JsonReader in, final PluginMetadata.Builder builder) throws IOException {
+        Objects.requireNonNull(in);
+        Objects.requireNonNull(builder);
+
         in.beginArray();
         while (in.hasNext()) {
             builder.contributor(this.readContributor(in));
@@ -154,6 +169,8 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private PluginContributor readContributor(final JsonReader in) throws IOException {
+        Objects.requireNonNull(in);
+
         in.beginObject();
         final Set<String> processedKeys = new HashSet<>();
         final PluginContributor.Builder builder = PluginContributor.builder();
@@ -176,6 +193,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void readDependencies(final JsonReader in, final PluginMetadata.Builder builder) throws IOException {
+        Objects.requireNonNull(in);
+        Objects.requireNonNull(builder);
+
         in.beginArray();
         while (in.hasNext()) {
             builder.dependency(this.readDependency(in));
@@ -184,6 +204,8 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private PluginDependency readDependency(final JsonReader in) throws IOException {
+        Objects.requireNonNull(in);
+
         in.beginObject();
         final Set<String> processedKeys = new HashSet<>();
         final PluginDependency.Builder builder = PluginDependency.builder();
@@ -216,6 +238,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void writeLinks(final JsonWriter out, final PluginLinks links) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(links);
+
         if (!links.getHomepage().isPresent() && !links.getSource().isPresent() && !links.getIssues().isPresent()) {
             return;
         }
@@ -227,6 +252,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void writeContributors(final JsonWriter out, final List<PluginContributor> contributors) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(contributors);
+
         if (contributors.isEmpty()) {
             return;
         }
@@ -241,6 +269,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void writeDependencies(final JsonWriter out, final List<PluginDependency> dependencies) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(dependencies);
+
         if (dependencies.isEmpty()) {
             return;
         }
@@ -259,6 +290,9 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void writeExtraMetadata(final JsonWriter out, final Map<String, Object> extraMetadata) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(extraMetadata);
+
         if (extraMetadata.isEmpty()) {
             return;
         }
@@ -274,12 +308,20 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
     }
 
     private void writeStringIfPresent(final JsonWriter out, final String name, final Optional<String> value) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(value);
+
         if (value.isPresent()) {
             out.name(name).value(value.get());
         }
     }
 
     private void writeURLIfPresent(final JsonWriter out, final String name, final Optional<URL> value) throws IOException {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(value);
+
         if (value.isPresent()) {
             out.name(name).value(value.get().toString());
         }

@@ -24,14 +24,6 @@
  */
 package org.spongepowered.plugin.meta;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.emptyToNull;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -39,10 +31,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -78,8 +73,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param id The plugin ID
      * @throws IllegalArgumentException If the plugin ID is empty
      */
-    public PluginMetadata(String id) {
-        setId(id);
+    public PluginMetadata(final String id) {
+        Objects.requireNonNull(id);
+
+        this.setId(id);
     }
 
     /**
@@ -97,9 +94,12 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param id The plugin ID
      * @throws IllegalArgumentException If the plugin ID is empty
      */
-    public void setId(String id) {
-        checkNotNull(id, "The plugin ID cannot be null.");
-        checkArgument(!id.isEmpty(), "The plugin ID cannot be empty.");
+    public void setId(final String id) {
+        Objects.requireNonNull(id);
+
+        if (id.isEmpty()) {
+            throw new IllegalArgumentException("The plugin id cannot be empty.");
+        }
         this.id = id;
     }
 
@@ -119,7 +119,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param name The plugin name or {@code null} to reset
      */
     public void setName(@Nullable String name) {
-        this.name = emptyToNull(name);
+        this.name = name != null && !name.isEmpty() ? name : null;
     }
 
     /**
@@ -138,7 +138,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param version The plugin version or {@code null} to reset
      */
     public void setVersion(@Nullable String version) {
-        this.version = emptyToNull(version);
+        this.version = version != null && !version.isEmpty() ? version : null;
     }
 
     /**
@@ -157,7 +157,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param description The plugin description or {@code null} to reset
      */
     public void setDescription(@Nullable String description) {
-        this.description = emptyToNull(description);
+        this.description = description != null && !description.isEmpty() ? description : null;
     }
 
     /**
@@ -176,7 +176,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param url The URL or {@code null} to reset
      */
     public void setUrl(@Nullable String url) {
-        this.url = emptyToNull(url);
+        this.url = url != null && !url.isEmpty() ? url : null;
     }
 
     /**
@@ -198,8 +198,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws IllegalArgumentException If the author is empty
      */
     public void addAuthor(String author) {
-        checkNotNull(author, "author");
-        checkArgument(!author.isEmpty(), "Author cannot be empty");
+        Objects.requireNonNull(author);
+
+        if (author.isEmpty()) {
+            throw new IllegalArgumentException("Author cannot be empty");
+        }
         this.authors.add(author);
     }
 
@@ -210,10 +213,13 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws IllegalArgumentException If the author is empty or has any invalid authors
      */
     public void addAuthors(String... authors) {
-        checkNotNull(authors, "authors");
-        checkArgument(authors.length > 0, "Author list cannot be empty");
-        for (String author : authors) {
-            addAuthor(author);
+        Objects.requireNonNull(authors);
+
+        if (authors.length == 0) {
+            throw new IllegalArgumentException("Author list cannot be empty");
+        }
+        for (final String author : authors) {
+            this.addAuthor(author);
         }
     }
 
@@ -223,7 +229,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param author The author to remove
      * @return True if the operation was successful
      */
-    public boolean removeAuthor(String author) {
+    public boolean removeAuthor(final String author) {
+        Objects.requireNonNull(author);
+
         return this.authors.remove(author);
     }
 
@@ -258,18 +266,18 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      */
     public Set<PluginDependency> collectRequiredDependencies() {
         if (this.dependencies.isEmpty()) {
-            return ImmutableSet.of();
+            return Collections.emptySet();
         }
 
-        ImmutableSet.Builder<PluginDependency> builder = ImmutableSet.builder();
+        final Set<PluginDependency> set = new HashSet<>();
 
-        for (PluginDependency dependency : this.dependencies.values()) {
+        for (final PluginDependency dependency : this.dependencies.values()) {
             if (!dependency.isOptional()) {
-                builder.add(dependency);
+                set.add(dependency);
             }
         }
 
-        return builder.build();
+        return Collections.unmodifiableSet(set);
     }
 
     /**
@@ -281,13 +289,13 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      */
     public Map<PluginDependency.LoadOrder, Set<PluginDependency>> groupDependenciesByLoadOrder() {
         if (this.dependencies.isEmpty()) {
-            return ImmutableMap.of();
+            return Collections.emptyMap();
         }
 
-        EnumMap<PluginDependency.LoadOrder, Set<PluginDependency>> map = new EnumMap<>(PluginDependency.LoadOrder.class);
+        final EnumMap<PluginDependency.LoadOrder, Set<PluginDependency>> map = new EnumMap<>(PluginDependency.LoadOrder.class);
 
-        for (PluginDependency.LoadOrder order : PluginDependency.LoadOrder.values()) {
-            ImmutableSet.Builder<PluginDependency> dependencies = ImmutableSet.builder();
+        for (final PluginDependency.LoadOrder order : PluginDependency.LoadOrder.values()) {
+            final Set<PluginDependency> dependencies = new HashSet<>();
 
             for (PluginDependency dependency : this.dependencies.values()) {
                 if (dependency.getLoadOrder() == order) {
@@ -295,10 +303,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
                 }
             }
 
-            map.put(order, dependencies.build());
+            map.put(order, Collections.unmodifiableSet(dependencies));
         }
 
-        return Maps.immutableEnumMap(map);
+        return Collections.unmodifiableMap(map);
     }
 
     /**
@@ -309,7 +317,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @return The dependency or {@code null} if there is no such dependency
      */
     @Nullable
-    public PluginDependency getDependency(String id) {
+    public PluginDependency getDependency(final String id) {
+        Objects.requireNonNull(id);
+
         return this.dependencies.get(id);
     }
 
@@ -320,10 +330,14 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws IllegalArgumentException If this plugin already has a dependency
      *     with the specified plugin ID
      */
-    public void addDependency(PluginDependency dependency) {
-        String id = dependency.getId();
-        checkArgument(!this.dependencies.containsKey(id), "Duplicate dependency with plugin ID: %s", id);
-        this.dependencies.put(id, dependency);
+    public void addDependency(final PluginDependency dependency) {
+        Objects.requireNonNull(dependency);
+
+        final String id = dependency.getId();
+        @Nullable final PluginDependency dup = this.dependencies.putIfAbsent(id, dependency);
+        if (dup != null) {
+            throw new IllegalArgumentException("Duplicate dependency with plugin ID: " + id);
+        }
     }
 
     /**
@@ -332,10 +346,11 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param dependencies The dependencies to add
      * @throws IllegalArgumentException If the plugins are null or invalid
      */
-    public void addDependencies(PluginDependency... dependencies) {
-        checkNotNull(dependencies, "dependencies");
-        for (PluginDependency dependency : dependencies) {
-            addDependency(dependency);
+    public void addDependencies(final PluginDependency... dependencies) {
+        Objects.requireNonNull(dependencies);
+
+        for (final PluginDependency dependency : dependencies) {
+            this.addDependency(dependency);
         }
     }
 
@@ -350,7 +365,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *     or {@code null} if this is a new dependency
      */
     @Nullable
-    public PluginDependency replaceDependency(PluginDependency dependency) {
+    public PluginDependency replaceDependency(final PluginDependency dependency) {
+        Objects.requireNonNull(dependency);
+
         return this.dependencies.put(dependency.getId(), dependency);
     }
 
@@ -360,7 +377,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param id The plugin ID of the dependency to remove
      * @return True if the operation was successful
      */
-    public boolean removeDependency(String id) {
+    public boolean removeDependency(final String id) {
+        Objects.requireNonNull(id);
+
         return this.dependencies.remove(id) != null;
     }
 
@@ -392,7 +411,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      */
     @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T getExtension(String key) {
+    public <T> T getExtension(final String key) {
+        Objects.requireNonNull(key);
+
         return (T) this.extensions.get(key);
     }
 
@@ -402,8 +423,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param key The key of the extension
      * @param extension The extension
      */
-    public void setExtension(String key, Object extension) {
-        checkNotNull(extension, "The extension cannot be null.");
+    public void setExtension(final String key, final Object extension) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(extension);
+
         this.extensions.put(key, extension);
     }
 
@@ -413,7 +436,9 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param key The key of the extension
      * @return True if the operation was successful
      */
-    public boolean removeExtension(String key) {
+    public boolean removeExtension(final String key) {
+        Objects.requireNonNull(key);
+
         return this.extensions.remove(key) != null;
     }
 
@@ -426,8 +451,12 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws IllegalArgumentException If the plugin IDs don't match
      */
     @Override
-    public void accept(PluginMetadata other) {
-        checkArgument(this.id.equals(other.id), "The plugin IDs must match.");
+    public void accept(final PluginMetadata other) {
+        Objects.requireNonNull(other);
+
+        if (!this.id.equals(other.id)) {
+            throw new IllegalArgumentException("The plugin IDs must match.");
+        }
 
         if (other.name != null) {
             this.name = other.name;
@@ -458,7 +487,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     }
 
     @SuppressWarnings("unchecked")
-    private void mergeExtension(String key, Object extension) {
+    private void mergeExtension(final String key, final Object extension) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(extension);
+
         Object currentValue = this.extensions.get(key);
         if (currentValue == null) {
             this.extensions.put(key, extension);
@@ -477,17 +509,23 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .omitNullValues()
-                .add("id", this.id)
-                .add("name", this.name)
-                .add("version", this.version)
-                .add("description", this.description)
-                .add("url", this.url)
-                .add("authors", this.authors)
-                .add("dependencies", this.dependencies)
-                .add("extensions", this.extensions)
+        final StringJoiner joiner = new StringJoiner(", ", PluginMetadata.class.getSimpleName() + "[", "]")
+                .add("id=" + this.id);
+        if (this.name != null) {
+            joiner.add("name=" + this.name);
+        }
+        if (this.version != null) {
+            joiner.add("version=" + this.version);
+        }
+        if (this.description != null) {
+            joiner.add("description=" + this.description);
+        }
+        if (this.url != null) {
+            joiner.add("url=" + this.url);
+        }
+        return joiner.add("authors=" + this.authors)
+                .add("dependencies=" + this.dependencies)
+                .add("extensions=" + this.extensions)
                 .toString();
     }
-
 }

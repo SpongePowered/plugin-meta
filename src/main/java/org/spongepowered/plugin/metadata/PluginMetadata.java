@@ -24,8 +24,6 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -33,7 +31,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * The specification of a typical plugin's metadata as defined by this library
@@ -43,15 +43,21 @@ import java.util.Optional;
  */
 public final class PluginMetadata {
 
-    private final String id, name, version, mainClass, description;
+    private final String loader, id, version, mainClass;
+    @Nullable private final String name, description;
     private final PluginLinks links;
     private final List<PluginContributor> contributors;
     private final List<PluginDependency> dependencies;
     private final Map<String, Object> extraMetadata;
 
     private PluginMetadata(final Builder builder) {
-        Preconditions.checkNotNull(builder);
+        Objects.requireNonNull(builder);
+        Objects.requireNonNull(builder.loader);
+        Objects.requireNonNull(builder.id);
+        Objects.requireNonNull(builder.version);
+        Objects.requireNonNull(builder.mainClass);
 
+        this.loader = builder.loader;
         this.id = builder.id;
         this.name = builder.name;
         this.version = builder.version;
@@ -65,6 +71,10 @@ public final class PluginMetadata {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public String getLoader() {
+        return this.loader;
     }
 
     public String getId() {
@@ -105,29 +115,38 @@ public final class PluginMetadata {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("id", this.id)
-            .add("name", this.name)
-            .add("version", this.version)
-            .add("mainClass", this.mainClass)
-            .add("description", this.description)
-            .add("links", this.links)
-            .add("contributors", this.contributors)
-            .add("dependencies", this.dependencies)
-            .add("extraMetadata", this.extraMetadata)
-            .toString();
+        return new StringJoiner(", ", PluginMetadata.class.getSimpleName() + "[", "]")
+                .add("loader=" + this.loader)
+                .add("id=" + this.id)
+                .add("name=" + this.name)
+                .add("version=" + this.version)
+                .add("mainClass=" + this.mainClass)
+                .add("description=" + this.description)
+                .add("links=" + this.links)
+                .add("contributors=" + this.contributors)
+                .add("dependencies=" + this.dependencies)
+                .add("extraMetadata=" + this.extraMetadata)
+                .toString();
     }
 
     public static final class Builder {
 
-        String id, name, version, mainClass, description;
+        @Nullable String loader, id, name, version, mainClass, description;
         PluginLinks links = new PluginLinks();
         List<PluginContributor> contributors = new ArrayList<>();
         List<PluginDependency> dependencies = new ArrayList<>();
         Map<String, Object> extraMetadata = new HashMap<>();
 
+        private Builder() {
+        }
+
+        public Builder setLoader(final String loader) {
+            this.loader = Objects.requireNonNull(loader);
+            return this;
+        }
+        
         public Builder setId(final String id) {
-            this.id = Preconditions.checkNotNull(id);
+            this.id = Objects.requireNonNull(id);
             return this;
         }
 
@@ -137,12 +156,12 @@ public final class PluginMetadata {
         }
 
         public Builder setVersion(final String version) {
-            this.version = Preconditions.checkNotNull(version);
+            this.version = Objects.requireNonNull(version);
             return this;
         }
 
         public Builder setMainClass(final String mainClass) {
-            this.mainClass = Preconditions.checkNotNull(mainClass);
+            this.mainClass = Objects.requireNonNull(mainClass);
             return this;
         }
 
@@ -152,48 +171,49 @@ public final class PluginMetadata {
         }
 
         public Builder setLinks(final PluginLinks links) {
-            this.links = Preconditions.checkNotNull(links);
+            this.links = Objects.requireNonNull(links);
             return this;
         }
 
         public Builder setContributors(final List<PluginContributor> contributors) {
-            this.contributors = Preconditions.checkNotNull(contributors);
+            this.contributors = Objects.requireNonNull(contributors);
             return this;
         }
 
         public Builder contributor(final PluginContributor developer) {
-            this.contributors.add(Preconditions.checkNotNull(developer));
+            this.contributors.add(Objects.requireNonNull(developer));
             return this;
         }
 
         public Builder setDependencies(final List<PluginDependency> dependencies) {
-            this.dependencies = Preconditions.checkNotNull(dependencies);
+            this.dependencies = Objects.requireNonNull(dependencies);
             return this;
         }
 
         public Builder dependency(final PluginDependency dependency) {
-            Preconditions.checkNotNull(dependency);
+            Objects.requireNonNull(dependency);
             this.dependencies.add(dependency);
             return this;
         }
 
         public Builder setExtraMetadata(final Map<String, Object> extraMetadata) {
-            this.extraMetadata = Preconditions.checkNotNull(extraMetadata);
+            this.extraMetadata = Objects.requireNonNull(extraMetadata);
             return this;
         }
 
         public Builder extraMetadata(final String key, final Object value) {
-            Preconditions.checkNotNull(key);
-            Preconditions.checkNotNull(value);
+            Objects.requireNonNull(key);
+            Objects.requireNonNull(value);
 
             this.extraMetadata.put(key, value);
             return this;
         }
 
         public PluginMetadata build() {
-            Preconditions.checkNotNull(this.id);
-            Preconditions.checkNotNull(this.version);
-            Preconditions.checkNotNull(this.mainClass);
+            Objects.requireNonNull(this.loader);
+            Objects.requireNonNull(this.id);
+            Objects.requireNonNull(this.version);
+            Objects.requireNonNull(this.mainClass);
 
             return new PluginMetadata(this);
         }

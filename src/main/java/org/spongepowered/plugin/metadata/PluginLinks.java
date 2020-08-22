@@ -24,11 +24,12 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import com.google.common.base.MoreObjects;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Specification for an entity representing the links to "web resources" of a plugin.
@@ -41,6 +42,8 @@ public final class PluginLinks {
     private final @Nullable URL homepage, source, issues;
 
     private PluginLinks(final Builder builder) {
+        Objects.requireNonNull(builder);
+
         this.homepage = builder.homepage;
         this.source = builder.source;
         this.issues = builder.issues;
@@ -70,16 +73,19 @@ public final class PluginLinks {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("homepage", this.homepage)
-            .add("source", this.source)
-            .add("issues", this.issues)
-            .toString();
+        return new StringJoiner(", ", PluginLinks.class.getSimpleName() + "[", "]")
+                .add("homepage=" + this.homepage)
+                .add("source=" + this.source)
+                .add("issues=" + this.issues)
+                .toString();
     }
 
     public static final class Builder {
 
-        URL homepage, source, issues;
+        @Nullable URL homepage, source, issues;
+
+        private Builder() {
+        }
 
         public Builder setHomepage(@Nullable final URL homepage) {
             this.homepage = homepage;
