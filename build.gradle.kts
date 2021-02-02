@@ -32,6 +32,17 @@ allprojects {
         }
         mitLicense()
 
+        configurePublications {
+            pom {
+                developers {
+                    developer {
+                        name.set("SpongePowered Team")
+                        email.set("staff@spongepowered.org")
+                    }
+                }
+            }
+        }
+
         if (spongeReleaseRepo != null && spongeSnapshotRepo != null) {
             publishSnapshotsTo("sponge", spongeSnapshotRepo)
             publishReleasesTo("sponge", spongeReleaseRepo)
