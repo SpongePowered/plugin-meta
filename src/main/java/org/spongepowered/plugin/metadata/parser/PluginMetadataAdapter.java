@@ -58,16 +58,16 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         Objects.requireNonNull(value);
 
         out.beginObject();
-        out.name("loader").value(value.getLoader());
-        out.name("id").value(value.getId());
-        this.writeStringIfPresent(out, "name", value.getName());
-        out.name("version").value(value.getVersion());
-        out.name("main-class").value(value.getMainClass());
-        this.writeStringIfPresent(out, "description", value.getDescription());
-        this.writeLinks(out, value.getLinks());
-        this.writeContributors(out, value.getContributors());
-        this.writeDependencies(out, value.getDependencies());
-        this.writeExtraMetadata(out, value.getExtraMetadata());
+        out.name("loader").value(value.loader());
+        out.name("id").value(value.id());
+        this.writeStringIfPresent(out, "name", value.name());
+        out.name("version").value(value.version());
+        out.name("main-class").value(value.mainClass());
+        this.writeStringIfPresent(out, "description", value.description());
+        this.writeLinks(out, value.links());
+        this.writeContributors(out, value.contributors());
+        this.writeDependencies(out, value.dependencies());
+        this.writeExtraMetadata(out, value.extraMetadata());
         out.endObject();
     }
 
@@ -86,22 +86,22 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
             switch (key) {
                 case "loader":
-                    builder.setLoader(in.nextString());
+                    builder.loader(in.nextString());
                     break;
                 case "id":
-                    builder.setId(in.nextString());
+                    builder.id(in.nextString());
                     break;
                 case "name":
-                    builder.setName(in.nextString());
+                    builder.name(in.nextString());
                     break;
                 case "version":
-                    builder.setVersion(in.nextString());
+                    builder.version(in.nextString());
                     break;
                 case "main-class":
-                    builder.setMainClass(in.nextString());
+                    builder.mainClass(in.nextString());
                     break;
                 case "description":
-                    builder.setDescription(in.nextString());
+                    builder.description(in.nextString());
                     break;
                 case "links":
                     this.readLinks(in, builder);
@@ -122,7 +122,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
                     }
                     in.endObject();
                     // TODO Move Extra Metadata to String -> String
-                    builder.setExtraMetadata((Map<String, Object>) (Object) extraMetadata);
+                    builder.extraMetadata((Map<String, Object>) (Object) extraMetadata);
             }
         }
         in.endObject();
@@ -143,17 +143,17 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
             switch (key) {
                 case "homepage":
-                    linksBuilder.setHomepage(new URL(in.nextString()));
+                    linksBuilder.homepage(new URL(in.nextString()));
                     break;
                 case "source":
-                    linksBuilder.setSource(new URL(in.nextString()));
+                    linksBuilder.source(new URL(in.nextString()));
                     break;
                 case "issues":
-                    linksBuilder.setIssues(new URL(in.nextString()));
+                    linksBuilder.issues(new URL(in.nextString()));
                     break;
             }
         }
-        builder.setLinks(linksBuilder.build());
+        builder.links(linksBuilder.build());
         in.endObject();
     }
 
@@ -163,7 +163,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         in.beginArray();
         while (in.hasNext()) {
-            builder.contributor(this.readContributor(in));
+            builder.addContributor(this.readContributor(in));
         }
         in.endArray();
     }
@@ -181,10 +181,10 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
             switch (key) {
                 case "name":
-                    builder.setName(in.nextString());
+                    builder.name(in.nextString());
                     break;
                 case "description":
-                    builder.setDescription(in.nextString());
+                    builder.description(in.nextString());
                     break;
             }
         }
@@ -198,7 +198,7 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
 
         in.beginArray();
         while (in.hasNext()) {
-            builder.dependency(this.readDependency(in));
+            builder.addDependency(this.readDependency(in));
         }
         in.endArray();
     }
@@ -216,17 +216,17 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
             }
             switch (key) {
                 case "id":
-                    builder.setId(in.nextString());
+                    builder.id(in.nextString());
                     break;
                 case "version":
-                    builder.setVersion(in.nextString());
+                    builder.version(in.nextString());
                     break;
                 case "optional":
-                    builder.setOptional(in.nextBoolean());
+                    builder.optional(in.nextBoolean());
                     break;
                 case "load-order":
                     try {
-                        builder.setLoadOrder(PluginDependency.LoadOrder.valueOf(in.nextString().toUpperCase()));
+                        builder.loadOrder(PluginDependency.LoadOrder.valueOf(in.nextString().toUpperCase()));
                     } catch (final Exception ex) {
                         throw new JsonParseException("Invalid load order found in " + in, ex);
                     }
@@ -241,13 +241,13 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         Objects.requireNonNull(out);
         Objects.requireNonNull(links);
 
-        if (!links.getHomepage().isPresent() && !links.getSource().isPresent() && !links.getIssues().isPresent()) {
+        if (!links.homepage().isPresent() && !links.source().isPresent() && !links.issues().isPresent()) {
             return;
         }
         out.name("links").beginObject();
-        this.writeURLIfPresent(out, "homepage", links.getHomepage());
-        this.writeURLIfPresent(out, "source", links.getSource());
-        this.writeURLIfPresent(out, "issues", links.getIssues());
+        this.writeURLIfPresent(out, "homepage", links.homepage());
+        this.writeURLIfPresent(out, "source", links.source());
+        this.writeURLIfPresent(out, "issues", links.issues());
         out.endObject();
     }
 
@@ -261,8 +261,8 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         out.name("contributors").beginArray();
         for (final PluginContributor contributor : contributors) {
             out.beginObject();
-            out.name("name").value(contributor.getName());
-            this.writeStringIfPresent(out, "description", contributor.getDescription());
+            out.name("name").value(contributor.name());
+            this.writeStringIfPresent(out, "description", contributor.description());
             out.endObject();
         }
         out.endArray();
@@ -279,10 +279,10 @@ public final class PluginMetadataAdapter extends TypeAdapter<PluginMetadata> {
         out.name("dependencies").beginArray();
         for (final PluginDependency dependency : dependencies) {
             out.beginObject();
-            out.name("id").value(dependency.getId());
-            out.name("version").value(dependency.getVersion());
-            out.name("load-order").value(dependency.getLoadOrder().name());
-            out.name("optional").value(dependency.isOptional());
+            out.name("id").value(dependency.id());
+            out.name("version").value(dependency.version());
+            out.name("load-order").value(dependency.loadOrder().name());
+            out.name("optional").value(dependency.optional());
             out.endObject();
         }
 

@@ -56,11 +56,11 @@ public final class PluginContributor {
         return new Builder();
     }
 
-    public String getName() {
+    public String name() {
         return this.name;
     }
 
-    public Optional<String> getDescription() {
+    public Optional<String> description() {
         return Optional.ofNullable(this.description);
     }
 
@@ -96,12 +96,12 @@ public final class PluginContributor {
         private Builder() {
         }
 
-        public Builder setName(final String name) {
+        public Builder name(final String name) {
             this.name = Objects.requireNonNull(name);
             return this;
         }
 
-        public Builder setDescription(@Nullable final String description) {
+        public Builder description(@Nullable final String description) {
             this.description = description;
             return this;
         }

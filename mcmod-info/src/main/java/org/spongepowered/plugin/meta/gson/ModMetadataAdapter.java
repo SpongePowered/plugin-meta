@@ -49,21 +49,21 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private final Gson gson;
     private final Map<String, Class<?>> extensions;
 
-    public ModMetadataAdapter(Gson gson, Map<String, Class<?>> extensions) {
+    public ModMetadataAdapter(final Gson gson, final Map<String, Class<?>> extensions) {
         this.gson = gson;
         this.extensions = extensions;
     }
 
-    public Gson getGson() {
+    public Gson gson() {
         return this.gson;
     }
 
-    public Map<String, Class<?>> getExtensions() {
+    public Map<String, Class<?>> extensions() {
         return Collections.unmodifiableMap(this.extensions);
     }
 
-    public Class<?> getExtension(String key) {
-        Class<?> result = this.extensions.get(key);
+    public Class<?> extension(final String key) {
+        final Class<?> result = this.extensions.get(key);
         return result != null ? result : Object.class;
     }
 
@@ -74,9 +74,9 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
         final Set<String> processedKeys = new HashSet<>();
 
         final PluginMetadata result = new PluginMetadata("unknown");
-        String id = null;
+        @Nullable String id = null;
 
-        Map<String, PluginDependency> requiredDependencies = new HashMap<>();
+        final Map<String, PluginDependency> requiredDependencies = new HashMap<>();
 
         while (in.hasNext()) {
             final String name = in.nextName();
@@ -112,28 +112,28 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
                     in.beginArray();
                     while (in.hasNext()) {
                         // The version in requiredMods is redundant, we can just ignore it
-                        PluginDependency dependency = readDependency(in, PluginDependency.LoadOrder.NONE, false);
+                        final PluginDependency dependency = ModMetadataAdapter.readDependency(in, PluginDependency.LoadOrder.NONE, false);
 
                         // Attempt to update existing dependency
-                        PluginDependency existing = result.getDependency(dependency.getId());
+                        final @Nullable PluginDependency existing = result.dependency(dependency.id());
                         if (existing != null) {
                             // Make existing dependency required
-                            result.replaceDependency(existing.required());
+                            result.replaceDependency(existing.asRequired());
                         } else {
                             // Register dependency as required (delayed until later if there is a dependency with load order for the same plugin)
-                            requiredDependencies.put(dependency.getId(), dependency);
+                            requiredDependencies.put(dependency.id(), dependency);
                         }
                     }
                     in.endArray();
                     break;
                 case "dependencies":
-                    readDependencies(in, result, PluginDependency.LoadOrder.BEFORE, requiredDependencies);
+                    ModMetadataAdapter.readDependencies(in, result, PluginDependency.LoadOrder.BEFORE, requiredDependencies);
                     break;
                 case "dependants":
-                    readDependencies(in, result, PluginDependency.LoadOrder.AFTER, requiredDependencies);
+                    ModMetadataAdapter.readDependencies(in, result, PluginDependency.LoadOrder.AFTER, requiredDependencies);
                     break;
                 default:
-                    result.setExtension(name, this.gson.fromJson(in, getExtension(name)));
+                    result.setExtension(name, this.gson.fromJson(in, this.extension(name)));
             }
         }
 
@@ -153,17 +153,17 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
             final Map<String, PluginDependency> requiredDependencies) throws IOException {
         in.beginArray();
         while (in.hasNext()) {
-            PluginDependency dependency = readDependency(in, loadOrder, true);
+            PluginDependency dependency = ModMetadataAdapter.readDependency(in, loadOrder, true);
 
             // Make dependency required if we already know it is required
-            PluginDependency required = requiredDependencies.remove(dependency.getId());
+            final PluginDependency required = requiredDependencies.remove(dependency.id());
             if (required != null) {
-                if (required.getVersion() != null && !required.getVersion().equals(dependency.getVersion())) {
+                if (required.version() != null && !required.version().equals(dependency.version())) {
                     throw new IllegalArgumentException("Found conflicting version in required dependency: "
-                            + dependency.getVersion() + " != " + required.getVersion());
+                            + dependency.version() + " != " + required.version());
                 }
 
-                dependency = dependency.required();
+                dependency = dependency.asRequired();
             }
 
             result.addDependency(dependency);
@@ -174,7 +174,7 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private static PluginDependency readDependency(final JsonReader in, final PluginDependency.LoadOrder loadOrder, final boolean optional)
             throws IOException {
         final String version = in.nextString();
-        int pos = version.indexOf(VERSION_SEPARATOR);
+        final int pos = version.indexOf(ModMetadataAdapter.VERSION_SEPARATOR);
         if (pos < 0) {
             return new PluginDependency(loadOrder, version, null, optional);
         } else {
@@ -185,43 +185,43 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     @Override
     public void write(final JsonWriter out, final PluginMetadata meta) throws IOException {
         out.beginObject();
-        out.name("modid").value(meta.getId());
-        writeIfPresent(out, "name", meta.getName());
-        writeIfPresent(out, "version", meta.getVersion());
-        writeIfPresent(out, "description", meta.getDescription());
-        writeIfPresent(out, "url", meta.getUrl());
+        out.name("modid").value(meta.id());
+        ModMetadataAdapter.writeIfPresent(out, "name", meta.name());
+        ModMetadataAdapter.writeIfPresent(out, "version", meta.version());
+        ModMetadataAdapter.writeIfPresent(out, "description", meta.description());
+        ModMetadataAdapter.writeIfPresent(out, "url", meta.url());
 
-        if (!meta.getAuthors().isEmpty()) {
+        if (!meta.authors().isEmpty()) {
             out.name("authorList").beginArray();
-            for (String author : meta.getAuthors()) {
+            for (final String author : meta.authors()) {
                 out.value(author);
             }
             out.endArray();
         }
 
-        Map<PluginDependency.LoadOrder, Set<PluginDependency>> dependencies = meta.groupDependenciesByLoadOrder();
+        final Map<PluginDependency.LoadOrder, Set<PluginDependency>> dependencies = meta.groupDependenciesByLoadOrder();
 
         // Check if there are any dependencies we can't represent in the resulting file
         // (Optional dependencies with LoadOrder.NONE)
-        Set<PluginDependency> loadOrderNone = dependencies.get(PluginDependency.LoadOrder.NONE);
+        final Set<PluginDependency> loadOrderNone = dependencies.get(PluginDependency.LoadOrder.NONE);
         if (loadOrderNone != null) {
-            for (PluginDependency dependency : loadOrderNone) {
-                if (dependency.isOptional()) {
+            for (final PluginDependency dependency : loadOrderNone) {
+                if (dependency.optional()) {
                     throw new IllegalArgumentException("Cannot represent optional dependency with LoadOrder.NONE: " + dependency);
                 }
             }
         }
 
-        writeDependencies(out, "dependencies", dependencies.get(PluginDependency.LoadOrder.BEFORE));
-        writeDependencies(out, "dependants", dependencies.get(PluginDependency.LoadOrder.AFTER));
-        writeDependencies(out, "requiredMods", meta.collectRequiredDependencies());
+        ModMetadataAdapter.writeDependencies(out, "dependencies", dependencies.get(PluginDependency.LoadOrder.BEFORE));
+        ModMetadataAdapter.writeDependencies(out, "dependants", dependencies.get(PluginDependency.LoadOrder.AFTER));
+        ModMetadataAdapter.writeDependencies(out, "requiredMods", meta.collectRequiredDependencies());
 
-        for (Map.Entry<String, Object> entry : meta.getExtensions().entrySet()) {
+        for (final Map.Entry<String, Object> entry : meta.extensions().entrySet()) {
             final String key = entry.getKey();
             final Object value = entry.getValue();
 
             out.name(key);
-            this.gson.toJson(value, getExtension(key), out);
+            this.gson.toJson(value, this.extension(key), out);
         }
 
         out.endObject();
@@ -236,18 +236,18 @@ public final class ModMetadataAdapter extends TypeAdapter<PluginMetadata> {
     private static void writeDependencies(final JsonWriter out, final String key, @Nullable final Set<PluginDependency> dependencies) throws IOException {
         if (dependencies != null && !dependencies.isEmpty()) {
             out.name(key).beginArray();
-            for (PluginDependency dependency : dependencies) {
-                writeDependency(out, dependency);
+            for (final PluginDependency dependency : dependencies) {
+                ModMetadataAdapter.writeDependency(out, dependency);
             }
             out.endArray();
         }
     }
 
     private static void writeDependency(final JsonWriter out, final PluginDependency dependency) throws IOException {
-        if (dependency.getVersion() == null) {
-            out.value(dependency.getId());
+        if (dependency.version() == null) {
+            out.value(dependency.id());
         } else {
-            out.value(dependency.getId() + VERSION_SEPARATOR + dependency.getVersion());
+            out.value(dependency.id() + ModMetadataAdapter.VERSION_SEPARATOR + dependency.version());
         }
     }
 

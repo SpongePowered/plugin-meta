@@ -24,6 +24,7 @@
  */
 package org.spongepowered.plugin.meta;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
@@ -54,12 +55,12 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      */
     public static final Pattern ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-_]{1,63}$");
 
-    private String id;
-    @Nullable private String name;
-    @Nullable private String version;
+    private @MonotonicNonNull String id;
+    private @Nullable String name;
+    private @Nullable String version;
 
-    @Nullable private String description;
-    @Nullable private String url;
+    private @Nullable String description;
+    private @Nullable String url;
 
     private final List<String> authors = new ArrayList<>();
 
@@ -84,7 +85,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The plugin ID
      */
-    public String getId() {
+    public String id() {
         return this.id;
     }
 
@@ -108,8 +109,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The plugin name or {@code null} if unknown
      */
-    @Nullable
-    public String getName() {
+    public @Nullable String name() {
         return this.name;
     }
 
@@ -118,7 +118,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @param name The plugin name or {@code null} to reset
      */
-    public void setName(@Nullable String name) {
+    public void setName(final @Nullable String name) {
         this.name = name != null && !name.isEmpty() ? name : null;
     }
 
@@ -127,8 +127,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The plugin version or {@code null} if unknown
      */
-    @Nullable
-    public String getVersion() {
+    public @Nullable String version() {
         return this.version;
     }
 
@@ -137,7 +136,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @param version The plugin version or {@code null} to reset
      */
-    public void setVersion(@Nullable String version) {
+    public void setVersion(final @Nullable String version) {
         this.version = version != null && !version.isEmpty() ? version : null;
     }
 
@@ -146,8 +145,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The plugin description or {@code null} if unknown
      */
-    @Nullable
-    public String getDescription() {
+    public @Nullable String description() {
         return this.description;
     }
 
@@ -156,7 +154,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @param description The plugin description or {@code null} to reset
      */
-    public void setDescription(@Nullable String description) {
+    public void setDescription(final @Nullable String description) {
         this.description = description != null && !description.isEmpty() ? description : null;
     }
 
@@ -165,8 +163,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The URL or {@code null} if unknown
      */
-    @Nullable
-    public String getUrl() {
+    public @Nullable String url() {
         return this.url;
     }
 
@@ -175,7 +172,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @param url The URL or {@code null} to reset
      */
-    public void setUrl(@Nullable String url) {
+    public void setUrl(final @Nullable String url) {
         this.url = url != null && !url.isEmpty() ? url : null;
     }
 
@@ -187,7 +184,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return The list of authors, can be empty
      */
-    public List<String> getAuthors() {
+    public List<String> authors() {
         return this.authors;
     }
 
@@ -197,7 +194,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param author The author to add
      * @throws IllegalArgumentException If the author is empty
      */
-    public void addAuthor(String author) {
+    public void addAuthor(final String author) {
         Objects.requireNonNull(author);
 
         if (author.isEmpty()) {
@@ -212,7 +209,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param authors The authors to add
      * @throws IllegalArgumentException If the author is empty or has any invalid authors
      */
-    public void addAuthors(String... authors) {
+    public void addAuthors(final String... authors) {
         Objects.requireNonNull(authors);
 
         if (authors.length == 0) {
@@ -245,7 +242,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return A collection with all dependencies
      */
-    public Collection<PluginDependency> getDependencies() {
+    public Collection<PluginDependency> dependencies() {
         return this.dependencies.values();
     }
 
@@ -254,7 +251,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return A map with all dependencies and their plugin IDs
      */
-    public Map<String, PluginDependency> getDependenciesById() {
+    public Map<String, PluginDependency> dependenciesById() {
         return Collections.unmodifiableMap(this.dependencies);
     }
 
@@ -272,7 +269,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
         final Set<PluginDependency> set = new HashSet<>();
 
         for (final PluginDependency dependency : this.dependencies.values()) {
-            if (!dependency.isOptional()) {
+            if (!dependency.optional()) {
                 set.add(dependency);
             }
         }
@@ -297,8 +294,8 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
         for (final PluginDependency.LoadOrder order : PluginDependency.LoadOrder.values()) {
             final Set<PluginDependency> dependencies = new HashSet<>();
 
-            for (PluginDependency dependency : this.dependencies.values()) {
-                if (dependency.getLoadOrder() == order) {
+            for (final PluginDependency dependency : this.dependencies.values()) {
+                if (dependency.loadOrder() == order) {
                     dependencies.add(dependency);
                 }
             }
@@ -316,8 +313,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @param id The plugin ID of the dependency
      * @return The dependency or {@code null} if there is no such dependency
      */
-    @Nullable
-    public PluginDependency getDependency(final String id) {
+    public @Nullable PluginDependency dependency(final String id) {
         Objects.requireNonNull(id);
 
         return this.dependencies.get(id);
@@ -333,7 +329,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
     public void addDependency(final PluginDependency dependency) {
         Objects.requireNonNull(dependency);
 
-        final String id = dependency.getId();
+        final String id = dependency.id();
         @Nullable final PluginDependency dup = this.dependencies.putIfAbsent(id, dependency);
         if (dup != null) {
             throw new IllegalArgumentException("Duplicate dependency with plugin ID: " + id);
@@ -364,11 +360,10 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @return The dependency that was previously registered for the plugin ID
      *     or {@code null} if this is a new dependency
      */
-    @Nullable
-    public PluginDependency replaceDependency(final PluginDependency dependency) {
+    public @Nullable PluginDependency replaceDependency(final PluginDependency dependency) {
         Objects.requireNonNull(dependency);
 
-        return this.dependencies.put(dependency.getId(), dependency);
+        return this.dependencies.put(dependency.id(), dependency);
     }
 
     /**
@@ -392,7 +387,7 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      *
      * @return An unmodifiable map with additional properties
      */
-    public Map<String, Object> getExtensions() {
+    public Map<String, Object> extensions() {
         return Collections.unmodifiableMap(this.extensions);
     }
 
@@ -409,9 +404,8 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
      * @throws ClassCastException If the given type does not match the type of
      *     the extension
      */
-    @Nullable
     @SuppressWarnings("unchecked")
-    public <T> T getExtension(final String key) {
+    public <T> @Nullable T getExtension(final String key) {
         Objects.requireNonNull(key);
 
         return (T) this.extensions.get(key);
@@ -480,18 +474,18 @@ public final class PluginMetadata implements Consumer<PluginMetadata> {
         }
 
         // Replace all our dependencies with the ones in the other metadata
-        other.getDependencies().forEach(this::replaceDependency);
+        other.dependencies().forEach(this::replaceDependency);
 
         // Attempt to merge extensions
-        other.getExtensions().forEach(this::mergeExtension);
+        other.extensions().forEach(this::mergeExtension);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void mergeExtension(final String key, final Object extension) {
         Objects.requireNonNull(key);
         Objects.requireNonNull(extension);
 
-        Object currentValue = this.extensions.get(key);
+        final Object currentValue = this.extensions.get(key);
         if (currentValue == null) {
             this.extensions.put(key, extension);
             return;

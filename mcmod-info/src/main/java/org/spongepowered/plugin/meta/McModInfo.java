@@ -106,7 +106,7 @@ public final class McModInfo {
     public List<PluginMetadata> read(final Path path) throws IOException {
         Objects.requireNonNull(path);
 
-        try (final BufferedReader reader = Files.newBufferedReader(path, CHARSET)) {
+        try (final BufferedReader reader = Files.newBufferedReader(path, McModInfo.CHARSET)) {
             return this.read(reader);
         }
     }
@@ -122,7 +122,7 @@ public final class McModInfo {
     public List<PluginMetadata> read(final InputStream in) throws IOException {
         Objects.requireNonNull(in);
 
-        return this.adapter.fromJson(new BufferedReader(new InputStreamReader(in, CHARSET)));
+        return this.adapter.fromJson(new BufferedReader(new InputStreamReader(in, McModInfo.CHARSET)));
     }
 
     /**
@@ -178,7 +178,7 @@ public final class McModInfo {
         final StringWriter writer = new StringWriter();
         try {
             this.write(writer, meta);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new JsonIOException(e);
         }
         return writer.toString();
@@ -207,11 +207,11 @@ public final class McModInfo {
      * @param meta The plugin metadata to serialize
      * @throws IOException If an error occurs while writing
      */
-    public void write(final Path path, List<PluginMetadata> meta) throws IOException {
+    public void write(final Path path, final List<PluginMetadata> meta) throws IOException {
         Objects.requireNonNull(path);
         Objects.requireNonNull(meta);
 
-        try (final BufferedWriter writer = Files.newBufferedWriter(path, CHARSET)) {
+        try (final BufferedWriter writer = Files.newBufferedWriter(path, McModInfo.CHARSET)) {
             this.write(writer, meta);
         }
     }
@@ -243,8 +243,8 @@ public final class McModInfo {
         Objects.requireNonNull(meta);
 
         try (final JsonWriter json = new JsonWriter(writer)) {
-            json.setIndent(INDENT);
-            write(json, meta);
+            json.setIndent(McModInfo.INDENT);
+            this.write(json, meta);
             writer.write('\n'); // Add new line at the end of the file
         }
     }
@@ -259,7 +259,7 @@ public final class McModInfo {
     public void write(final JsonWriter writer, final PluginMetadata... meta) throws IOException {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(meta);
-        write(writer, asList(meta));
+        this.write(writer, asList(meta));
     }
 
     /**

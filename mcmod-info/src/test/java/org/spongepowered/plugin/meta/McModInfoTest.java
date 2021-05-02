@@ -24,6 +24,7 @@
  */
 package org.spongepowered.plugin.meta;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -39,8 +40,9 @@ public class McModInfoTest {
 
     @Test
     public void parseMcModInfo() throws IOException {
-        List<PluginMetadata> meta;
-        try (InputStream in = getClass().getResourceAsStream("mcmod1.info.json")) {
+        final List<PluginMetadata> meta;
+        try (final @Nullable InputStream in = this.getClass().getResourceAsStream("mcmod1.info.json")) {
+            Assertions.assertNotNull(in);
             meta = McModInfo.DEFAULT.read(in);
         }
 
@@ -49,16 +51,16 @@ public class McModInfoTest {
         final PluginMetadata testPlugin = meta.get(0);
         final PluginMetadata testPluginTwo = meta.get(1);
 
-        Assertions.assertEquals("testplugin", testPlugin.getId());
-        Assertions.assertEquals("testplugin2", testPluginTwo.getId());
+        Assertions.assertEquals("testplugin", testPlugin.id());
+        Assertions.assertEquals("testplugin2", testPluginTwo.id());
 
-        Assertions.assertEquals("TestPlugin", testPlugin.getName());
-        Assertions.assertEquals("1.0-SNAPSHOT", testPlugin.getVersion());
-        Assertions.assertEquals("This is a test plugin", testPlugin.getDescription());
-        Assertions.assertEquals("http://example.com/testplugin", testPlugin.getUrl());
-        Assertions.assertEquals(Collections.singletonList("Minecrell"), testPlugin.getAuthors());
+        Assertions.assertEquals("TestPlugin", testPlugin.name());
+        Assertions.assertEquals("1.0-SNAPSHOT", testPlugin.version());
+        Assertions.assertEquals("This is a test plugin", testPlugin.description());
+        Assertions.assertEquals("http://example.com/testplugin", testPlugin.url());
+        Assertions.assertEquals(Collections.singletonList("Minecrell"), testPlugin.authors());
 
-        Collection<PluginDependency> dependencies = new HashSet<>(testPlugin.getDependencies());
+        final Collection<PluginDependency> dependencies = new HashSet<>(testPlugin.dependencies());
         Assertions.assertEquals(3, dependencies.size());
 
         Assertions.assertEquals(new HashSet<>(Arrays.asList(

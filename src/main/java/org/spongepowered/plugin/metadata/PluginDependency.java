@@ -64,31 +64,31 @@ public final class PluginDependency {
         return new Builder();
     }
 
-    public String getId() {
+    public String id() {
         return this.id;
     }
 
-    public String getVersion() {
+    public String version() {
         return this.version;
     }
 
-    public LoadOrder getLoadOrder() {
+    public LoadOrder loadOrder() {
         return this.loadOrder;
     }
 
-    public boolean isOptional() {
+    public boolean optional() {
         return this.optional;
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final @Nullable Object other) {
+        if (this == other) {
             return true;
         }
-        if (o == null || this.getClass() != o.getClass()) {
+        if (other == null || this.getClass() != other.getClass()) {
             return false;
         }
-        final PluginDependency that = (PluginDependency) o;
+        final PluginDependency that = (PluginDependency) other;
         return this.id.equals(that.id);
     }
 
@@ -130,22 +130,22 @@ public final class PluginDependency {
         private Builder() {
         }
 
-        public Builder setId(final String id) {
+        public Builder id(final String id) {
             this.id = Objects.requireNonNull(id);
             return this;
         }
 
-        public Builder setVersion(final String version) {
+        public Builder version(final String version) {
             this.version = Objects.requireNonNull(version);
             return this;
         }
 
-        public Builder setLoadOrder(final LoadOrder loadOrder) {
+        public Builder loadOrder(final LoadOrder loadOrder) {
             this.loadOrder = loadOrder;
             return this;
         }
 
-        public Builder setOptional(final boolean optional) {
+        public Builder optional(final boolean optional) {
             this.optional = optional;
             return this;
         }

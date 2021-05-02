@@ -43,29 +43,29 @@ public final class PluginMetadataContainer {
         this.pluginMetadata = new HashMap<>();
 
         for (final PluginMetadata metadata : pluginMetadata) {
-            this.pluginMetadata.put(metadata.getId(), metadata);
+            this.pluginMetadata.put(metadata.id(), metadata);
         }
     }
 
     /**
-     * Gets a {@link PluginMetadata} based on it's {@link PluginMetadata#getId()}.
+     * Gets a {@link PluginMetadata} based on it's {@link PluginMetadata#id()}.
      * @param pluginId The id
      * @return The metadata or {@link Optional#empty()} if not present
      */
-    public Optional<PluginMetadata> getMetadata(final String pluginId) {
+    public Optional<PluginMetadata> metadata(final String pluginId) {
         Objects.requireNonNull(pluginId);
 
         return Optional.ofNullable(this.pluginMetadata.get(pluginId));
     }
 
     /**
-     * Gets all {@link PluginMetadata} in this container, mapped by the {@link PluginMetadata#getId()}.
+     * Gets all {@link PluginMetadata} in this container, mapped by the {@link PluginMetadata#id()}.
      *
      * <p>The returned {@link Map} cannot be mutated.</p>
      *
      * @return The map of metadata
      */
-    public Map<String, PluginMetadata> getAllMetadata() {
+    public Map<String, PluginMetadata> allMetadata() {
         return Collections.unmodifiableMap(this.pluginMetadata);
     }
 }

@@ -35,14 +35,14 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
 
     private final ComparableVersion version;
 
-    public DefaultArtifactVersion(String version) {
+    public DefaultArtifactVersion(final String version) {
         Objects.requireNonNull(version);
 
         this.version = new ComparableVersion(version);
     }
 
-    public ComparableVersion getVersion() {
-        return version;
+    public ComparableVersion version() {
+        return this.version;
     }
 
     @Override
@@ -52,20 +52,20 @@ public final class DefaultArtifactVersion implements ArtifactVersion {
         if (version instanceof DefaultArtifactVersion) {
             return this.version.compareTo(((DefaultArtifactVersion) version).version);
         } else {
-            return compareTo(new DefaultArtifactVersion(version.toString()));
+            return this.compareTo(new DefaultArtifactVersion(version.toString()));
         }
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
-        if (this == o) {
+    public boolean equals(final @Nullable Object other) {
+        if (this == other) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || this.getClass() != other.getClass()) {
             return false;
         }
 
-        final DefaultArtifactVersion that = (DefaultArtifactVersion) o;
+        final DefaultArtifactVersion that = (DefaultArtifactVersion) other;
         return this.version.equals(that.version);
     }
 

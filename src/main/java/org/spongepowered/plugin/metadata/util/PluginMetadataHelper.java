@@ -111,7 +111,7 @@ public final class PluginMetadataHelper {
         try {
             while (reader.hasNext()) {
                 if (reader.nextName().equals("plugins")) {
-                    return Collections.unmodifiableCollection(this.adapter.getCollectionAdapter().read(reader));
+                    return Collections.unmodifiableCollection(this.adapter.collectionAdapter().read(reader));
                 }
             }
             return Collections.emptyList();
@@ -148,13 +148,16 @@ public final class PluginMetadataHelper {
         try (final JsonWriter writer = new JsonWriter(out)) {
             writer.setIndent(PluginMetadataHelper.INDENT);
             writer.beginObject();
-            this.adapter.getCollectionAdapter().write(writer, metadata);
+            this.adapter.collectionAdapter().write(writer, metadata);
             writer.endObject();
             out.write("\n");
         }
     }
 
     public static class Builder {
+
+        Builder() {
+        }
 
         final GsonBuilder gsonBuilder = new GsonBuilder();
 

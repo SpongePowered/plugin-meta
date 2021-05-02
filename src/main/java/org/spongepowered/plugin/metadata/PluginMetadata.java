@@ -73,43 +73,43 @@ public final class PluginMetadata {
         return new Builder();
     }
 
-    public String getLoader() {
+    public String loader() {
         return this.loader;
     }
 
-    public String getId() {
+    public String id() {
         return this.id;
     }
 
-    public Optional<String> getName() {
+    public Optional<String> name() {
         return Optional.ofNullable(this.name);
     }
 
-    public String getVersion() {
+    public String version() {
         return this.version;
     }
 
-    public String getMainClass() {
+    public String mainClass() {
         return this.mainClass;
     }
 
-    public Optional<String> getDescription() {
+    public Optional<String> description() {
         return Optional.ofNullable(this.description);
     }
 
-    public PluginLinks getLinks() {
+    public PluginLinks links() {
         return this.links;
     }
 
-    public List<PluginContributor> getContributors() {
+    public List<PluginContributor> contributors() {
         return Collections.unmodifiableList(this.contributors);
     }
 
-    public List<PluginDependency> getDependencies() {
+    public List<PluginDependency> dependencies() {
         return Collections.unmodifiableList(this.dependencies);
     }
 
-    public Map<String, Object> getExtraMetadata() {
+    public Map<String, Object> extraMetadata() {
         return Collections.unmodifiableMap(this.extraMetadata);
     }
 
@@ -140,68 +140,68 @@ public final class PluginMetadata {
         private Builder() {
         }
 
-        public Builder setLoader(final String loader) {
+        public Builder loader(final String loader) {
             this.loader = Objects.requireNonNull(loader);
             return this;
         }
         
-        public Builder setId(final String id) {
+        public Builder id(final String id) {
             this.id = Objects.requireNonNull(id);
             return this;
         }
 
-        public Builder setName(@Nullable final String name) {
+        public Builder name(@Nullable final String name) {
             this.name = name;
             return this;
         }
 
-        public Builder setVersion(final String version) {
+        public Builder version(final String version) {
             this.version = Objects.requireNonNull(version);
             return this;
         }
 
-        public Builder setMainClass(final String mainClass) {
+        public Builder mainClass(final String mainClass) {
             this.mainClass = Objects.requireNonNull(mainClass);
             return this;
         }
 
-        public Builder setDescription(@Nullable final String description) {
+        public Builder description(@Nullable final String description) {
             this.description = description;
             return this;
         }
 
-        public Builder setLinks(final PluginLinks links) {
+        public Builder links(final PluginLinks links) {
             this.links = Objects.requireNonNull(links);
             return this;
         }
 
-        public Builder setContributors(final List<PluginContributor> contributors) {
+        public Builder contributors(final List<PluginContributor> contributors) {
             this.contributors = Objects.requireNonNull(contributors);
             return this;
         }
 
-        public Builder contributor(final PluginContributor developer) {
+        public Builder addContributor(final PluginContributor developer) {
             this.contributors.add(Objects.requireNonNull(developer));
             return this;
         }
 
-        public Builder setDependencies(final List<PluginDependency> dependencies) {
+        public Builder dependencies(final List<PluginDependency> dependencies) {
             this.dependencies = Objects.requireNonNull(dependencies);
             return this;
         }
 
-        public Builder dependency(final PluginDependency dependency) {
+        public Builder addDependency(final PluginDependency dependency) {
             Objects.requireNonNull(dependency);
             this.dependencies.add(dependency);
             return this;
         }
 
-        public Builder setExtraMetadata(final Map<String, Object> extraMetadata) {
+        public Builder extraMetadata(final Map<String, Object> extraMetadata) {
             this.extraMetadata = Objects.requireNonNull(extraMetadata);
             return this;
         }
 
-        public Builder extraMetadata(final String key, final Object value) {
+        public Builder addExtraMetadata(final String key, final Object value) {
             Objects.requireNonNull(key);
             Objects.requireNonNull(value);
 

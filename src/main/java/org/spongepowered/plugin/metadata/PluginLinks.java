@@ -59,15 +59,15 @@ public final class PluginLinks {
         return new Builder();
     }
 
-    public Optional<URL> getHomepage() {
+    public Optional<URL> homepage() {
         return Optional.ofNullable(this.homepage);
     }
 
-    public Optional<URL> getSource() {
+    public Optional<URL> source() {
         return Optional.ofNullable(this.source);
     }
 
-    public Optional<URL> getIssues() {
+    public Optional<URL> issues() {
         return Optional.ofNullable(this.issues);
     }
 
@@ -87,17 +87,17 @@ public final class PluginLinks {
         private Builder() {
         }
 
-        public Builder setHomepage(@Nullable final URL homepage) {
+        public Builder homepage(@Nullable final URL homepage) {
             this.homepage = homepage;
             return this;
         }
 
-        public Builder setSource(@Nullable final URL source) {
+        public Builder source(@Nullable final URL source) {
             this.source = source;
             return this;
         }
 
-        public Builder setIssues(@Nullable final URL issues) {
+        public Builder issues(@Nullable final URL issues) {
             this.issues = issues;
             return this;
         }

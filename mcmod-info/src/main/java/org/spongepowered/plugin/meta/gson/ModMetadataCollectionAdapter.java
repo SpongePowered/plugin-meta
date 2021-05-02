@@ -40,12 +40,12 @@ public final class ModMetadataCollectionAdapter extends TypeAdapter<List<PluginM
 
     private final ModMetadataAdapter metadataAdapter;
 
-    public ModMetadataCollectionAdapter(ModMetadataAdapter metadataAdapter) {
+    public ModMetadataCollectionAdapter(final ModMetadataAdapter metadataAdapter) {
         this.metadataAdapter = metadataAdapter;
     }
 
     @Override
-    public List<PluginMetadata> read(JsonReader in) throws IOException {
+    public List<PluginMetadata> read(final JsonReader in) throws IOException {
         in.beginArray();
         final List<PluginMetadata> result = new ArrayList<>();
         while (in.hasNext()) {
@@ -56,7 +56,7 @@ public final class ModMetadataCollectionAdapter extends TypeAdapter<List<PluginM
     }
 
     @Override
-    public void write(JsonWriter out, List<PluginMetadata> values) throws IOException {
+    public void write(final JsonWriter out, final List<PluginMetadata> values) throws IOException {
         out.beginArray();
         for (final PluginMetadata meta : values) {
             this.metadataAdapter.write(out, meta);

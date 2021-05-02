@@ -40,7 +40,7 @@ public final class PluginMetadataContainerAdapter extends TypeAdapter<PluginMeta
         this.adapter = Objects.requireNonNull(adapter);
     }
 
-    public PluginMetadataCollectionAdapter getCollectionAdapter() {
+    public PluginMetadataCollectionAdapter collectionAdapter() {
         return this.adapter;
     }
 
@@ -49,7 +49,7 @@ public final class PluginMetadataContainerAdapter extends TypeAdapter<PluginMeta
         Objects.requireNonNull(out);
         Objects.requireNonNull(value);
 
-        this.adapter.write(out, value.getAllMetadata().values());
+        this.adapter.write(out, value.allMetadata().values());
     }
 
     @Override

@@ -71,9 +71,9 @@ public final class PluginDependency {
      * @param version The version range of the dependency or {@code null}
      * @param optional Whether the dependency is optional
      * @throws IllegalArgumentException If the plugin ID is empty
-     * @see #getVersion() Version range syntax
+     * @see #version() Version range syntax
      */
-    public PluginDependency(LoadOrder loadOrder, String id, @Nullable String version, boolean optional) {
+    public PluginDependency(final LoadOrder loadOrder, final String id, final @Nullable String version, final boolean optional) {
         this.loadOrder = Objects.requireNonNull(loadOrder);
         this.id = Objects.requireNonNull(id);
         if (id.isEmpty()) {
@@ -88,7 +88,7 @@ public final class PluginDependency {
      *
      * @return The load order
      */
-    public LoadOrder getLoadOrder() {
+    public LoadOrder loadOrder() {
         return this.loadOrder;
     }
 
@@ -97,7 +97,7 @@ public final class PluginDependency {
      *
      * @return The plugin ID
      */
-    public String getId() {
+    public String id() {
         return this.id;
     }
 
@@ -125,7 +125,7 @@ public final class PluginDependency {
      * @see <a href="https://goo.gl/WBsFIu">Maven version design document</a>
      */
     @Nullable
-    public String getVersion() {
+    public String version() {
         return this.version;
     }
 
@@ -135,31 +135,31 @@ public final class PluginDependency {
      *
      * @return True if the dependency is optional
      */
-    public boolean isOptional() {
+    public boolean optional() {
         return this.optional;
     }
 
     /**
-     * Returns a new {@link PluginDependency} that has {@link #isOptional()}
+     * Returns a new {@link PluginDependency} that has {@link #optional()}
      * set to {@code true}.
      *
      * @return The new optional dependency
      */
-    public PluginDependency optional() {
-        return this.setOptional(true);
+    public PluginDependency asOptional() {
+        return this.withOptional(true);
     }
 
     /**
-     * Returns a new {@link PluginDependency} that has {@link #isOptional()}
+     * Returns a new {@link PluginDependency} that has {@link #optional()}
      * set to {@code false}.
      *
      * @return The new required dependency
      */
-    public PluginDependency required() {
-        return this.setOptional(false);
+    public PluginDependency asRequired() {
+        return this.withOptional(false);
     }
 
-    private PluginDependency setOptional(final boolean optional) {
+    private PluginDependency withOptional(final boolean optional) {
         if (this.optional == optional) {
             return this;
         }
@@ -168,15 +168,15 @@ public final class PluginDependency {
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
-        if (this == o) {
+    public boolean equals(final @Nullable Object other) {
+        if (this == other) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || this.getClass() != other.getClass()) {
             return false;
         }
 
-        final PluginDependency that = (PluginDependency) o;
+        final PluginDependency that = (PluginDependency) other;
         return this.loadOrder == that.loadOrder
                 && this.id.equals(that.id)
                 && Objects.equals(this.version, that.version)

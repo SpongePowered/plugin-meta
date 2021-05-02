@@ -46,7 +46,7 @@ public final class PluginMetadataCollectionAdapter extends TypeAdapter<Collectio
         this.adapter = adapter;
     }
 
-    public PluginMetadataAdapter getMetadataAdapter() {
+    public PluginMetadataAdapter metadataAdapter() {
         return this.adapter;
     }
 
