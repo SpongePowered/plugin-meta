@@ -45,10 +45,6 @@ public final class PluginDependency {
     private final boolean optional;
 
     private PluginDependency(final Builder builder) {
-        Objects.requireNonNull(builder);
-        Objects.requireNonNull(builder.id);
-        Objects.requireNonNull(builder.version);
-
         this.id = builder.id;
         this.version = builder.version;
         this.loadOrder = builder.loadOrder;
@@ -81,20 +77,20 @@ public final class PluginDependency {
     }
 
     @Override
-    public boolean equals(final @Nullable Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || this.getClass() != other.getClass()) {
-            return false;
-        }
-        final PluginDependency that = (PluginDependency) other;
-        return this.id.equals(that.id);
+    public int hashCode() {
+        return Objects.hashCode(this.id);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(this.id);
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PluginDependency)) {
+            return false;
+        }
+        final PluginDependency that = (PluginDependency) o;
+        return this.id.equals(that.id);
     }
 
     @Override
@@ -116,6 +112,10 @@ public final class PluginDependency {
          */
         UNDEFINED,
         /**
+         * The plugin must be loaded before the dependency
+         */
+        BEFORE,
+        /**
          * The plugin must be loaded after the dependency.
          */
         AFTER
@@ -131,17 +131,17 @@ public final class PluginDependency {
         }
 
         public Builder id(final String id) {
-            this.id = Objects.requireNonNull(id);
+            this.id = Objects.requireNonNull(id, "id");
             return this;
         }
 
         public Builder version(final String version) {
-            this.version = Objects.requireNonNull(version);
+            this.version = Objects.requireNonNull(version, "version");
             return this;
         }
 
         public Builder loadOrder(final LoadOrder loadOrder) {
-            this.loadOrder = loadOrder;
+            this.loadOrder = Objects.requireNonNull(loadOrder, "load order");
             return this;
         }
 
@@ -151,8 +151,8 @@ public final class PluginDependency {
         }
 
         public PluginDependency build() {
-            Objects.requireNonNull(this.id);
-            Objects.requireNonNull(this.version);
+            Objects.requireNonNull(this.id, "id");
+            Objects.requireNonNull(this.version, "version");
 
             return new PluginDependency(this);
         }

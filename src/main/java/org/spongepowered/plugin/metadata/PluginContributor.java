@@ -45,9 +45,6 @@ public final class PluginContributor {
     @Nullable private final String description;
 
     private PluginContributor(final Builder builder) {
-        Objects.requireNonNull(builder);
-        Objects.requireNonNull(builder.name);
-
         this.name = builder.name;
         this.description = builder.description;
     }
@@ -66,7 +63,7 @@ public final class PluginContributor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name);
+        return Objects.hashCode(this.name);
     }
 
     @Override
@@ -74,7 +71,7 @@ public final class PluginContributor {
         if (this == o) {
             return true;
         }
-        if (o == null || this.getClass() != o.getClass()) {
+        if (!(o instanceof PluginContributor)) {
             return false;
         }
         final PluginContributor that = (PluginContributor) o;
@@ -107,7 +104,7 @@ public final class PluginContributor {
         }
 
         public PluginContributor build() {
-            Objects.requireNonNull(this.name);
+            Objects.requireNonNull(this.name, "name");
 
             return new PluginContributor(this);
         }
