@@ -24,9 +24,16 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -121,7 +128,7 @@ public final class PluginDependency {
         AFTER
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         @Nullable String id, version;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
@@ -155,6 +162,63 @@ public final class PluginDependency {
             Objects.requireNonNull(this.version, "version");
 
             return new PluginDependency(this);
+        }
+    }
+
+    public static final class Adapter extends TypeAdapter<PluginDependency> {
+
+        private static final Adapter INSTANCE = new Adapter();
+
+        public static Adapter instance() {
+            return Adapter.INSTANCE;
+        }
+
+        @Override
+        public void write(final JsonWriter out, final PluginDependency dependency) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(dependency, "dependency");
+
+            out.beginObject();
+            out.name("id").value(dependency.id());
+            out.name("version").value(dependency.version());
+            out.name("load-order").value(dependency.loadOrder().name());
+            out.name("optional").value(dependency.optional());
+            out.endObject();
+        }
+
+        @Override
+        public PluginDependency read(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            in.beginObject();
+            final Set<String> processedKeys = new HashSet<>();
+            final PluginDependency.Builder builder = PluginDependency.builder();
+            while (in.hasNext()) {
+                final String key = in.nextName();
+                if (!processedKeys.add(key)) {
+                    throw new JsonParseException(String.format("Duplicate dependency key '%s' in %s", key, in));
+                }
+                switch (key) {
+                    case "id":
+                        builder.id(in.nextString());
+                        break;
+                    case "version":
+                        builder.version(in.nextString());
+                        break;
+                    case "optional":
+                        builder.optional(in.nextBoolean());
+                        break;
+                    case "load-order":
+                        try {
+                            builder.loadOrder(PluginDependency.LoadOrder.valueOf(in.nextString().toUpperCase()));
+                        } catch (final Exception ex) {
+                            throw new JsonParseException(String.format("Invalid load order found in '%s'", in), ex);
+                        }
+                        break;
+                }
+            }
+            in.endObject();
+            return builder.build();
         }
     }
 }

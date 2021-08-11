@@ -24,10 +24,18 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.plugin.metadata.util.AdapterUtils;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -86,7 +94,7 @@ public final class PluginContributor {
                 .toString();
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         @Nullable String name, description;
 
@@ -107,6 +115,51 @@ public final class PluginContributor {
             Objects.requireNonNull(this.name, "name");
 
             return new PluginContributor(this);
+        }
+    }
+
+    public static final class Adapter extends TypeAdapter<PluginContributor> {
+
+        private static final Adapter INSTANCE = new Adapter();
+
+        public static Adapter instance() {
+            return Adapter.INSTANCE;
+        }
+
+        @Override
+        public void write(final JsonWriter out, final PluginContributor contributor) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(contributor, "contributor");
+
+            out.beginObject();
+            out.name("name").value(contributor.name());
+            AdapterUtils.writeStringIfPresent(out, "description", contributor.description());
+            out.endObject();
+        }
+
+        @Override
+        public PluginContributor read(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            in.beginObject();
+            final Set<String> processedKeys = new HashSet<>();
+            final PluginContributor.Builder builder = PluginContributor.builder();
+            while (in.hasNext()) {
+                final String key = in.nextName();
+                if (!processedKeys.add(key)) {
+                    throw new JsonParseException(String.format("Duplicate contributor key '%s' in %s", key, in));
+                }
+                switch (key) {
+                    case "name":
+                        builder.name(in.nextString());
+                        break;
+                    case "description":
+                        builder.description(in.nextString());
+                        break;
+                }
+            }
+            in.endObject();
+            return builder.build();
         }
     }
 }

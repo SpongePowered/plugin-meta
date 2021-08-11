@@ -24,15 +24,23 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.plugin.metadata.util.AdapterUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -48,7 +56,7 @@ public final class PluginMetadata {
     private final PluginLinks links;
     private final List<PluginContributor> contributors;
     private final List<PluginDependency> dependencies;
-    private final Map<String, Object> extraMetadata;
+    private final Map<String, Object> properties;
 
     private PluginMetadata(final Builder builder) {
         this.loader = builder.loader;
@@ -60,7 +68,7 @@ public final class PluginMetadata {
         this.links = builder.links;
         this.contributors = builder.contributors;
         this.dependencies = builder.dependencies;
-        this.extraMetadata = builder.extraMetadata;
+        this.properties = builder.properties;
     }
 
     public static Builder builder() {
@@ -103,8 +111,8 @@ public final class PluginMetadata {
         return Collections.unmodifiableList(this.dependencies);
     }
 
-    public Map<String, Object> extraMetadata() {
-        return Collections.unmodifiableMap(this.extraMetadata);
+    public Map<String, Object> properties() {
+        return Collections.unmodifiableMap(this.properties);
     }
 
     @Override
@@ -138,7 +146,7 @@ public final class PluginMetadata {
                 .add("links=" + this.links)
                 .add("contributors=" + this.contributors)
                 .add("dependencies=" + this.dependencies)
-                .add("extraMetadata=" + this.extraMetadata)
+                .add("properties=" + this.properties)
                 .toString();
     }
 
@@ -148,7 +156,7 @@ public final class PluginMetadata {
         PluginLinks links = new PluginLinks();
         final List<PluginContributor> contributors = new ArrayList<>();
         final List<PluginDependency> dependencies = new ArrayList<>();
-        final Map<String, Object> extraMetadata = new HashMap<>();
+        final Map<String, Object> properties = new HashMap<>();
 
         private Builder() {
         }
@@ -208,13 +216,13 @@ public final class PluginMetadata {
             return this;
         }
 
-        public Builder extraMetadata(final Map<String, Object> extraMetadata) {
-            this.extraMetadata.putAll(Objects.requireNonNull(extraMetadata, "extra metadata"));
+        public Builder properties(final Map<String, Object> properties) {
+            this.properties.putAll(Objects.requireNonNull(properties, "properties"));
             return this;
         }
 
-        public Builder addExtraMetadata(final String key, final Object value) {
-            this.extraMetadata.put(Objects.requireNonNull(key, "key"), Objects.requireNonNull(value, "value"));
+        public Builder property(final String key, final Object value) {
+            this.properties.put(Objects.requireNonNull(key, "key"), Objects.requireNonNull(value, "value"));
             return this;
         }
 
@@ -225,6 +233,171 @@ public final class PluginMetadata {
             Objects.requireNonNull(this.mainClass, "main class");
 
             return new PluginMetadata(this);
+        }
+    }
+
+    public static final class Adapter extends TypeAdapter<PluginMetadata> {
+
+        private static final Adapter INSTANCE = new Adapter(PluginContributor.Adapter.instance(), PluginDependency.Adapter
+                .instance(), PluginLinks.Adapter.instance());
+
+        public static Adapter instance() {
+            return Adapter.INSTANCE;
+        }
+
+        private final TypeAdapter<PluginContributor> contributorAdapter;
+        private final TypeAdapter<PluginDependency> dependencyAdapter;
+        private final TypeAdapter<PluginLinks> linksAdapter;
+
+        public Adapter(final TypeAdapter<PluginContributor> contributorAdapter, final TypeAdapter<PluginDependency> dependencyAdapter,
+                final TypeAdapter<PluginLinks> linksAdapter) {
+
+            this.contributorAdapter = contributorAdapter;
+            this.dependencyAdapter = dependencyAdapter;
+            this.linksAdapter = linksAdapter;
+        }
+
+        @Override
+        public void write(final JsonWriter out, final PluginMetadata value) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(value, "value");
+
+            out.beginObject();
+            out.name("loader").value(value.loader());
+            out.name("id").value(value.id());
+            AdapterUtils.writeStringIfPresent(out, "name", value.name());
+            out.name("version").value(value.version());
+            out.name("main-class").value(value.mainClass());
+            AdapterUtils.writeStringIfPresent(out, "description", value.description());
+            this.linksAdapter.write(out.name("links"), value.links());
+            this.writeContributors(out.name("contributors"), value.contributors());
+            this.writeDependencies(out.name("dependencies"), value.dependencies());
+            this.writeProperties(out.name("properties"), value.properties());
+            out.endObject();
+        }
+
+        @Override
+        public PluginMetadata read(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            in.beginObject();
+            final Set<String> processedKeys = new HashSet<>();
+            final PluginMetadata.Builder builder = PluginMetadata.builder();
+            while (in.hasNext()) {
+                final String key = in.nextName();
+                if (!processedKeys.add(key)) {
+                    throw new JsonParseException(String.format("Duplicate key '%s' in %s", key, in));
+                }
+
+                switch (key) {
+                    case "loader":
+                        builder.loader(in.nextString());
+                        break;
+                    case "id":
+                        builder.id(in.nextString());
+                        break;
+                    case "name":
+                        builder.name(in.nextString());
+                        break;
+                    case "version":
+                        builder.version(in.nextString());
+                        break;
+                    case "main-class":
+                        builder.mainClass(in.nextString());
+                        break;
+                    case "description":
+                        builder.description(in.nextString());
+                        break;
+                    case "links":
+                        builder.links(this.linksAdapter.read(in));
+                        break;
+                    case "contributors":
+                        builder.contributors(this.readContributors(in));
+                        break;
+                    case "dependencies":
+                        builder.dependencies(this.readDependencies(in));
+                        break;
+                    case "properties":
+                        builder.properties(this.readProperties(in));
+                        break;
+                }
+            }
+            in.endObject();
+            return builder.build();
+        }
+
+        public List<PluginContributor> readContributors(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            final List<PluginContributor> contributors = new ArrayList<>();
+
+            in.beginArray();
+            while (in.hasNext()) {
+                contributors.add(this.contributorAdapter.read(in));
+            }
+            in.endArray();
+
+            return Collections.unmodifiableList(contributors);
+        }
+
+        private List<PluginDependency> readDependencies(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            final List<PluginDependency> dependencies = new ArrayList<>();
+
+            in.beginArray();
+            while (in.hasNext()) {
+                dependencies.add(this.dependencyAdapter.read(in));
+            }
+            in.endArray();
+
+            return Collections.unmodifiableList(dependencies);
+        }
+
+        public Map<String, Object> readProperties(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            in.beginObject();
+            final Map<String, Object> properties = new HashMap<>();
+            while (in.hasNext()) {
+                properties.put(in.nextName(), in.nextString());
+            }
+            in.endObject();
+            return Collections.unmodifiableMap(properties);
+        }
+
+        public void writeContributors(final JsonWriter out, final List<PluginContributor> contributors) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(contributors, "contributors");
+
+            out.beginArray();
+            for (final PluginContributor contributor : contributors) {
+                this.contributorAdapter.write(out.name(contributor.name()), contributor);
+            }
+            out.endArray();
+        }
+
+        public void writeDependencies(final JsonWriter out, final List<PluginDependency> dependencies) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(dependencies, "dependencies");
+
+            out.beginArray();
+            for (final PluginDependency dependency : dependencies) {
+                this.dependencyAdapter.write(out.name(dependency.id()), dependency);
+            }
+            out.endArray();
+        }
+
+        public void writeProperties(final JsonWriter out, final Map<String, Object> properties) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(properties, "properties");
+
+            out.beginObject();
+            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+                // TODO Allow for collections/maps in the properties map?
+                out.name(entry.getKey()).value(entry.getValue().toString());
+            }
+            out.endObject();
         }
     }
 }

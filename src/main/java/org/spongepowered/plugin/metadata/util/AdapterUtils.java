@@ -22,5 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-@org.checkerframework.framework.qual.DefaultQualifier(org.checkerframework.checker.nullness.qual.NonNull.class)
-package org.spongepowered.plugin.metadata.parser;
+package org.spongepowered.plugin.metadata.util;
+
+import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+
+public final class AdapterUtils {
+
+    public static void writeStringIfPresent(final JsonWriter out, final String name, final Optional<String> value) throws IOException {
+        if (value.isPresent()) {
+            out.name(name).value(value.get());
+        }
+    }
+
+    public static void writeURLIfPresent(final JsonWriter out, final String name, final Optional<URL> value) throws IOException {
+        if (value.isPresent()) {
+            out.name(name).value(value.get().toString());
+        }
+    }
+}

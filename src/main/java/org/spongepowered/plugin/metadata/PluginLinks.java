@@ -24,11 +24,19 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.plugin.metadata.util.AdapterUtils;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -104,6 +112,56 @@ public final class PluginLinks {
 
         public PluginLinks build() {
             return new PluginLinks(this);
+        }
+    }
+
+    public static final class Adapter extends TypeAdapter<PluginLinks> {
+
+        private static final Adapter INSTANCE = new Adapter();
+
+        public static Adapter instance() {
+            return Adapter.INSTANCE;
+        }
+
+        @Override
+        public void write(final JsonWriter out, final PluginLinks links) throws IOException {
+            Objects.requireNonNull(out, "out");
+            Objects.requireNonNull(links, "links");
+
+            out.beginObject();
+            AdapterUtils.writeURLIfPresent(out, "homepage", links.homepage());
+            AdapterUtils.writeURLIfPresent(out, "source", links.source());
+            AdapterUtils.writeURLIfPresent(out, "issues", links.issues());
+            out.endObject();
+        }
+
+        @Override
+        public PluginLinks read(final JsonReader in) throws IOException {
+            Objects.requireNonNull(in, "in");
+
+            in.beginObject();
+            final Set<String> processedKeys = new HashSet<>();
+            final PluginLinks.Builder builder = PluginLinks.builder();
+            while (in.hasNext()) {
+                final String key = in.nextName();
+                if (!processedKeys.add(key)) {
+                    throw new JsonParseException(String.format("Duplicate links key '%s' in %s", key, in));
+                }
+                switch (key) {
+                    case "homepage":
+                        builder.homepage(new URL(in.nextString()));
+                        break;
+                    case "source":
+                        builder.source(new URL(in.nextString()));
+                        break;
+                    case "issues":
+                        builder.issues(new URL(in.nextString()));
+                        break;
+                }
+            }
+            in.endObject();
+
+            return builder.build();
         }
     }
 }
