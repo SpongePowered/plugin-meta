@@ -79,6 +79,15 @@ public final class PluginLinks {
         return Optional.ofNullable(this.issues);
     }
 
+    public PluginLinks.Builder toBuilder() {
+        final Builder builder = PluginLinks.builder();
+        builder.homepage = this.homepage;
+        builder.source = this.source;
+        builder.issues = this.issues;
+
+        return builder;
+    }
+
     @Override
     public String toString() {
         return new StringJoiner(", ", PluginLinks.class.getSimpleName() + "[", "]")

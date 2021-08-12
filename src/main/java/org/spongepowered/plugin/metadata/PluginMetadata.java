@@ -115,6 +115,26 @@ public final class PluginMetadata {
         return Collections.unmodifiableMap(this.properties);
     }
 
+    public PluginMetadata.Builder toBuilder() {
+        final Builder builder = PluginMetadata.builder();
+        builder.loader = this.loader;
+        builder.id = this.id;
+        builder.name = this.name;
+        builder.version = this.version;
+        builder.mainClass = this.mainClass;
+        builder.description = this.description;
+        builder.links = this.links.toBuilder().build();
+        for (final PluginContributor contributor : this.contributors) {
+            builder.contributors.add(contributor.toBuilder().build());
+        }
+        for (final PluginDependency dependency : this.dependencies) {
+            builder.dependencies.add(dependency.toBuilder().build());
+        }
+        // TODO Copy the properties objects somehow?
+        builder.properties.putAll(this.properties);
+        return builder;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(this.id);

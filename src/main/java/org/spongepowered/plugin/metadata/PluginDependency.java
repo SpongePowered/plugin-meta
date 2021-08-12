@@ -83,6 +83,16 @@ public final class PluginDependency {
         return this.optional;
     }
 
+    public PluginDependency.Builder toBuilder() {
+        final Builder builder = PluginDependency.builder();
+        builder.id = this.id;
+        builder.version = this.version;
+        builder.loadOrder = this.loadOrder;
+        builder.optional = this.optional;
+
+        return builder;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(this.id);

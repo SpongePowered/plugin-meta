@@ -69,6 +69,14 @@ public final class PluginContributor {
         return Optional.ofNullable(this.description);
     }
 
+    public PluginContributor.Builder toBuilder() {
+        final Builder builder = PluginContributor.builder();
+        builder.name = this.name;
+        builder.description = this.description;
+
+        return builder;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(this.name);
