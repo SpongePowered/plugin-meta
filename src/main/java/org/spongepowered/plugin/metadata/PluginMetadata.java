@@ -66,9 +66,9 @@ public final class PluginMetadata {
         this.mainClass = builder.mainClass;
         this.description = builder.description;
         this.links = builder.links;
-        this.contributors = builder.contributors;
-        this.dependencies = builder.dependencies;
-        this.properties = builder.properties;
+        this.contributors = Collections.unmodifiableList(builder.contributors);
+        this.dependencies = Collections.unmodifiableList(builder.dependencies);
+        this.properties = Collections.unmodifiableMap(builder.properties);
     }
 
     public static Builder builder() {
@@ -104,15 +104,15 @@ public final class PluginMetadata {
     }
 
     public List<PluginContributor> contributors() {
-        return Collections.unmodifiableList(this.contributors);
+        return this.contributors;
     }
 
     public List<PluginDependency> dependencies() {
-        return Collections.unmodifiableList(this.dependencies);
+        return this.dependencies;
     }
 
     public Map<String, Object> properties() {
-        return Collections.unmodifiableMap(this.properties);
+        return this.properties;
     }
 
     public PluginMetadata.Builder toBuilder() {
@@ -173,7 +173,7 @@ public final class PluginMetadata {
     public static final class Builder {
 
         @Nullable String loader, id, name, version, mainClass, description;
-        PluginLinks links = new PluginLinks();
+        PluginLinks links = PluginLinks.none();
         final List<PluginContributor> contributors = new ArrayList<>();
         final List<PluginDependency> dependencies = new ArrayList<>();
         final Map<String, Object> properties = new HashMap<>();

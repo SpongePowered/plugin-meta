@@ -50,14 +50,12 @@ public final class PluginLinks {
     private final @Nullable URL homepage, source, issues;
 
     private PluginLinks(final Builder builder) {
-        Objects.requireNonNull(builder);
-
         this.homepage = builder.homepage;
         this.source = builder.source;
         this.issues = builder.issues;
     }
 
-    public PluginLinks() {
+    private PluginLinks() {
         this.homepage = null;
         this.source = null;
         this.issues = null;
@@ -65,6 +63,10 @@ public final class PluginLinks {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static PluginLinks none() {
+        return new PluginLinks();
     }
 
     public Optional<URL> homepage() {
