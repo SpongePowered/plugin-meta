@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,9 +56,9 @@ public final class PluginMetadata {
     private final String loader, id, version, mainClass;
     @Nullable private final String name, description;
     private final PluginLinks links;
-    private final List<PluginContributor> contributors;
-    private final List<PluginDependency> dependencies;
-    private final Map<String, Object> properties;
+    private final List<PluginContributor> contributors = new LinkedList<>();
+    private final List<PluginDependency> dependencies = new LinkedList<>();
+    private final Map<String, Object> properties = new LinkedHashMap<>();
 
     private PluginMetadata(final Builder builder) {
         this.loader = builder.loader;
@@ -66,9 +68,9 @@ public final class PluginMetadata {
         this.mainClass = builder.mainClass;
         this.description = builder.description;
         this.links = builder.links;
-        this.contributors = Collections.unmodifiableList(builder.contributors);
-        this.dependencies = Collections.unmodifiableList(builder.dependencies);
-        this.properties = Collections.unmodifiableMap(builder.properties);
+        this.contributors.addAll(builder.contributors);
+        this.dependencies.addAll(builder.dependencies);
+        this.properties.putAll(builder.properties);
     }
 
     public static Builder builder() {
@@ -174,9 +176,9 @@ public final class PluginMetadata {
 
         @Nullable String loader, id, name, version, mainClass, description;
         PluginLinks links = PluginLinks.none();
-        final List<PluginContributor> contributors = new ArrayList<>();
-        final List<PluginDependency> dependencies = new ArrayList<>();
-        final Map<String, Object> properties = new HashMap<>();
+        final List<PluginContributor> contributors = new LinkedList<>();
+        final List<PluginDependency> dependencies = new LinkedList<>();
+        final Map<String, Object> properties = new LinkedHashMap<>();
 
         private Builder() {
         }
