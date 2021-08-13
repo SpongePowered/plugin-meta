@@ -56,6 +56,7 @@ public final class PluginMetadata {
     private final String loader, id, version, mainClass;
     @Nullable private final String name, description;
     private final PluginLinks links;
+    private final PluginBranding branding;
     private final List<PluginContributor> contributors = new LinkedList<>();
     private final List<PluginDependency> dependencies = new LinkedList<>();
     private final Map<String, Object> properties = new LinkedHashMap<>();
@@ -68,6 +69,7 @@ public final class PluginMetadata {
         this.mainClass = builder.mainClass;
         this.description = builder.description;
         this.links = builder.links;
+        this.branding = builder.branding;
         this.contributors.addAll(builder.contributors);
         this.dependencies.addAll(builder.dependencies);
         this.properties.putAll(builder.properties);
@@ -105,6 +107,10 @@ public final class PluginMetadata {
         return this.links;
     }
 
+    public PluginBranding branding() {
+        return this.branding;
+    }
+
     public List<PluginContributor> contributors() {
         return this.contributors;
     }
@@ -126,6 +132,7 @@ public final class PluginMetadata {
         builder.mainClass = this.mainClass;
         builder.description = this.description;
         builder.links = this.links.toBuilder().build();
+        builder.branding = this.branding.toBuilder().build();
         for (final PluginContributor contributor : this.contributors) {
             builder.contributors.add(contributor.toBuilder().build());
         }
@@ -166,6 +173,7 @@ public final class PluginMetadata {
                 .add("mainClass=" + this.mainClass)
                 .add("description=" + this.description)
                 .add("links=" + this.links)
+                .add("branding=" + this.branding)
                 .add("contributors=" + this.contributors)
                 .add("dependencies=" + this.dependencies)
                 .add("properties=" + this.properties)
@@ -176,6 +184,7 @@ public final class PluginMetadata {
 
         @Nullable String loader, id, name, version, mainClass, description;
         PluginLinks links = PluginLinks.none();
+        PluginBranding branding = PluginBranding.none();
         final List<PluginContributor> contributors = new LinkedList<>();
         final List<PluginDependency> dependencies = new LinkedList<>();
         final Map<String, Object> properties = new LinkedHashMap<>();
@@ -215,6 +224,11 @@ public final class PluginMetadata {
 
         public Builder links(final PluginLinks links) {
             this.links = Objects.requireNonNull(links, "links");
+            return this;
+        }
+
+        public Builder branding(final PluginBranding branding) {
+            this.branding = Objects.requireNonNull(branding, "branding");
             return this;
         }
 
@@ -261,7 +275,7 @@ public final class PluginMetadata {
     public static final class Adapter extends TypeAdapter<PluginMetadata> {
 
         private static final Adapter INSTANCE = new Adapter(PluginContributor.Adapter.instance(), PluginDependency.Adapter
-                .instance(), PluginLinks.Adapter.instance());
+                .instance(), PluginLinks.Adapter.instance(), PluginBranding.Adapter.instance());
 
         public static Adapter instance() {
             return Adapter.INSTANCE;
@@ -270,13 +284,15 @@ public final class PluginMetadata {
         private final TypeAdapter<PluginContributor> contributorAdapter;
         private final TypeAdapter<PluginDependency> dependencyAdapter;
         private final TypeAdapter<PluginLinks> linksAdapter;
+        private final TypeAdapter<PluginBranding> brandingAdapter;
 
         public Adapter(final TypeAdapter<PluginContributor> contributorAdapter, final TypeAdapter<PluginDependency> dependencyAdapter,
-                final TypeAdapter<PluginLinks> linksAdapter) {
+                final TypeAdapter<PluginLinks> linksAdapter, final TypeAdapter<PluginBranding> brandingAdapter) {
 
             this.contributorAdapter = contributorAdapter;
             this.dependencyAdapter = dependencyAdapter;
             this.linksAdapter = linksAdapter;
+            this.brandingAdapter = brandingAdapter;
         }
 
         @Override
@@ -292,6 +308,7 @@ public final class PluginMetadata {
             out.name("main-class").value(value.mainClass());
             AdapterUtils.writeStringIfPresent(out, "description", value.description());
             this.linksAdapter.write(out.name("links"), value.links());
+            this.brandingAdapter.write(out.name("branding"), value.branding);
             this.writeContributors(out.name("contributors"), value.contributors());
             this.writeDependencies(out.name("dependencies"), value.dependencies());
             this.writeProperties(out.name("properties"), value.properties());
@@ -332,6 +349,9 @@ public final class PluginMetadata {
                         break;
                     case "links":
                         builder.links(this.linksAdapter.read(in));
+                        break;
+                    case "branding":
+                        builder.branding(this.brandingAdapter.read(in));
                         break;
                     case "contributors":
                         builder.contributors(this.readContributors(in));
