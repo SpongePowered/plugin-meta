@@ -26,8 +26,8 @@ package org.spongepowered.plugin.metadata;
 
 import org.apache.maven.artifact.versioning.VersionRange;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Holder {
 
@@ -43,5 +43,5 @@ public interface Holder {
 
     Optional<PluginMetadata> metadata(String id);
 
-    List<PluginMetadata> metadata();
+    Set<PluginMetadata> metadata();
 }

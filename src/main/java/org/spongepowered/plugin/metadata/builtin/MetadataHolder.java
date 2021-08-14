@@ -34,7 +34,6 @@ import org.spongepowered.plugin.metadata.PluginMetadata;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +46,7 @@ public final class MetadataHolder implements Holder {
     private final String name, loader, license;
     private final VersionRange loaderVersion;
     @Nullable private final Inheritable globalMetadata;
-    private final List<PluginMetadata> metadata = new LinkedList<>();
+    private final Set<PluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, PluginMetadata> metadataById = new LinkedHashMap<>();
 
     private MetadataHolder(final Builder builder) {
@@ -93,8 +92,8 @@ public final class MetadataHolder implements Holder {
     }
 
     @Override
-    public List<PluginMetadata> metadata() {
-        return Collections.unmodifiableList(this.metadata);
+    public Set<PluginMetadata> metadata() {
+        return Collections.unmodifiableSet(this.metadata);
     }
 
     @Override
@@ -108,10 +107,11 @@ public final class MetadataHolder implements Holder {
     }
 
     public static final class Builder {
+
+        final Set<PluginMetadata> metadata = new LinkedHashSet<>();
         @Nullable String name, loader, license, rawLoaderVersion = "1.0";
         @Nullable VersionRange loaderVersion;
         @Nullable Inheritable globalMetadata;
-        final Set<PluginMetadata> metadata = new LinkedHashSet<>();
 
         public Builder name(final String name) {
             this.name = Objects.requireNonNull(name, "name");

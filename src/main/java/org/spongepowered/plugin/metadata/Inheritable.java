@@ -33,6 +33,7 @@ import org.spongepowered.plugin.metadata.model.PluginLinks;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Inheritable {
 
@@ -46,7 +47,7 @@ public interface Inheritable {
 
     Optional<PluginDependency> dependency(String id);
 
-    List<PluginDependency> dependencies();
+    Set<PluginDependency> dependencies();
 
     Optional<Object> property(String key);
 

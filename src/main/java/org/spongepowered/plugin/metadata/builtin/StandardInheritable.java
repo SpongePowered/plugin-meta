@@ -33,6 +33,7 @@ import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -50,7 +51,7 @@ public class StandardInheritable implements Inheritable {
     private final PluginBranding branding;
     private final PluginLinks links;
     private final List<PluginContributor> contributors = new LinkedList<>();
-    private final List<PluginDependency> dependencies = new LinkedList<>();
+    private final Set<PluginDependency> dependencies = new LinkedHashSet<>();
     private final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
     private final Map<String, Object> properties = new LinkedHashMap<>();
 
@@ -96,8 +97,8 @@ public class StandardInheritable implements Inheritable {
     }
 
     @Override
-    public List<PluginDependency> dependencies() {
-        return Collections.unmodifiableList(this.dependencies);
+    public Set<PluginDependency> dependencies() {
+        return Collections.unmodifiableSet(this.dependencies);
     }
 
     @Override
@@ -129,12 +130,12 @@ public class StandardInheritable implements Inheritable {
     @SuppressWarnings("unchecked")
     public static class Builder<T extends Inheritable, B extends Builder<T, B>> {
 
-        @Nullable ArtifactVersion version;
-        PluginBranding branding = PluginBranding.none();
-        PluginLinks links = PluginLinks.none();
         final List<PluginContributor> contributors = new LinkedList<>();
         final Set<PluginDependency> dependencies = new LinkedHashSet<>();
         final Map<String, Object> properties = new LinkedHashMap<>();
+        @Nullable ArtifactVersion version;
+        PluginBranding branding = PluginBranding.none();
+        PluginLinks links = PluginLinks.none();
 
         protected Builder() {
         }
@@ -154,7 +155,7 @@ public class StandardInheritable implements Inheritable {
             return (B) this;
         }
 
-        public B contributors(final List<PluginContributor> contributors) {
+        public B contributors(final Collection<PluginContributor> contributors) {
             this.contributors.addAll(Objects.requireNonNull(contributors, "contributors"));
             return (B) this;
         }
@@ -164,7 +165,7 @@ public class StandardInheritable implements Inheritable {
             return (B) this;
         }
 
-        public B dependencies(final List<PluginDependency> dependencies) {
+        public B dependencies(final Collection<PluginDependency> dependencies) {
             this.dependencies.addAll(Objects.requireNonNull(dependencies, "dependencies"));
             return (B) this;
         }
