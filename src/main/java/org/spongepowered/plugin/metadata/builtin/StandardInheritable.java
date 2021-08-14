@@ -101,9 +101,10 @@ public class StandardInheritable implements Inheritable {
         return Collections.unmodifiableSet(this.dependencies);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Optional<Object> property(final String key) {
-        return Optional.ofNullable(this.properties.get(Objects.requireNonNull(key, "key")));
+    public <T> Optional<T> property(final String key) {
+        return Optional.ofNullable((T) this.properties.get(Objects.requireNonNull(key, "key")));
     }
 
     @Override

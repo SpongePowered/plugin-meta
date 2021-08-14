@@ -49,7 +49,7 @@ public interface Inheritable {
 
     Set<PluginDependency> dependencies();
 
-    Optional<Object> property(String key);
+    <T> Optional<T> property(String key);
 
     Map<String, Object> properties();
 }
