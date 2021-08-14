@@ -47,13 +47,13 @@ import java.util.StringJoiner;
 
 public class StandardInheritable implements Inheritable {
 
-    private final ArtifactVersion version;
-    private final PluginBranding branding;
-    private final PluginLinks links;
-    private final List<PluginContributor> contributors = new LinkedList<>();
-    private final Set<PluginDependency> dependencies = new LinkedHashSet<>();
+    protected final ArtifactVersion version;
+    protected final PluginBranding branding;
+    protected final PluginLinks links;
+    protected final List<PluginContributor> contributors = new LinkedList<>();
+    protected final Set<PluginDependency> dependencies = new LinkedHashSet<>();
+    protected final Map<String, Object> properties = new LinkedHashMap<>();
     private final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
-    private final Map<String, Object> properties = new LinkedHashMap<>();
 
     protected StandardInheritable(final Builder builder) {
         this.version = builder.version;
@@ -110,6 +110,17 @@ public class StandardInheritable implements Inheritable {
     @Override
     public Map<String, Object> properties() {
         return Collections.unmodifiableMap(this.properties);
+    }
+
+    public Builder toBuilder() {
+        final BuilderImpl builder = new BuilderImpl();
+        builder.contributors.addAll(this.contributors);
+        builder.dependencies.addAll(this.dependencies);
+        builder.properties.putAll(this.properties);
+        builder.version = this.version;
+        builder.branding = this.branding.toBuilder().build();
+        builder.links = this.links.toBuilder().build();
+        return builder;
     }
 
     @Override

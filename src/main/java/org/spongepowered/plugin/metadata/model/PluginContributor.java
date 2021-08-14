@@ -78,23 +78,6 @@ public final class PluginContributor {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(this.name);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof PluginContributor)) {
-            return false;
-        }
-        final PluginContributor that = (PluginContributor) o;
-        return this.name.equals(that.name);
-    }
-
-    @Override
     public String toString() {
         return new StringJoiner(", ", PluginContributor.class.getSimpleName() + "[", "]")
                 .add("name=" + this.name)

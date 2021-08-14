@@ -76,6 +76,22 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return Optional.ofNullable(this.description);
     }
 
+    public Builder toBuilder() {
+        final Builder builder = new Builder();
+        builder.holder = this.holder;
+        builder.id = this.id;
+        builder.name = this.name;
+        builder.mainClass = this.mainClass;
+        builder.description = this.description;
+        builder.contributors.addAll(this.contributors);
+        builder.dependencies.addAll(this.dependencies);
+        builder.properties.putAll(this.properties);
+        builder.version = this.version;
+        builder.branding = this.branding.toBuilder().build();
+        builder.links = this.links.toBuilder().build();
+        return builder;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(this.id);
