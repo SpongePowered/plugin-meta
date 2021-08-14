@@ -35,11 +35,13 @@ import org.spongepowered.plugin.metadata.model.PluginLinks;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 public class StandardInheritable implements Inheritable {
@@ -48,8 +50,8 @@ public class StandardInheritable implements Inheritable {
     private final PluginBranding branding;
     private final PluginLinks links;
     private final List<PluginContributor> contributors = new LinkedList<>();
-    private final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
     private final List<PluginDependency> dependencies = new LinkedList<>();
+    private final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
     private final Map<String, Object> properties = new LinkedHashMap<>();
 
     protected StandardInheritable(final Builder builder) {
@@ -57,8 +59,10 @@ public class StandardInheritable implements Inheritable {
         this.branding = builder.branding;
         this.links = builder.links;
         this.contributors.addAll(builder.contributors);
-        this.dependenciesById.putAll(builder.dependenciesById);
         this.dependencies.addAll(builder.dependencies);
+        for (final PluginDependency dependency : this.dependencies) {
+            this.dependenciesById.put(dependency.id(), dependency);
+        }
         this.properties.putAll(builder.properties);
     }
 
@@ -129,8 +133,7 @@ public class StandardInheritable implements Inheritable {
         PluginBranding branding = PluginBranding.none();
         PluginLinks links = PluginLinks.none();
         final List<PluginContributor> contributors = new LinkedList<>();
-        final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
-        final List<PluginDependency> dependencies = new LinkedList<>();
+        final Set<PluginDependency> dependencies = new LinkedHashSet<>();
         final Map<String, Object> properties = new LinkedHashMap<>();
 
         protected Builder() {
@@ -162,17 +165,12 @@ public class StandardInheritable implements Inheritable {
         }
 
         public B dependencies(final List<PluginDependency> dependencies) {
-            for (final PluginDependency dependency : Objects.requireNonNull(dependencies, "dependencies")) {
-                this.dependenciesById.put(dependency.id(), dependency);
-            }
-            this.dependencies.addAll(dependencies);
+            this.dependencies.addAll(Objects.requireNonNull(dependencies, "dependencies"));
             return (B) this;
         }
 
         public B addDependency(final PluginDependency dependency) {
-            this.dependenciesById.put(Objects.requireNonNull(dependency, "dependency").id(), dependency);
-            this.dependencies.remove(dependency);
-            this.dependencies.add(dependency);
+            this.dependencies.add(Objects.requireNonNull(dependency, "dependency"));
             return (B) this;
         }
 

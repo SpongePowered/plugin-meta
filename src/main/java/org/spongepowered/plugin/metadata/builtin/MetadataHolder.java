@@ -33,11 +33,13 @@ import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 public final class MetadataHolder implements Holder {
@@ -45,8 +47,8 @@ public final class MetadataHolder implements Holder {
     private final String name, loader, license;
     private final VersionRange loaderVersion;
     @Nullable private final Inheritable globalMetadata;
-    private final Map<String, PluginMetadata> metadataById = new LinkedHashMap<>();
     private final List<PluginMetadata> metadata = new LinkedList<>();
+    private final Map<String, PluginMetadata> metadataById = new LinkedHashMap<>();
 
     private MetadataHolder(final Builder builder) {
         this.name = builder.name;
@@ -54,8 +56,10 @@ public final class MetadataHolder implements Holder {
         this.license = builder.license;
         this.loaderVersion = builder.loaderVersion;
         this.globalMetadata = builder.globalMetadata;
-        this.metadataById.putAll(builder.metadataById);
         this.metadata.addAll(builder.metadata);
+        for (final PluginMetadata pm : this.metadata) {
+            this.metadataById.put(pm.id(), pm);
+        }
     }
 
     @Override
@@ -107,8 +111,7 @@ public final class MetadataHolder implements Holder {
         @Nullable String name, loader, license, rawLoaderVersion = "1.0";
         @Nullable VersionRange loaderVersion;
         @Nullable Inheritable globalMetadata;
-        final Map<String, PluginMetadata> metadataById = new LinkedHashMap<>();
-        final List<PluginMetadata> metadata = new LinkedList<>();
+        final Set<PluginMetadata> metadata = new LinkedHashSet<>();
 
         public Builder name(final String name) {
             this.name = Objects.requireNonNull(name, "name");
@@ -136,17 +139,12 @@ public final class MetadataHolder implements Holder {
         }
 
         public Builder metadata(final List<PluginMetadata> metadata) {
-            for (final PluginMetadata pm : Objects.requireNonNull(metadata, "metadata")) {
-                this.metadataById.put(pm.id(), pm);
-            }
-            this.metadata.addAll(metadata);
+            this.metadata.addAll(Objects.requireNonNull(metadata, "metadata"));
             return this;
         }
 
         public Builder addMetadata(final PluginMetadata metadata) {
-            this.metadataById.put(Objects.requireNonNull(metadata, "metadata").id(), metadata);
-            this.metadata.remove(metadata);
-            this.metadata.add(metadata);
+            this.metadata.add(Objects.requireNonNull(metadata, "metadata"));
             return this;
         }
 
