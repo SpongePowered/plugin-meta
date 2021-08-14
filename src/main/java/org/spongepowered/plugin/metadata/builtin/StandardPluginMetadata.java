@@ -25,6 +25,7 @@
 package org.spongepowered.plugin.metadata.builtin;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Holder;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -160,6 +161,10 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         protected PluginMetadata build0() {
             Objects.requireNonNull(this.holder, "holder");
             Objects.requireNonNull(this.id, "id");
+            if (!Constants.VALID_ID_PATTERN.matcher(this.id).matches()) {
+                throw new IllegalStateException(String.format("PluginMetadata specifies id '%s' that violates requirements. '%s'", this.id,
+                        Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
+            }
             Objects.requireNonNull(this.mainClass, "mainClass");
 
             return new StandardPluginMetadata(this);

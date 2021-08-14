@@ -30,6 +30,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.plugin.metadata.Constants;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -172,6 +173,10 @@ public final class PluginDependency {
 
         public PluginDependency build() {
             Objects.requireNonNull(this.id, "id");
+            if (!Constants.VALID_ID_PATTERN.matcher(this.id).matches()) {
+                throw new IllegalStateException(String.format("Dependency specifies id '%s' that violates requirements. '%s'", this.id,
+                        Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
+            }
             Objects.requireNonNull(this.version, "version");
 
             return new PluginDependency(this);
