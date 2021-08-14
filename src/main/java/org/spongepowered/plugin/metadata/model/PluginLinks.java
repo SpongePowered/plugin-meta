@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata;
+package org.spongepowered.plugin.metadata.model;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -32,6 +32,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.util.AdapterUtils;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,94 +40,93 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 /**
- * Specification for an entity considered to be a "contributor" to a plugin.
- *
- * Required: Name
- * Optional: Description
+ * Specification for an entity representing the links to "web resources" of a plugin.
  *
  * How these values are used is not enforced on an implementation, consult the documentation
  * of that entity for more details.
  */
-public final class PluginContributor {
+public final class PluginLinks {
 
-    private final String name;
-    @Nullable private final String description;
+    private final @Nullable URL homepage, source, issues;
 
-    private PluginContributor(final Builder builder) {
-        this.name = builder.name;
-        this.description = builder.description;
+    private PluginLinks(final Builder builder) {
+        this.homepage = builder.homepage;
+        this.source = builder.source;
+        this.issues = builder.issues;
+    }
+
+    private PluginLinks() {
+        this.homepage = null;
+        this.source = null;
+        this.issues = null;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public String name() {
-        return this.name;
+    public static PluginLinks none() {
+        return new PluginLinks();
     }
 
-    public Optional<String> description() {
-        return Optional.ofNullable(this.description);
+    public Optional<URL> homepage() {
+        return Optional.ofNullable(this.homepage);
     }
 
-    public PluginContributor.Builder toBuilder() {
-        final Builder builder = PluginContributor.builder();
-        builder.name = this.name;
-        builder.description = this.description;
+    public Optional<URL> source() {
+        return Optional.ofNullable(this.source);
+    }
+
+    public Optional<URL> issues() {
+        return Optional.ofNullable(this.issues);
+    }
+
+    public PluginLinks.Builder toBuilder() {
+        final Builder builder = PluginLinks.builder();
+        builder.homepage = this.homepage;
+        builder.source = this.source;
+        builder.issues = this.issues;
 
         return builder;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(this.name);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof PluginContributor)) {
-            return false;
-        }
-        final PluginContributor that = (PluginContributor) o;
-        return this.name.equals(that.name);
-    }
-
-    @Override
     public String toString() {
-        return new StringJoiner(", ", PluginContributor.class.getSimpleName() + "[", "]")
-                .add("name=" + this.name)
-                .add("description=" + this.description)
+        return new StringJoiner(", ", PluginLinks.class.getSimpleName() + "[", "]")
+                .add("homepage=" + this.homepage)
+                .add("source=" + this.source)
+                .add("issues=" + this.issues)
                 .toString();
     }
 
     public static final class Builder {
 
-        @Nullable String name, description;
+        @Nullable URL homepage, source, issues;
 
         private Builder() {
         }
 
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name);
+        public Builder homepage(@Nullable final URL homepage) {
+            this.homepage = homepage;
             return this;
         }
 
-        public Builder description(@Nullable final String description) {
-            this.description = description;
+        public Builder source(@Nullable final URL source) {
+            this.source = source;
             return this;
         }
 
-        public PluginContributor build() {
-            Objects.requireNonNull(this.name, "name");
+        public Builder issues(@Nullable final URL issues) {
+            this.issues = issues;
+            return this;
+        }
 
-            return new PluginContributor(this);
+        public PluginLinks build() {
+            return new PluginLinks(this);
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginContributor> {
+    public static final class Adapter extends TypeAdapter<PluginLinks> {
 
         private static final Adapter INSTANCE = new Adapter();
 
@@ -135,38 +135,43 @@ public final class PluginContributor {
         }
 
         @Override
-        public void write(final JsonWriter out, final PluginContributor contributor) throws IOException {
+        public void write(final JsonWriter out, final PluginLinks links) throws IOException {
             Objects.requireNonNull(out, "out");
-            Objects.requireNonNull(contributor, "contributor");
+            Objects.requireNonNull(links, "links");
 
             out.beginObject();
-            out.name("name").value(contributor.name());
-            AdapterUtils.writeStringIfPresent(out, "description", contributor.description());
+            AdapterUtils.writeURLIfPresent(out, "homepage", links.homepage());
+            AdapterUtils.writeURLIfPresent(out, "source", links.source());
+            AdapterUtils.writeURLIfPresent(out, "issues", links.issues());
             out.endObject();
         }
 
         @Override
-        public PluginContributor read(final JsonReader in) throws IOException {
+        public PluginLinks read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
-            final PluginContributor.Builder builder = PluginContributor.builder();
+            final PluginLinks.Builder builder = PluginLinks.builder();
             while (in.hasNext()) {
                 final String key = in.nextName();
                 if (!processedKeys.add(key)) {
-                    throw new JsonParseException(String.format("Duplicate contributor key '%s' in %s", key, in));
+                    throw new JsonParseException(String.format("Duplicate links key '%s' in %s", key, in));
                 }
                 switch (key) {
-                    case "name":
-                        builder.name(in.nextString());
+                    case "homepage":
+                        builder.homepage(new URL(in.nextString()));
                         break;
-                    case "description":
-                        builder.description(in.nextString());
+                    case "source":
+                        builder.source(new URL(in.nextString()));
+                        break;
+                    case "issues":
+                        builder.issues(new URL(in.nextString()));
                         break;
                 }
             }
             in.endObject();
+
             return builder.build();
         }
     }

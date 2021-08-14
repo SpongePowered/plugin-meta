@@ -7,6 +7,7 @@ plugins {
 dependencies {
     compileOnlyApi("org.checkerframework:checker-qual:3.12.0")
     api("com.google.code.gson:gson:2.8.0")
+    api("org.apache.maven:maven-artifact:3.8.1")
 }
 
 tasks.jar {

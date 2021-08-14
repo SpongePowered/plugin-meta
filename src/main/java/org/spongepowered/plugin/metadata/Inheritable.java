@@ -24,17 +24,31 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginContributor;
+import org.spongepowered.plugin.metadata.model.PluginDependency;
+import org.spongepowered.plugin.metadata.model.PluginLinks;
+
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public interface PluginMetadata extends Inheritable {
+public interface Inheritable {
 
-    Holder holder();
+    ArtifactVersion version();
 
-    String id();
+    PluginBranding branding();
 
-    String mainClass();
+    PluginLinks links();
 
-    Optional<String> name();
+    List<PluginContributor> contributors();
 
-    Optional<String> description();
+    Optional<PluginDependency> dependency(String id);
+
+    List<PluginDependency> dependencies();
+
+    Optional<Object> property(String key);
+
+    Map<String, Object> properties();
 }

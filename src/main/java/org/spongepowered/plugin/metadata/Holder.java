@@ -24,17 +24,24 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import org.apache.maven.artifact.versioning.VersionRange;
+
+import java.util.List;
 import java.util.Optional;
 
-public interface PluginMetadata extends Inheritable {
+public interface Holder {
 
-    Holder holder();
+    String name();
 
-    String id();
+    String loader();
 
-    String mainClass();
+    VersionRange loaderVersion();
 
-    Optional<String> name();
+    String license();
 
-    Optional<String> description();
+    Optional<Inheritable> globalMetadata();
+
+    Optional<PluginMetadata> metadata(String id);
+
+    List<PluginMetadata> metadata();
 }

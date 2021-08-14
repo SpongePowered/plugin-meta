@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata;
+package org.spongepowered.plugin.metadata.model;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;

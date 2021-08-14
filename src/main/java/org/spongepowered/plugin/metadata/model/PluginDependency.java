@@ -22,12 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata;
+package org.spongepowered.plugin.metadata.model;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -47,7 +48,8 @@ import java.util.StringJoiner;
  */
 public final class PluginDependency {
 
-    private final String id, version;
+    private final String id;
+    private final VersionRange version;
     private final LoadOrder loadOrder;
     private final boolean optional;
 
@@ -71,7 +73,7 @@ public final class PluginDependency {
         return this.id;
     }
 
-    public String version() {
+    public VersionRange version() {
         return this.version;
     }
 
@@ -140,7 +142,8 @@ public final class PluginDependency {
 
     public static final class Builder {
 
-        @Nullable String id, version;
+        @Nullable String id;
+        @Nullable VersionRange version;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
         boolean optional = false;
 
@@ -153,7 +156,7 @@ public final class PluginDependency {
         }
 
         public Builder version(final String version) {
-            this.version = Objects.requireNonNull(version, "version");
+            this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
             return this;
         }
 
@@ -190,7 +193,7 @@ public final class PluginDependency {
 
             out.beginObject();
             out.name("id").value(dependency.id());
-            out.name("version").value(dependency.version());
+            out.name("version").value(dependency.version().toString());
             out.name("load-order").value(dependency.loadOrder().name());
             out.name("optional").value(dependency.optional());
             out.endObject();
