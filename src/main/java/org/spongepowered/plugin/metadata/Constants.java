@@ -36,8 +36,8 @@ public final class Constants {
      */
     public static final Pattern VALID_ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-_]{1,63}$");
 
-    public static final String INVALID_ID_REQUIREMENTS_MESSAGE = "Ids must be lower case, start with an alphabetic character, and contain only a "
-            + "mix of alphanumeric, dashes, or underscore characters between 2 to 64 in length";
+    public static final String INVALID_ID_REQUIREMENTS_MESSAGE = "IDs can be between 2 and 64 characters long and must start with a lower case"
+            + " letter, followed by any mix of lower case letters (a-z), numbers (0-9), dashes (-) and underscores (_).";
 
     private Constants() {
     }

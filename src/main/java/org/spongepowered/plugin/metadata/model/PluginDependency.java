@@ -174,7 +174,7 @@ public final class PluginDependency {
         public PluginDependency build() {
             Objects.requireNonNull(this.id, "id");
             if (!Constants.VALID_ID_PATTERN.matcher(this.id).matches()) {
-                throw new IllegalStateException(String.format("Dependency specifies id '%s' that violates requirements. '%s'", this.id,
+                throw new IllegalStateException(String.format("Dependency with supplied ID '{%s}' is invalid. %s", this.id,
                         Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
             }
             Objects.requireNonNull(this.version, "version");
