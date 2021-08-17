@@ -27,9 +27,10 @@ package org.spongepowered.plugin.metadata.model;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.util.AdapterUtils;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -111,26 +112,29 @@ public final class PluginContributor {
 
     public static final class Adapter extends TypeAdapter<PluginContributor> {
 
-        private static final Adapter INSTANCE = new Adapter();
-
-        public static Adapter instance() {
-            return Adapter.INSTANCE;
-        }
-
         @Override
-        public void write(final JsonWriter out, final PluginContributor contributor) throws IOException {
+        public void write(final JsonWriter out, final PluginContributor value) throws IOException {
             Objects.requireNonNull(out, "out");
-            Objects.requireNonNull(contributor, "contributor");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
 
             out.beginObject();
-            out.name("name").value(contributor.name());
-            AdapterUtils.writeStringIfPresent(out, "description", contributor.description());
+            out.name("name").value(value.name());
+            GsonUtils.writeIfPresent(out, "description", value.description());
             out.endObject();
         }
 
         @Override
         public PluginContributor read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
+
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();

@@ -24,17 +24,35 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
+import org.spongepowered.plugin.metadata.model.Adapters;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -55,7 +73,7 @@ public class StandardInheritable implements Inheritable {
     protected final Map<String, Object> properties = new LinkedHashMap<>();
     private final Map<String, PluginDependency> dependenciesById = new LinkedHashMap<>();
 
-    protected StandardInheritable(final Builder builder) {
+    protected StandardInheritable(final AbstractBuilder builder) {
         this.version = builder.version;
         this.branding = builder.branding;
         this.links = builder.links;
@@ -68,7 +86,7 @@ public class StandardInheritable implements Inheritable {
     }
 
     public static Builder builder() {
-        return new BuilderImpl();
+        return new Builder();
     }
 
     @Override
@@ -112,17 +130,6 @@ public class StandardInheritable implements Inheritable {
         return Collections.unmodifiableMap(this.properties);
     }
 
-    public Builder toBuilder() {
-        final BuilderImpl builder = new BuilderImpl();
-        builder.contributors.addAll(this.contributors);
-        builder.dependencies.addAll(this.dependencies);
-        builder.properties.putAll(this.properties);
-        builder.version = this.version;
-        builder.branding = this.branding.toBuilder().build();
-        builder.links = this.links.toBuilder().build();
-        return builder;
-    }
-
     @Override
     public String toString() {
         return this.stringJoiner().toString();
@@ -140,7 +147,7 @@ public class StandardInheritable implements Inheritable {
     }
 
     @SuppressWarnings("unchecked")
-    public static class Builder<T extends Inheritable, B extends Builder<T, B>> {
+    public abstract static class AbstractBuilder<T extends Inheritable, B extends AbstractBuilder<T, B>> {
 
         final List<PluginContributor> contributors = new LinkedList<>();
         final Set<PluginDependency> dependencies = new LinkedHashSet<>();
@@ -149,7 +156,7 @@ public class StandardInheritable implements Inheritable {
         PluginBranding branding = PluginBranding.none();
         PluginLinks links = PluginLinks.none();
 
-        protected Builder() {
+        protected AbstractBuilder() {
         }
 
         public B version(final String version) {
@@ -197,18 +204,71 @@ public class StandardInheritable implements Inheritable {
             return (B) this;
         }
 
+        public B merge(final T value) {
+            // Inheritable
+            if (this.version == null) {
+                this.version = value.version();
+            }
+            if (this.branding == PluginBranding.none()) {
+                this.branding = value.branding();
+            }
+            if (this.links == PluginLinks.none()) {
+                this.links = value.links();
+            }
+            // TODO If we have entries with same id in both lists, perform a deep merge? Allow that?
+            this.contributors.addAll(value.contributors());
+            this.dependencies.addAll(value.dependencies());
+            for (final Map.Entry<String, Object> entry : value.properties().entrySet()) {
+                this.properties.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+            return (B) this;
+        }
+
         public final T build() {
             Objects.requireNonNull(this.version, "version");
 
             return this.build0();
         }
 
-        protected T build0() {
-            return (T) new StandardInheritable(this);
+        protected abstract T build0();
+    }
+
+    public static final class Builder extends AbstractBuilder<StandardInheritable, Builder> {
+
+        @Override
+        protected StandardInheritable build0() {
+            return new StandardInheritable(this);
         }
     }
 
-    private static final class BuilderImpl extends Builder<StandardInheritable, BuilderImpl> {
+    public static final class Serializer implements JsonSerializer<StandardInheritable>, JsonDeserializer<StandardInheritable> {
 
+        @Override
+        public StandardInheritable deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
+            throws JsonParseException {
+
+            final JsonObject obj = element.getAsJsonObject();
+            return StandardInheritable.builder()
+                .version(obj.get("version").getAsString())
+                .branding(Adapters.PLUGIN_BRANDING.fromJsonTree(obj.get("branding")))
+                .links(Adapters.PLUGIN_LINKS.fromJsonTree(obj.get("links")))
+                .contributors(GsonUtils.read(obj.getAsJsonArray("contributors"), Adapters.PLUGIN_CONTRIBUTOR, LinkedList::new))
+                .dependencies(GsonUtils.read(obj.getAsJsonArray("dependencies"), Adapters.PLUGIN_DEPENDENCY, LinkedHashSet::new))
+                .properties(GsonUtils.read(obj.getAsJsonObject("properties"), JsonElement::getAsString, LinkedHashMap::new))
+                .build()
+            ;
+        }
+
+        @Override
+        public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("version", value.version.toString());
+            obj.add("branding", Adapters.PLUGIN_BRANDING.toJsonTree(value.branding));
+            obj.add("links", Adapters.PLUGIN_LINKS.toJsonTree(value.links));
+            obj.add("contributors", GsonUtils.write(Adapters.PLUGIN_CONTRIBUTOR, value.contributors));
+            obj.add("dependencies", GsonUtils.write(Adapters.PLUGIN_DEPENDENCY, value.dependencies));
+            obj.add("properties", GsonUtils.write(v -> new JsonPrimitive(v.toString()), value.properties));
+            return obj;
+        }
     }
 }

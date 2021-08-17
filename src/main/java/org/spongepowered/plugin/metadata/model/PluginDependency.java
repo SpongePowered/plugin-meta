@@ -27,6 +27,7 @@ package org.spongepowered.plugin.metadata.model;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -185,28 +186,31 @@ public final class PluginDependency {
 
     public static final class Adapter extends TypeAdapter<PluginDependency> {
 
-        private static final Adapter INSTANCE = new Adapter();
-
-        public static Adapter instance() {
-            return Adapter.INSTANCE;
-        }
-
         @Override
-        public void write(final JsonWriter out, final PluginDependency dependency) throws IOException {
+        public void write(final JsonWriter out, final PluginDependency value) throws IOException {
             Objects.requireNonNull(out, "out");
-            Objects.requireNonNull(dependency, "dependency");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
 
             out.beginObject();
-            out.name("id").value(dependency.id());
-            out.name("version").value(dependency.version().toString());
-            out.name("load-order").value(dependency.loadOrder().name());
-            out.name("optional").value(dependency.optional());
+            out.name("id").value(value.id());
+            out.name("version").value(value.version().toString());
+            out.name("load-order").value(value.loadOrder().name());
+            out.name("optional").value(value.optional());
             out.endObject();
         }
 
         @Override
         public PluginDependency read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
+
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();

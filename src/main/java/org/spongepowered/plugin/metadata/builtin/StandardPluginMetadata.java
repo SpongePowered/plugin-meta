@@ -48,10 +48,6 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         this.description = builder.description;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Override
     public Holder holder() {
         return this.holder;
@@ -124,7 +120,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return joiner.toString();
     }
 
-    public static final class Builder extends StandardInheritable.Builder<PluginMetadata, Builder> {
+    public static final class Builder extends StandardInheritable.AbstractBuilder<PluginMetadata, Builder> {
 
         @Nullable Holder holder;
         @Nullable String id, mainClass, name, description;

@@ -24,6 +24,12 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -31,6 +37,7 @@ import org.spongepowered.plugin.metadata.Holder;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -159,6 +166,19 @@ public final class MetadataHolder implements Holder {
             this.loaderVersion = VersionRange.createFromVersionSpec(this.rawLoaderVersion);
 
             return new MetadataHolder(this);
+        }
+    }
+
+    public static final class Serializer implements JsonSerializer<MetadataHolder>, JsonDeserializer<MetadataHolder> {
+
+        @Override
+        public MetadataHolder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+            return null;
+        }
+
+        @Override
+        public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
+            return null;
         }
     }
 }

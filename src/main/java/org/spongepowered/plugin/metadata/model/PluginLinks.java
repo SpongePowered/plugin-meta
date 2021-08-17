@@ -27,9 +27,10 @@ package org.spongepowered.plugin.metadata.model;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.util.AdapterUtils;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,6 +47,8 @@ import java.util.StringJoiner;
  * of that entity for more details.
  */
 public final class PluginLinks {
+
+    private static final PluginLinks NONE = new PluginLinks();
 
     private final @Nullable URL homepage, source, issues;
 
@@ -66,7 +69,7 @@ public final class PluginLinks {
     }
 
     public static PluginLinks none() {
-        return new PluginLinks();
+        return PluginLinks.NONE;
     }
 
     public Optional<URL> homepage() {
@@ -128,27 +131,30 @@ public final class PluginLinks {
 
     public static final class Adapter extends TypeAdapter<PluginLinks> {
 
-        private static final Adapter INSTANCE = new Adapter();
-
-        public static Adapter instance() {
-            return Adapter.INSTANCE;
-        }
-
         @Override
-        public void write(final JsonWriter out, final PluginLinks links) throws IOException {
+        public void write(final JsonWriter out, final PluginLinks value) throws IOException {
             Objects.requireNonNull(out, "out");
-            Objects.requireNonNull(links, "links");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
 
             out.beginObject();
-            AdapterUtils.writeURLIfPresent(out, "homepage", links.homepage());
-            AdapterUtils.writeURLIfPresent(out, "source", links.source());
-            AdapterUtils.writeURLIfPresent(out, "issues", links.issues());
+            GsonUtils.writeIfPresent(out, "homepage", value.homepage());
+            GsonUtils.writeIfPresent(out, "source", value.source());
+            GsonUtils.writeIfPresent(out, "issues", value.issues());
             out.endObject();
         }
 
         @Override
         public PluginLinks read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
+
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();

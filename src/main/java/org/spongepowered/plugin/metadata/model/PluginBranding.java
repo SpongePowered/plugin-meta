@@ -27,9 +27,10 @@ package org.spongepowered.plugin.metadata.model;
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.util.AdapterUtils;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,6 +47,8 @@ import java.util.StringJoiner;
  * of that entity for more details.
  */
 public final class PluginBranding {
+
+    private static final PluginBranding NONE = new PluginBranding();
 
     private final @Nullable URL logo, icon;
 
@@ -64,7 +67,7 @@ public final class PluginBranding {
     }
 
     public static PluginBranding none() {
-        return new PluginBranding();
+        return PluginBranding.NONE;
     }
 
     public Optional<URL> logo() {
@@ -115,26 +118,29 @@ public final class PluginBranding {
 
     public static final class Adapter extends TypeAdapter<PluginBranding> {
 
-        private static final Adapter INSTANCE = new Adapter();
-
-        public static Adapter instance() {
-            return Adapter.INSTANCE;
-        }
-
         @Override
-        public void write(final JsonWriter out, final PluginBranding branding) throws IOException {
+        public void write(final JsonWriter out, final PluginBranding value) throws IOException {
             Objects.requireNonNull(out, "out");
-            Objects.requireNonNull(branding, "branding");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
 
             out.beginObject();
-            AdapterUtils.writeURLIfPresent(out, "logo", branding.logo());
-            AdapterUtils.writeURLIfPresent(out, "icon", branding.icon());
+            GsonUtils.writeIfPresent(out, "logo", value.logo());
+            GsonUtils.writeIfPresent(out, "icon", value.icon());
             out.endObject();
         }
 
         @Override
         public PluginBranding read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
+
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
