@@ -1,18 +1,18 @@
 plugins {
-    id("org.spongepowered.gradle.sponge.dev") version "1.1.0-SNAPSHOT"
-    id("net.kyori.indra.checkstyle") version "2.0.1"
-    id("net.kyori.indra.publishing.sonatype") version "2.0.1"
+    id("org.spongepowered.gradle.sponge.dev") version "1.1.1"
+    id("net.kyori.indra.checkstyle") version "2.0.6"
+    id("net.kyori.indra.publishing.sonatype") version "2.0.6"
 }
 
 dependencies {
-    compileOnlyApi("org.checkerframework:checker-qual:3.12.0")
+    compileOnlyApi("org.checkerframework:checker-qual:3.17.0")
     api("com.google.code.gson:gson:2.8.0")
     api("org.apache.maven:maven-artifact:3.8.1")
 }
 
 tasks.jar {
     manifest.attributes(
-            "Automatic-Module-Name" to "org.spongepowered.plugin.metadata"
+        "Automatic-Module-Name" to "org.spongepowered.plugin.metadata"
     )
 }
 
