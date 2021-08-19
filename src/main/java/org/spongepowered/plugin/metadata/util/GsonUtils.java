@@ -28,23 +28,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public final class GsonUtils {
-
-    public static <T> void writeIfPresent(final JsonWriter out, final String name, final Optional<T> value) throws IOException {
-        if (value.isPresent()) {
-            out.name(name).value(value.get().toString());
-        }
-    }
 
     public static <T, V extends Collection<T>> V read(final JsonArray in, final TypeAdapter<T> adapter, final Supplier<V> collector) {
         final V parsed = collector.get();
@@ -74,12 +71,55 @@ public final class GsonUtils {
         return array;
     }
 
-    public static <T> JsonObject write(final Function<Object, JsonElement> valFunc, final Map<String, Object> value) {
+    public static JsonObject write(final Function<Object, JsonElement> valFunc, final Map<String, Object> value) {
         final JsonObject obj = new JsonObject();
         for (final Map.Entry<String, Object> entry : value.entrySet()) {
             obj.add(entry.getKey(), valFunc.apply(entry.getValue()));
         }
 
         return obj;
+    }
+
+    public static <T> void writeIfPresent(final JsonWriter out, final String name, final Optional<T> value) throws IOException {
+        if (value.isPresent()) {
+            out.name(name).value(value.get().toString());
+        }
+    }
+
+    public static <T> void writeIfPresent(final JsonObject out, final String key, final Optional<T> value) {
+        final @Nullable T val = value.orElse(null);
+        if (val == null) {
+            return;
+        }
+        if (val instanceof JsonElement) {
+            out.add(key, (JsonElement) val);
+        } else if (val instanceof String) {
+            out.addProperty(key, (String) val);
+        } else if (val instanceof Number) {
+            out.addProperty(key, (Number) val);
+        } else if (val instanceof Boolean) {
+            out.addProperty(key, (Boolean) val);
+        } else if (val instanceof Character) {
+            out.addProperty(key, (Character) val);
+        }
+    }
+
+    public static <T extends JsonElement> void consumeIfPresent(final JsonObject obj, final String key, final Consumer<T> consumer) {
+        if (obj.has(key)) {
+            consumer.accept((T) obj.get(key));
+        }
+    }
+
+    public static <T> void applyIfValid(final JsonObject obj, final T value, final Predicate<T> validator, final BiConsumer<JsonObject, T> consumer) {
+        if (validator.test(value)) {
+            consumer.accept(obj, value);
+        }
+    }
+
+    public static <T> Optional<T> get(final JsonObject obj, final String key, final Function<JsonElement, T> valFunc) {
+        if (!obj.has(key)) {
+            return Optional.empty();
+        }
+        return Optional.of(valFunc.apply(obj.get(key)));
     }
 }

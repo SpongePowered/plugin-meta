@@ -24,9 +24,14 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -41,6 +46,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -172,13 +178,75 @@ public final class MetadataHolder implements Holder {
     public static final class Serializer implements JsonSerializer<MetadataHolder>, JsonDeserializer<MetadataHolder> {
 
         @Override
-        public MetadataHolder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
-            return null;
+        public MetadataHolder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
+                throws JsonParseException {
+            final JsonObject obj = element.getAsJsonObject();
+            final Builder builder = new Builder()
+                    .loader(obj.get("loader").getAsString())
+                    .loaderVersion(obj.get("loader-version").getAsString())
+                    .license(obj.get("license").getAsString());
+
+            final JsonElement globalElement = obj.get("global");
+            @Nullable StandardInheritable inheritable = null;
+            if (!(globalElement instanceof JsonNull)) {
+                inheritable = context.deserialize(globalElement, StandardInheritable.class);
+                builder.globalMetadata(inheritable);
+            }
+
+            final JsonElement pluginsElement = obj.get("plugins");
+            final List<JsonObject> pluginObjects = new LinkedList<>();
+
+            // I am too nice to people...
+            if (pluginsElement.isJsonObject()) {
+                pluginObjects.add((JsonObject) pluginsElement);
+            } else if (pluginsElement.isJsonArray()) {
+                for (final JsonElement pluginElement : ((JsonArray) pluginsElement)) {
+                    if (pluginElement.isJsonObject()) {
+                        pluginObjects.add((JsonObject) pluginElement);
+                    }
+                }
+            }
+
+            if (pluginObjects.isEmpty()) {
+                throw new JsonParseException("No plugin metadata has been specified for the 'plugins' tag!");
+            }
+
+            final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadata.Deserializer(inheritable));
+            gsonBuilder.registerTypeAdapter(StandardInheritable.class, new StandardInheritable.Serializer());
+
+            final Gson gson = gsonBuilder.create();
+
+            for (final JsonObject pluginObject : pluginObjects) {
+                builder.addMetadata(gson.fromJson(pluginObject, StandardPluginMetadata.class));
+            }
+
+            try {
+                final MetadataHolder holder = builder.build();
+                for (PluginMetadata metadata : holder.metadata()) {
+                    ((StandardPluginMetadata) metadata).setHolder(holder);
+                }
+                return holder;
+            } catch (final InvalidVersionSpecificationException e) {
+                throw new JsonParseException(e);
+            }
         }
 
         @Override
         public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
-            return null;
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("loader", value.loader);
+            obj.addProperty("loader-version", value.loaderVersion.toString());
+            obj.addProperty("license", value.license);
+
+            // TODO Determine what properties are equal and not write all the plugin's metadata?
+            final JsonArray plugins = new JsonArray();
+            for (final PluginMetadata metadata : value.metadata) {
+                plugins.add(context.serialize(metadata, StandardPluginMetadata.class));
+            }
+            obj.add("plugins", plugins);
+
+            return obj;
         }
     }
 }

@@ -24,24 +24,33 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Holder;
 import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 public final class StandardPluginMetadata extends StandardInheritable implements PluginMetadata {
 
-    private final Holder holder;
+    private Holder holder;
     private final String id, mainClass;
     @Nullable private final String name, description;
 
     private StandardPluginMetadata(final Builder builder) {
         super(builder);
-        this.holder = builder.holder;
         this.id = builder.id;
         this.mainClass = builder.mainClass;
         this.name = builder.name;
@@ -73,20 +82,8 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return Optional.ofNullable(this.description);
     }
 
-    public Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.holder = this.holder;
-        builder.id = this.id;
-        builder.name = this.name;
-        builder.mainClass = this.mainClass;
-        builder.description = this.description;
-        builder.contributors.addAll(this.contributors);
-        builder.dependencies.addAll(this.dependencies);
-        builder.properties.putAll(this.properties);
-        builder.version = this.version;
-        builder.branding = this.branding.toBuilder().build();
-        builder.links = this.links.toBuilder().build();
-        return builder;
+    void setHolder(final MetadataHolder holder) {
+        this.holder = holder;
     }
 
     @Override
@@ -120,17 +117,11 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return joiner.toString();
     }
 
-    public static final class Builder extends StandardInheritable.AbstractBuilder<PluginMetadata, Builder> {
+    public static final class Builder extends StandardInheritable.AbstractBuilder<StandardPluginMetadata, Builder> {
 
-        @Nullable Holder holder;
         @Nullable String id, mainClass, name, description;
 
         private Builder() {
-        }
-
-        public Builder holder(final Holder holder) {
-            this.holder = Objects.requireNonNull(holder, "holder");
-            return this;
         }
 
         public Builder id(final String id) {
@@ -154,16 +145,64 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         }
 
         @Override
-        protected PluginMetadata build0() {
-            Objects.requireNonNull(this.holder, "holder");
-            Objects.requireNonNull(this.id, "id");
-            if (!Constants.VALID_ID_PATTERN.matcher(this.id).matches()) {
+        protected StandardPluginMetadata build0() {
+            if (!Constants.VALID_ID_PATTERN.matcher(Objects.requireNonNull(this.id, "id")).matches()) {
                 throw new IllegalStateException(String.format("PluginMetadata with supplied ID '{%s}' is invalid. %s", this.id,
                         Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
+            }
+            if (this.version == NullVersion.instance()) {
+                throw new IllegalStateException(String.format("PluginMetadata with supplied ID '{%s}' has no version specified.", this.id));
             }
             Objects.requireNonNull(this.mainClass, "mainClass");
 
             return new StandardPluginMetadata(this);
+        }
+    }
+
+    public static final class Deserializer implements JsonDeserializer<StandardPluginMetadata> {
+
+        private final @Nullable StandardInheritable globalMetadata;
+
+        public Deserializer(final @Nullable StandardInheritable globalMetadata) {
+            this.globalMetadata = globalMetadata;
+        }
+
+        @Override
+        public StandardPluginMetadata deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
+                throws JsonParseException {
+            final JsonObject obj = element.getAsJsonObject();
+            final StandardInheritable globalOverride = context.deserialize(element, StandardInheritable.class);
+            final StandardPluginMetadata.Builder builder = new StandardPluginMetadata.Builder();
+            builder
+                    .id(obj.get("id").getAsString())
+                    .mainClass(obj.get("main-class").getAsString());
+            GsonUtils.consumeIfPresent(obj, "name", e -> builder.name(e.getAsString()));
+            GsonUtils.consumeIfPresent(obj, "description", e -> builder.description(e.getAsString()));
+            builder.from(globalOverride);
+            if (this.globalMetadata != null) {
+                builder.from(this.globalMetadata);
+            }
+
+            return builder.build();
+        }
+    }
+
+    public static final class Serializer implements JsonSerializer<StandardPluginMetadata> {
+
+        @Override
+        public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("id", value.id);
+            obj.addProperty("main-class", value.mainClass);
+            GsonUtils.writeIfPresent(obj, "name", value.name());
+            GsonUtils.writeIfPresent(obj, "description", value.description());
+
+            final JsonObject inheritableElement = (JsonObject) context.serialize(value, StandardInheritable.class);
+            // TODO Sort this?
+            for (final Map.Entry<String, JsonElement> entry : inheritableElement.entrySet()) {
+                obj.add(entry.getKey(), entry.getValue());
+            }
+            return obj;
         }
     }
 }
