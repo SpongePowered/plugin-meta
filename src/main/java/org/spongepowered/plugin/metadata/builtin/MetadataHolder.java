@@ -196,10 +196,7 @@ public final class MetadataHolder implements Holder {
             final JsonElement pluginsElement = obj.get("plugins");
             final List<JsonObject> pluginObjects = new LinkedList<>();
 
-            // I am too nice to people...
-            if (pluginsElement.isJsonObject()) {
-                pluginObjects.add((JsonObject) pluginsElement);
-            } else if (pluginsElement.isJsonArray()) {
+            if (pluginsElement.isJsonArray()) {
                 for (final JsonElement pluginElement : ((JsonArray) pluginsElement)) {
                     if (pluginElement.isJsonObject()) {
                         pluginObjects.add((JsonObject) pluginElement);
