@@ -35,6 +35,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.model.Adapters;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
@@ -59,6 +60,7 @@ import java.util.StringJoiner;
 public class StandardInheritable implements Inheritable {
 
     protected final ArtifactVersion version;
+    protected final String rawVersion;
     protected final PluginBranding branding;
     protected final PluginLinks links;
     protected final List<PluginContributor> contributors = new LinkedList<>();
@@ -68,6 +70,7 @@ public class StandardInheritable implements Inheritable {
 
     protected StandardInheritable(final AbstractBuilder builder) {
         this.version = builder.version;
+        this.rawVersion = builder.rawVersion;
         this.branding = builder.branding;
         this.links = builder.links;
         this.contributors.addAll(builder.contributors);
@@ -130,7 +133,7 @@ public class StandardInheritable implements Inheritable {
 
     protected StringJoiner stringJoiner() {
         return new StringJoiner(", ", StandardInheritable.class.getSimpleName() + "[", "]")
-                .add("version=" + this.version)
+                .add("version=" + this.rawVersion)
                 .add("branding=" + this.branding)
                 .add("links=" + this.links)
                 .add("contributors=" + this.contributors)
@@ -146,14 +149,21 @@ public class StandardInheritable implements Inheritable {
         final Set<PluginDependency> dependencies = new LinkedHashSet<>();
         final Map<String, Object> properties = new LinkedHashMap<>();
         ArtifactVersion version = NullVersion.instance();
+        String rawVersion = "null";
         PluginBranding branding = PluginBranding.none();
         PluginLinks links = PluginLinks.none();
 
         protected AbstractBuilder() {
         }
 
-        public B version(final ArtifactVersion version) {
-            this.version = Objects.requireNonNull(version, "version");
+        public B version(final @Nullable String version) {
+            if (version == null) {
+                this.version = NullVersion.instance();
+                this.rawVersion = "null";
+            } else {
+                this.version = new DefaultArtifactVersion(Objects.requireNonNull(version, "version"));
+                this.rawVersion = version;
+            }
             return (B) this;
         }
 
@@ -197,12 +207,13 @@ public class StandardInheritable implements Inheritable {
             return (B) this;
         }
 
-        public B from(final Inheritable value) {
+        public B from(final StandardInheritable value) {
             // TODO If we have "partial" entries, do we want to do deep merging? May start to get out of control...
 
             // Inheritable
             if (this.version == NullVersion.instance()) {
                 this.version = value.version();
+                this.rawVersion = value.rawVersion;
             }
             if (this.branding == PluginBranding.none()) {
                 this.branding = value.branding();
@@ -242,8 +253,7 @@ public class StandardInheritable implements Inheritable {
             throws JsonParseException {
 
             final JsonObject obj = element.getAsJsonObject();
-            final Builder builder = StandardInheritable.builder()
-                    .version(GsonUtils.<ArtifactVersion>get(obj, "version", e -> new DefaultArtifactVersion(e.getAsString())).orElse(NullVersion.instance()));
+            final Builder builder = StandardInheritable.builder().version(GsonUtils.<String>get(obj, "version", JsonElement::getAsString).orElse(null));
             GsonUtils.consumeIfPresent(obj, "branding", e -> builder.branding(Adapters.PLUGIN_BRANDING.fromJsonTree(e)));
             GsonUtils.consumeIfPresent(obj, "links", e -> builder.links(Adapters.PLUGIN_LINKS.fromJsonTree(e)));
             GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.PLUGIN_CONTRIBUTOR, LinkedList::new)));
@@ -256,7 +266,7 @@ public class StandardInheritable implements Inheritable {
         @Override
         public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
-            GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.version.toString()));
+            GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.rawVersion));
             GsonUtils.applyIfValid(obj, value, p -> p.branding != PluginBranding.none(), (o, v) -> o.add("branding", Adapters.PLUGIN_BRANDING.toJsonTree(v.branding)));
             GsonUtils.applyIfValid(obj, value, p -> p.links != PluginLinks.none(), (o, v) -> o.add("links", Adapters.PLUGIN_LINKS.toJsonTree(v.links)));
             GsonUtils.applyIfValid(obj, value, p -> !p.contributors.isEmpty(), (o, v) -> o.add("contributors", GsonUtils.write(Adapters.PLUGIN_CONTRIBUTOR, v.contributors)));

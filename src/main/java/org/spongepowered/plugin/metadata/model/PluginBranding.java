@@ -33,7 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public final class PluginBranding {
 
     private static final PluginBranding NONE = new PluginBranding();
 
-    private final @Nullable URL logo, icon;
+    private final @Nullable URI logo, icon;
 
     private PluginBranding(final Builder builder) {
         this.logo = builder.logo;
@@ -70,11 +70,11 @@ public final class PluginBranding {
         return PluginBranding.NONE;
     }
 
-    public Optional<URL> logo() {
+    public Optional<URI> logo() {
         return Optional.ofNullable(this.logo);
     }
 
-    public Optional<URL> icon() {
+    public Optional<URI> icon() {
         return Optional.ofNullable(this.icon);
     }
 
@@ -96,17 +96,17 @@ public final class PluginBranding {
 
     public static final class Builder {
 
-        @Nullable URL logo, icon;
+        @Nullable URI logo, icon;
 
         private Builder() {
         }
 
-        public Builder logo(@Nullable final URL logo) {
+        public Builder logo(@Nullable final URI logo) {
             this.logo = logo;
             return this;
         }
 
-        public Builder icon(@Nullable final URL icon) {
+        public Builder icon(@Nullable final URI icon) {
             this.icon = icon;
             return this;
         }
@@ -152,10 +152,10 @@ public final class PluginBranding {
                 }
                 switch (key) {
                     case "logo":
-                        builder.logo(new URL(in.nextString()));
+                        builder.logo(URI.create(in.nextString()));
                         break;
                     case "icon":
-                        builder.icon(new URL(in.nextString()));
+                        builder.icon(URI.create(in.nextString()));
                         break;
                 }
             }

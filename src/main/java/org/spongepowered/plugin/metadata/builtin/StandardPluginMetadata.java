@@ -45,7 +45,7 @@ import java.util.StringJoiner;
 
 public final class StandardPluginMetadata extends StandardInheritable implements PluginMetadata {
 
-    private Holder holder;
+    @Nullable private Holder holder;
     private final String id, mainClass;
     @Nullable private final String name, description;
 
@@ -121,7 +121,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
 
         @Nullable String id, mainClass, name, description;
 
-        private Builder() {
+        public Builder() {
         }
 
         public Builder id(final String id) {

@@ -35,6 +35,7 @@ import org.spongepowered.plugin.metadata.Constants;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -52,12 +53,14 @@ public final class PluginDependency {
 
     private final String id;
     private final VersionRange version;
+    private final String rawVersion;
     private final LoadOrder loadOrder;
     private final boolean optional;
 
     private PluginDependency(final Builder builder) {
         this.id = builder.id;
         this.version = builder.version;
+        this.rawVersion = builder.rawVersion;
         this.loadOrder = builder.loadOrder;
         this.optional = builder.optional;
     }
@@ -79,6 +82,10 @@ public final class PluginDependency {
         return this.version;
     }
 
+    protected String rawVersion() {
+        return this.rawVersion;
+    }
+
     public LoadOrder loadOrder() {
         return this.loadOrder;
     }
@@ -91,6 +98,7 @@ public final class PluginDependency {
         final Builder builder = PluginDependency.builder();
         builder.id = this.id;
         builder.version = this.version;
+        builder.rawVersion = this.rawVersion;
         builder.loadOrder = this.loadOrder;
         builder.optional = this.optional;
 
@@ -118,7 +126,7 @@ public final class PluginDependency {
     public String toString() {
         return new StringJoiner(", ", PluginDependency.class.getSimpleName() + "[", "]")
                 .add("id=" + this.id)
-                .add("version=" + this.version)
+                .add("version=" + this.rawVersion)
                 .add("loadOrder=" + this.loadOrder)
                 .add("optional=" + this.optional)
                 .toString();
@@ -146,6 +154,7 @@ public final class PluginDependency {
 
         @Nullable String id;
         @Nullable VersionRange version;
+        @Nullable String rawVersion;
         LoadOrder loadOrder = LoadOrder.UNDEFINED;
         boolean optional = false;
 
@@ -159,6 +168,7 @@ public final class PluginDependency {
 
         public Builder version(final String version) {
             this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
+            this.rawVersion = version;
             return this;
         }
 
@@ -197,8 +207,8 @@ public final class PluginDependency {
 
             out.beginObject();
             out.name("id").value(value.id());
-            out.name("version").value(value.version().toString());
-            out.name("load-order").value(value.loadOrder().name());
+            out.name("version").value(value.rawVersion());
+            out.name("load-order").value(value.loadOrder().name().toLowerCase(Locale.ROOT));
             out.name("optional").value(value.optional());
             out.endObject();
         }

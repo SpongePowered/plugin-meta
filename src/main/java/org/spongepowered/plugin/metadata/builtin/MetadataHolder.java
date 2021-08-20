@@ -58,19 +58,22 @@ public final class MetadataHolder implements Holder {
 
     private final String name, loader, license;
     private final VersionRange loaderVersion;
+    private final String rawLoaderVersion;
     @Nullable private final Inheritable globalMetadata;
-    private final Set<PluginMetadata> metadata = new LinkedHashSet<>();
-    private final Map<String, PluginMetadata> metadataById = new LinkedHashMap<>();
+    private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
+    private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
 
     private MetadataHolder(final Builder builder) {
         this.name = builder.name;
         this.loader = builder.loader;
         this.license = builder.license;
         this.loaderVersion = builder.loaderVersion;
+        this.rawLoaderVersion = builder.rawLoaderVersion;
         this.globalMetadata = builder.globalMetadata;
         this.metadata.addAll(builder.metadata);
-        for (final PluginMetadata pm : this.metadata) {
+        for (final StandardPluginMetadata pm : this.metadata) {
             this.metadataById.put(pm.id(), pm);
+            pm.setHolder(this);
         }
     }
 
@@ -87,6 +90,10 @@ public final class MetadataHolder implements Holder {
     @Override
     public VersionRange loaderVersion() {
         return this.loaderVersion;
+    }
+
+    protected String rawLoaderVersion() {
+        return this.rawLoaderVersion;
     }
 
     @Override
@@ -113,7 +120,7 @@ public final class MetadataHolder implements Holder {
     public String toString() {
         return new StringJoiner(", ", MetadataHolder.class.getSimpleName() + "[", "]")
                 .add("loader=" + this.loader)
-                .add("loaderVersion=" + this.loaderVersion)
+                .add("loaderVersion=" + this.rawLoaderVersion)
                 .add("license=" + this.license)
                 .add("globalMetadata=" + this.globalMetadata)
                 .toString();
@@ -121,9 +128,10 @@ public final class MetadataHolder implements Holder {
 
     public static final class Builder {
 
-        final Set<PluginMetadata> metadata = new LinkedHashSet<>();
-        @Nullable String name, loader, license, rawLoaderVersion = "1.0";
-        @Nullable VersionRange loaderVersion;
+        final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
+        @Nullable String name, loader, license;
+        String rawLoaderVersion = "1.0";
+        VersionRange loaderVersion = VersionRange.createFromVersion(this.rawLoaderVersion);
         @Nullable Inheritable globalMetadata;
 
         public Builder name(final String name) {
@@ -142,7 +150,8 @@ public final class MetadataHolder implements Holder {
         }
 
         public Builder loaderVersion(final String loaderVersion) {
-            this.rawLoaderVersion = Objects.requireNonNull(loaderVersion, "loaderVersion");
+            this.loaderVersion = VersionRange.createFromVersion(Objects.requireNonNull(loaderVersion, "loaderVersion"));
+            this.rawLoaderVersion = loaderVersion;
             return this;
         }
 
@@ -151,12 +160,12 @@ public final class MetadataHolder implements Holder {
             return this;
         }
 
-        public Builder metadata(final List<PluginMetadata> metadata) {
+        public Builder metadata(final List<StandardPluginMetadata> metadata) {
             this.metadata.addAll(Objects.requireNonNull(metadata, "metadata"));
             return this;
         }
 
-        public Builder addMetadata(final PluginMetadata metadata) {
+        public Builder addMetadata(final StandardPluginMetadata metadata) {
             this.metadata.add(Objects.requireNonNull(metadata, "metadata"));
             return this;
         }
@@ -164,12 +173,11 @@ public final class MetadataHolder implements Holder {
         public MetadataHolder build() throws IllegalStateException, InvalidVersionSpecificationException {
             Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.license, "license");
-            Objects.requireNonNull(this.rawLoaderVersion, "loaderVersion");
+            Objects.requireNonNull(this.loaderVersion, "loaderVersion");
 
             if (this.metadata.isEmpty()) {
                 throw new IllegalStateException("A PluginHolder must hold at least 1 PluginMetadata!");
             }
-            this.loaderVersion = VersionRange.createFromVersionSpec(this.rawLoaderVersion);
 
             return new MetadataHolder(this);
         }
@@ -219,11 +227,7 @@ public final class MetadataHolder implements Holder {
             }
 
             try {
-                final MetadataHolder holder = builder.build();
-                for (PluginMetadata metadata : holder.metadata()) {
-                    ((StandardPluginMetadata) metadata).setHolder(holder);
-                }
-                return holder;
+                return builder.build();
             } catch (final InvalidVersionSpecificationException e) {
                 throw new JsonParseException(e);
             }
@@ -233,7 +237,7 @@ public final class MetadataHolder implements Holder {
         public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
             obj.addProperty("loader", value.loader);
-            obj.addProperty("loader-version", value.loaderVersion.toString());
+            obj.addProperty("loader-version", value.rawLoaderVersion);
             obj.addProperty("license", value.license);
 
             // TODO Determine what properties are equal and not write all the plugin's metadata?
