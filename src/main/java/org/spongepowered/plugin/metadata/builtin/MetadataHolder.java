@@ -216,14 +216,8 @@ public final class MetadataHolder implements Holder {
                 throw new JsonParseException("No plugin metadata has been specified for the 'plugins' tag!");
             }
 
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadata.Deserializer(inheritable));
-            gsonBuilder.registerTypeAdapter(StandardInheritable.class, new StandardInheritable.Serializer());
-
-            final Gson gson = gsonBuilder.create();
-
             for (final JsonObject pluginObject : pluginObjects) {
-                builder.addMetadata(gson.fromJson(pluginObject, StandardPluginMetadata.class));
+                builder.addMetadata(context.deserialize(pluginObject, StandardPluginMetadata.class));
             }
 
             try {
