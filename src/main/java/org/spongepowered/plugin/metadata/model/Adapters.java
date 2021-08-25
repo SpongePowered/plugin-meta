@@ -36,6 +36,8 @@ public final class Adapters {
 
     public static final TypeAdapter<PluginLinks> PLUGIN_LINKS = new PluginLinks.Adapter();
 
+    public static final TypeAdapter<PluginLoader> PLUGIN_LOADER = new PluginLoader.Adapter();
+
     private Adapters() {
     }
 }

@@ -45,7 +45,7 @@ import java.util.StringJoiner;
  * Required: Name
  * Optional: Description
  *
- * How these values are used is not enforced on an implementation, consult the documentation
+ * How these values are used are not enforced on an implementation, consult the documentation
  * of that entity for more details.
  */
 public final class PluginContributor {

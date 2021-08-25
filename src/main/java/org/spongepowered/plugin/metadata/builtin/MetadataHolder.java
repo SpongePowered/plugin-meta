@@ -24,8 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -36,11 +34,12 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Holder;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.model.Adapters;
+import org.spongepowered.plugin.metadata.model.PluginLoader;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -56,9 +55,8 @@ import java.util.StringJoiner;
 
 public final class MetadataHolder implements Holder {
 
-    private final String name, loader, license;
-    private final VersionRange loaderVersion;
-    private final String rawLoaderVersion;
+    private final String name, license;
+    private final PluginLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
@@ -67,8 +65,6 @@ public final class MetadataHolder implements Holder {
         this.name = builder.name;
         this.loader = builder.loader;
         this.license = builder.license;
-        this.loaderVersion = builder.loaderVersion;
-        this.rawLoaderVersion = builder.rawLoaderVersion;
         this.globalMetadata = builder.globalMetadata;
         this.metadata.addAll(builder.metadata);
         for (final StandardPluginMetadata pm : this.metadata) {
@@ -83,17 +79,8 @@ public final class MetadataHolder implements Holder {
     }
 
     @Override
-    public String loader() {
+    public PluginLoader loader() {
         return this.loader;
-    }
-
-    @Override
-    public VersionRange loaderVersion() {
-        return this.loaderVersion;
-    }
-
-    protected String rawLoaderVersion() {
-        return this.rawLoaderVersion;
     }
 
     @Override
@@ -120,7 +107,6 @@ public final class MetadataHolder implements Holder {
     public String toString() {
         return new StringJoiner(", ", MetadataHolder.class.getSimpleName() + "[", "]")
                 .add("loader=" + this.loader)
-                .add("loaderVersion=" + this.rawLoaderVersion)
                 .add("license=" + this.license)
                 .add("globalMetadata=" + this.globalMetadata)
                 .toString();
@@ -129,9 +115,8 @@ public final class MetadataHolder implements Holder {
     public static final class Builder {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
-        @Nullable String name, loader, license;
-        String rawLoaderVersion = "1.0";
-        VersionRange loaderVersion = VersionRange.createFromVersion(this.rawLoaderVersion);
+        @Nullable String name, license;
+        @Nullable PluginLoader loader;
         @Nullable Inheritable globalMetadata;
 
         public Builder name(final String name) {
@@ -139,19 +124,13 @@ public final class MetadataHolder implements Holder {
             return this;
         }
 
-        public Builder loader(final String loader) {
+        public Builder loader(final PluginLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
             return this;
         }
 
         public Builder license(final String license) {
             this.license = Objects.requireNonNull(license, "license");
-            return this;
-        }
-
-        public Builder loaderVersion(final String loaderVersion) {
-            this.loaderVersion = VersionRange.createFromVersion(Objects.requireNonNull(loaderVersion, "loaderVersion"));
-            this.rawLoaderVersion = loaderVersion;
             return this;
         }
 
@@ -173,10 +152,10 @@ public final class MetadataHolder implements Holder {
         public MetadataHolder build() throws IllegalStateException, InvalidVersionSpecificationException {
             Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.license, "license");
-            Objects.requireNonNull(this.loaderVersion, "loaderVersion");
+            Objects.requireNonNull(this.loader, "loader");
 
             if (this.metadata.isEmpty()) {
-                throw new IllegalStateException("A PluginHolder must hold at least 1 PluginMetadata!");
+                throw new IllegalStateException("A MetadataHolder must hold at least 1 PluginMetadata!");
             }
 
             return new MetadataHolder(this);
@@ -190,12 +169,11 @@ public final class MetadataHolder implements Holder {
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
             final Builder builder = new Builder()
-                    .loader(obj.get("loader").getAsString())
-                    .loaderVersion(obj.get("loader-version").getAsString())
+                    .loader(Adapters.PLUGIN_LOADER.fromJsonTree(obj.get("loader")))
                     .license(obj.get("license").getAsString());
 
             final JsonElement globalElement = obj.get("global");
-            @Nullable StandardInheritable inheritable = null;
+            @Nullable StandardInheritable inheritable;
             if (!(globalElement instanceof JsonNull)) {
                 inheritable = context.deserialize(globalElement, StandardInheritable.class);
                 builder.globalMetadata(inheritable);
@@ -230,8 +208,7 @@ public final class MetadataHolder implements Holder {
         @Override
         public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
-            obj.addProperty("loader", value.loader);
-            obj.addProperty("loader-version", value.rawLoaderVersion);
+            obj.add("loader", Adapters.PLUGIN_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
 
             // TODO Determine what properties are equal and not write all the plugin's metadata?

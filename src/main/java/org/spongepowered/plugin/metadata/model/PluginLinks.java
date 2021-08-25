@@ -43,7 +43,7 @@ import java.util.StringJoiner;
 /**
  * Specification for an entity representing the links to "web resources" of a plugin.
  *
- * How these values are used is not enforced on an implementation, consult the documentation
+ * How these values are used are not enforced on an implementation, consult the documentation
  * of that entity for more details.
  */
 public final class PluginLinks {

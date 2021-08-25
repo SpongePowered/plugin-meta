@@ -24,7 +24,7 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.model.PluginLoader;
 
 import java.util.Optional;
 import java.util.Set;
@@ -33,9 +33,7 @@ public interface Holder {
 
     String name();
 
-    String loader();
-
-    VersionRange loaderVersion();
+    PluginLoader loader();
 
     String license();
 
