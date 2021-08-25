@@ -159,35 +159,22 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         }
     }
 
-    public static final class Deserializer implements JsonDeserializer<StandardPluginMetadata> {
-
-        private final @Nullable StandardInheritable globalMetadata;
-
-        public Deserializer(final @Nullable StandardInheritable globalMetadata) {
-            this.globalMetadata = globalMetadata;
-        }
+    public static final class Serializer implements JsonDeserializer<StandardPluginMetadata.Builder>, JsonSerializer<StandardPluginMetadata> {
 
         @Override
-        public StandardPluginMetadata deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
+        public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
-            final StandardInheritable globalOverride = context.deserialize(element, StandardInheritable.class);
             final StandardPluginMetadata.Builder builder = new StandardPluginMetadata.Builder();
             builder
                     .id(obj.get("id").getAsString())
                     .mainClass(obj.get("main-class").getAsString());
             GsonUtils.consumeIfPresent(obj, "name", e -> builder.name(e.getAsString()));
             GsonUtils.consumeIfPresent(obj, "description", e -> builder.description(e.getAsString()));
-            builder.from(globalOverride);
-            if (this.globalMetadata != null) {
-                builder.from(this.globalMetadata);
-            }
+            builder.from(context.deserialize(element, StandardInheritable.class));
 
-            return builder.build();
+            return builder;
         }
-    }
-
-    public static final class Serializer implements JsonSerializer<StandardPluginMetadata> {
 
         @Override
         public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {

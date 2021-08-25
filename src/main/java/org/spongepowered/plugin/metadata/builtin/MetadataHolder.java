@@ -161,7 +161,7 @@ public final class MetadataHolder implements Holder {
                     .license(obj.get("license").getAsString());
 
             final JsonElement globalElement = obj.get("global");
-            @Nullable StandardInheritable inheritable;
+            @Nullable StandardInheritable inheritable = null;
             if (!(globalElement instanceof JsonNull)) {
                 inheritable = context.deserialize(globalElement, StandardInheritable.class);
                 builder.globalMetadata(inheritable);
@@ -183,7 +183,12 @@ public final class MetadataHolder implements Holder {
             }
 
             for (final JsonObject pluginObject : pluginObjects) {
-                builder.addMetadata(context.deserialize(pluginObject, StandardPluginMetadata.class));
+                final StandardPluginMetadata.Builder pluginBuilder = context.deserialize(pluginObject, StandardPluginMetadata.Builder.class);
+                if (inheritable != null) {
+                    pluginBuilder.from(inheritable);
+                }
+
+                builder.addMetadata(pluginBuilder.build());
             }
 
             try {
