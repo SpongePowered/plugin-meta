@@ -126,6 +126,9 @@ public final class PluginLoader {
         }
 
         public PluginLoader build() {
+            Objects.requireNonNull(this.id, "id");
+            Objects.requireNonNull(this.version, "version");
+
             return new PluginLoader(this);
         }
     }
