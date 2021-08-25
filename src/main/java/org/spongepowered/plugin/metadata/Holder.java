@@ -31,8 +31,6 @@ import java.util.Set;
 
 public interface Holder {
 
-    String name();
-
     PluginLoader loader();
 
     String license();

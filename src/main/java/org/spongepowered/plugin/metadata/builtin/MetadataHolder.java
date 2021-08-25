@@ -55,14 +55,13 @@ import java.util.StringJoiner;
 
 public final class MetadataHolder implements Holder {
 
-    private final String name, license;
+    private final String license;
     private final PluginLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
 
     private MetadataHolder(final Builder builder) {
-        this.name = builder.name;
         this.loader = builder.loader;
         this.license = builder.license;
         this.globalMetadata = builder.globalMetadata;
@@ -71,11 +70,6 @@ public final class MetadataHolder implements Holder {
             this.metadataById.put(pm.id(), pm);
             pm.setHolder(this);
         }
-    }
-
-    @Override
-    public String name() {
-        return this.name;
     }
 
     @Override
@@ -115,14 +109,9 @@ public final class MetadataHolder implements Holder {
     public static final class Builder {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
-        @Nullable String name, license;
+        @Nullable String license;
         @Nullable PluginLoader loader;
         @Nullable Inheritable globalMetadata;
-
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name, "name");
-            return this;
-        }
 
         public Builder loader(final PluginLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
@@ -150,7 +139,6 @@ public final class MetadataHolder implements Holder {
         }
 
         public MetadataHolder build() throws IllegalStateException, InvalidVersionSpecificationException {
-            Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.license, "license");
             Objects.requireNonNull(this.loader, "loader");
 
