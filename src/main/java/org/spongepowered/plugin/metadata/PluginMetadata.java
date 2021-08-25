@@ -32,7 +32,7 @@ public interface PluginMetadata extends Inheritable {
 
     String id();
 
-    String mainClass();
+    String entrypoint();
 
     Optional<String> name();
 

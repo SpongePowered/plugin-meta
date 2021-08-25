@@ -46,13 +46,13 @@ import java.util.StringJoiner;
 public final class StandardPluginMetadata extends StandardInheritable implements PluginMetadata {
 
     @Nullable private Holder holder;
-    private final String id, mainClass;
+    private final String id, entrypoint;
     @Nullable private final String name, description;
 
     private StandardPluginMetadata(final Builder builder) {
         super(builder);
         this.id = builder.id;
-        this.mainClass = builder.mainClass;
+        this.entrypoint = builder.entrypoint;
         this.name = builder.name;
         this.description = builder.description;
     }
@@ -68,8 +68,8 @@ public final class StandardPluginMetadata extends StandardInheritable implements
     }
 
     @Override
-    public String mainClass() {
-        return this.mainClass;
+    public String entrypoint() {
+        return this.entrypoint;
     }
 
     @Override
@@ -108,10 +108,9 @@ public final class StandardPluginMetadata extends StandardInheritable implements
     @Override
     public String toString() {
         final StringJoiner joiner = new StringJoiner(", ", StandardPluginMetadata.class.getSimpleName() + "[", "]")
-                .add("holder=" + this.holder.name())
                 .add("id=" + this.id)
                 .add("name=" + this.name)
-                .add("mainClass=" + this.mainClass)
+                .add("entrypoint=" + this.entrypoint)
                 .add("description=" + description);
         joiner.merge(this.stringJoiner());
         return joiner.toString();
@@ -119,7 +118,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
 
     public static final class Builder extends StandardInheritable.AbstractBuilder<StandardPluginMetadata, Builder> {
 
-        @Nullable String id, mainClass, name, description;
+        @Nullable String id, entrypoint, name, description;
 
         public Builder() {
         }
@@ -129,8 +128,8 @@ public final class StandardPluginMetadata extends StandardInheritable implements
             return this;
         }
 
-        public Builder mainClass(final String mainClass) {
-            this.mainClass = Objects.requireNonNull(mainClass, "mainClass");
+        public Builder entrypoint(final String entrypoint) {
+            this.entrypoint = Objects.requireNonNull(entrypoint, "entrypoint");
             return this;
         }
 
@@ -153,7 +152,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
             if (this.version == NullVersion.instance()) {
                 throw new IllegalStateException(String.format("PluginMetadata with supplied ID '{%s}' has no version specified.", this.id));
             }
-            Objects.requireNonNull(this.mainClass, "mainClass");
+            Objects.requireNonNull(this.entrypoint, "entrypoint");
 
             return new StandardPluginMetadata(this);
         }
@@ -168,7 +167,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
             final StandardPluginMetadata.Builder builder = new StandardPluginMetadata.Builder();
             builder
                     .id(obj.get("id").getAsString())
-                    .mainClass(obj.get("main-class").getAsString());
+                    .entrypoint(obj.get("entrypoint").getAsString());
             GsonUtils.consumeIfPresent(obj, "name", e -> builder.name(e.getAsString()));
             GsonUtils.consumeIfPresent(obj, "description", e -> builder.description(e.getAsString()));
             builder.from(context.deserialize(element, StandardInheritable.class));
@@ -180,7 +179,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
             obj.addProperty("id", value.id);
-            obj.addProperty("main-class", value.mainClass);
+            obj.addProperty("entrypoint", value.entrypoint);
             GsonUtils.writeIfPresent(obj, "name", value.name());
             GsonUtils.writeIfPresent(obj, "description", value.description());
 
