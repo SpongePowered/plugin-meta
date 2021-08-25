@@ -40,6 +40,7 @@ import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.model.Adapters;
 import org.spongepowered.plugin.metadata.model.PluginLoader;
+import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -56,6 +57,7 @@ import java.util.StringJoiner;
 public final class MetadataHolder implements Holder {
 
     private final String license;
+    @Nullable private final String mappings;
     private final PluginLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
@@ -64,6 +66,7 @@ public final class MetadataHolder implements Holder {
     private MetadataHolder(final Builder builder) {
         this.loader = builder.loader;
         this.license = builder.license;
+        this.mappings = builder.mappings;
         this.globalMetadata = builder.globalMetadata;
         this.metadata.addAll(builder.metadata);
         for (final StandardPluginMetadata pm : this.metadata) {
@@ -80,6 +83,11 @@ public final class MetadataHolder implements Holder {
     @Override
     public String license() {
         return this.license;
+    }
+
+    @Override
+    public Optional<String> mappings() {
+        return Optional.ofNullable(this.mappings);
     }
 
     @Override
@@ -102,6 +110,7 @@ public final class MetadataHolder implements Holder {
         return new StringJoiner(", ", MetadataHolder.class.getSimpleName() + "[", "]")
                 .add("loader=" + this.loader)
                 .add("license=" + this.license)
+                .add("mappings=" + this.mappings)
                 .add("globalMetadata=" + this.globalMetadata)
                 .toString();
     }
@@ -109,7 +118,7 @@ public final class MetadataHolder implements Holder {
     public static final class Builder {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
-        @Nullable String license;
+        @Nullable String license, mappings;
         @Nullable PluginLoader loader;
         @Nullable Inheritable globalMetadata;
 
@@ -120,6 +129,14 @@ public final class MetadataHolder implements Holder {
 
         public Builder license(final String license) {
             this.license = Objects.requireNonNull(license, "license");
+            return this;
+        }
+
+        public Builder mappings(@Nullable final String mappings) {
+            this.mappings = mappings;
+            if (this.mappings != null) {
+                // TODO validation
+            }
             return this;
         }
 
@@ -159,6 +176,8 @@ public final class MetadataHolder implements Holder {
             final Builder builder = new Builder()
                     .loader(Adapters.PLUGIN_LOADER.fromJsonTree(obj.get("loader")))
                     .license(obj.get("license").getAsString());
+
+            GsonUtils.consumeIfPresent(obj, "mappings", e -> builder.mappings(e.getAsString()));
 
             final JsonElement globalElement = obj.get("global");
             @Nullable StandardInheritable inheritable = null;
@@ -203,6 +222,7 @@ public final class MetadataHolder implements Holder {
             final JsonObject obj = new JsonObject();
             obj.add("loader", Adapters.PLUGIN_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
+            GsonUtils.writeIfPresent(obj, "mappings", value.mappings());
 
             // TODO Determine what properties are equal and not write all the plugin's metadata?
             final JsonArray plugins = new JsonArray();

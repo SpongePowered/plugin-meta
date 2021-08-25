@@ -35,6 +35,8 @@ public interface Holder {
 
     String license();
 
+    Optional<String> mappings();
+
     Optional<Inheritable> globalMetadata();
 
     Optional<PluginMetadata> metadata(String id);
