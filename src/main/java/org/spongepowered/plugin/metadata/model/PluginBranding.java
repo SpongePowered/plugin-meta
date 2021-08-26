@@ -115,25 +115,15 @@ public final class PluginBranding {
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginBranding> {
+    public static final class Deserializer extends TypeAdapter<PluginBranding.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final PluginBranding value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            GsonUtils.writeIfPresent(out, "logo", value.logo());
-            GsonUtils.writeIfPresent(out, "icon", value.icon());
-            out.endObject();
+        public void write(final JsonWriter out, final Builder builder) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public PluginBranding read(final JsonReader in) throws IOException {
+        public Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -160,7 +150,30 @@ public final class PluginBranding {
             }
             in.endObject();
 
-            return builder.build();
+            return builder;
+        }
+    }
+
+    public static final class Serializer extends TypeAdapter<PluginBranding> {
+
+        @Override
+        public void write(final JsonWriter out, final PluginBranding value) throws IOException {
+            Objects.requireNonNull(out, "out");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+
+            out.beginObject();
+            GsonUtils.writeIfPresent(out, "logo", value.logo());
+            GsonUtils.writeIfPresent(out, "icon", value.icon());
+            out.endObject();
+        }
+
+        @Override
+        public PluginBranding read(final JsonReader in) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }
 }

@@ -174,7 +174,7 @@ public final class MetadataHolder implements Holder {
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
             final Builder builder = new Builder()
-                    .loader(Adapters.PLUGIN_LOADER.fromJsonTree(obj.get("loader")))
+                    .loader(Adapters.Deserializers.PLUGIN_LOADER.fromJsonTree(obj.get("loader")).build())
                     .license(obj.get("license").getAsString());
 
             GsonUtils.consumeIfPresent(obj, "mappings", e -> builder.mappings(e.getAsString()));
@@ -220,7 +220,7 @@ public final class MetadataHolder implements Holder {
         @Override
         public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
-            obj.add("loader", Adapters.PLUGIN_LOADER.toJsonTree(value.loader));
+            obj.add("loader", Adapters.Serializers.PLUGIN_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
             GsonUtils.writeIfPresent(obj, "mappings", value.mappings());
 

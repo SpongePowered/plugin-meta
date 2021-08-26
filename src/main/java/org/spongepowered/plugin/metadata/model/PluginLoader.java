@@ -133,25 +133,15 @@ public final class PluginLoader {
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginLoader> {
+    public static final class Deserializer extends TypeAdapter<PluginLoader.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final PluginLoader value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            out.name("id").value(value.id());
-            out.name("version").value(value.rawVersion());
-            out.endObject();
+        public void write(final JsonWriter out, final Builder builder) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public PluginLoader read(final JsonReader in) throws IOException {
+        public PluginLoader.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -178,7 +168,30 @@ public final class PluginLoader {
             }
             in.endObject();
 
-            return builder.build();
+            return builder;
+        }
+    }
+
+    public static final class Serializer extends TypeAdapter<PluginLoader> {
+
+        @Override
+        public void write(final JsonWriter out, final PluginLoader value) throws IOException {
+            Objects.requireNonNull(out, "out");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+
+            out.beginObject();
+            out.name("id").value(value.id());
+            out.name("version").value(value.rawVersion());
+            out.endObject();
+        }
+
+        @Override
+        public PluginLoader read(final JsonReader in) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }
 }

@@ -129,26 +129,15 @@ public final class PluginLinks {
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginLinks> {
+    public static final class Deserializer extends TypeAdapter<PluginLinks.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final PluginLinks value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            GsonUtils.writeIfPresent(out, "homepage", value.homepage());
-            GsonUtils.writeIfPresent(out, "source", value.source());
-            GsonUtils.writeIfPresent(out, "issues", value.issues());
-            out.endObject();
+        public void write(final JsonWriter in, final Builder builder) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public PluginLinks read(final JsonReader in) throws IOException {
+        public PluginLinks.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -178,7 +167,31 @@ public final class PluginLinks {
             }
             in.endObject();
 
-            return builder.build();
+            return builder;
+        }
+    }
+
+    public static final class Serializer extends TypeAdapter<PluginLinks> {
+
+        @Override
+        public void write(final JsonWriter out, final PluginLinks value) throws IOException {
+            Objects.requireNonNull(out, "out");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+
+            out.beginObject();
+            GsonUtils.writeIfPresent(out, "homepage", value.homepage());
+            GsonUtils.writeIfPresent(out, "source", value.source());
+            GsonUtils.writeIfPresent(out, "issues", value.issues());
+            out.endObject();
+        }
+
+        @Override
+        public PluginLinks read(final JsonReader out) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }
 }

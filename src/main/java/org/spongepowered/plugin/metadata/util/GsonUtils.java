@@ -104,6 +104,7 @@ public final class GsonUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends JsonElement> void consumeIfPresent(final JsonObject obj, final String key, final Consumer<T> consumer) {
         if (obj.has(key)) {
             consumer.accept((T) obj.get(key));

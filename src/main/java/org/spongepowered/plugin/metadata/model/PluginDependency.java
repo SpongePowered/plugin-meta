@@ -194,27 +194,15 @@ public final class PluginDependency {
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginDependency> {
+    public static final class Deserializer extends TypeAdapter<PluginDependency.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final PluginDependency value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            out.name("id").value(value.id());
-            out.name("version").value(value.rawVersion());
-            out.name("load-order").value(value.loadOrder().name().toLowerCase(Locale.ROOT));
-            out.name("optional").value(value.optional());
-            out.endObject();
+        public void write(final JsonWriter out, final Builder builder) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public PluginDependency read(final JsonReader in) throws IOException {
+        public Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -250,7 +238,32 @@ public final class PluginDependency {
                 }
             }
             in.endObject();
-            return builder.build();
+            return builder;
+        }
+    }
+
+    public static final class Serializer extends TypeAdapter<PluginDependency> {
+
+        @Override
+        public void write(final JsonWriter out, final PluginDependency value) throws IOException {
+            Objects.requireNonNull(out, "out");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+
+            out.beginObject();
+            out.name("id").value(value.id());
+            out.name("version").value(value.rawVersion());
+            out.name("load-order").value(value.loadOrder().name().toLowerCase(Locale.ROOT));
+            out.name("optional").value(value.optional());
+            out.endObject();
+        }
+
+        @Override
+        public PluginDependency read(final JsonReader in) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }
 }

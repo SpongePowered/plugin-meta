@@ -110,25 +110,15 @@ public final class PluginContributor {
         }
     }
 
-    public static final class Adapter extends TypeAdapter<PluginContributor> {
+    public static final class Deserializer extends TypeAdapter<PluginContributor.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final PluginContributor value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            out.name("name").value(value.name());
-            GsonUtils.writeIfPresent(out, "description", value.description());
-            out.endObject();
+        public void write(final JsonWriter out, final Builder builder) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public PluginContributor read(final JsonReader in) throws IOException {
+        public Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -154,7 +144,30 @@ public final class PluginContributor {
                 }
             }
             in.endObject();
-            return builder.build();
+            return builder;
+        }
+    }
+
+    public static final class Serializer extends TypeAdapter<PluginContributor> {
+
+        @Override
+        public void write(final JsonWriter out, final PluginContributor value) throws IOException {
+            Objects.requireNonNull(out, "out");
+
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+
+            out.beginObject();
+            out.name("name").value(value.name());
+            GsonUtils.writeIfPresent(out, "description", value.description());
+            out.endObject();
+        }
+
+        @Override
+        public PluginContributor read(final JsonReader in) throws IOException {
+            throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }
 }

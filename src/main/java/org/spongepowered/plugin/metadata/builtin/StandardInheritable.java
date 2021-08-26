@@ -56,7 +56,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class StandardInheritable implements Inheritable {
 
     protected final ArtifactVersion version;
@@ -254,10 +256,10 @@ public class StandardInheritable implements Inheritable {
 
             final JsonObject obj = element.getAsJsonObject();
             final Builder builder = StandardInheritable.builder().version(GsonUtils.<String>get(obj, "version", JsonElement::getAsString).orElse(null));
-            GsonUtils.consumeIfPresent(obj, "branding", e -> builder.branding(Adapters.PLUGIN_BRANDING.fromJsonTree(e)));
-            GsonUtils.consumeIfPresent(obj, "links", e -> builder.links(Adapters.PLUGIN_LINKS.fromJsonTree(e)));
-            GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.PLUGIN_CONTRIBUTOR, LinkedList::new)));
-            GsonUtils.consumeIfPresent(obj, "dependencies", e -> builder.dependencies(GsonUtils.read((JsonArray) e, Adapters.PLUGIN_DEPENDENCY, LinkedHashSet::new)));
+            GsonUtils.consumeIfPresent(obj, "branding", e -> builder.branding(Adapters.Deserializers.PLUGIN_BRANDING.fromJsonTree(e).build()));
+            GsonUtils.consumeIfPresent(obj, "links", e -> builder.links(Adapters.Deserializers.PLUGIN_LINKS.fromJsonTree(e).build()));
+            GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_CONTRIBUTOR, LinkedList::new).stream().map(PluginContributor.Builder::build).collect(Collectors.toList())));
+            GsonUtils.consumeIfPresent(obj, "dependencies", e -> builder.dependencies(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_DEPENDENCY, LinkedHashSet::new).stream().map(PluginDependency.Builder::build).collect(Collectors.toList())));
             GsonUtils.consumeIfPresent(obj, "properties", e -> builder.properties(GsonUtils.read((JsonObject) e, JsonElement::getAsString, LinkedHashMap::new)));
 
             return builder.build();
@@ -267,10 +269,10 @@ public class StandardInheritable implements Inheritable {
         public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
             GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.rawVersion));
-            GsonUtils.applyIfValid(obj, value, p -> p.branding != PluginBranding.none(), (o, v) -> o.add("branding", Adapters.PLUGIN_BRANDING.toJsonTree(v.branding)));
-            GsonUtils.applyIfValid(obj, value, p -> p.links != PluginLinks.none(), (o, v) -> o.add("links", Adapters.PLUGIN_LINKS.toJsonTree(v.links)));
-            GsonUtils.applyIfValid(obj, value, p -> !p.contributors.isEmpty(), (o, v) -> o.add("contributors", GsonUtils.write(Adapters.PLUGIN_CONTRIBUTOR, v.contributors)));
-            GsonUtils.applyIfValid(obj, value, p -> !p.dependencies.isEmpty(), (o, v) -> o.add("dependencies", GsonUtils.write(Adapters.PLUGIN_DEPENDENCY, v.dependencies)));
+            GsonUtils.applyIfValid(obj, value, p -> p.branding != PluginBranding.none(), (o, v) -> o.add("branding", Adapters.Serializers.PLUGIN_BRANDING.toJsonTree(v.branding)));
+            GsonUtils.applyIfValid(obj, value, p -> p.links != PluginLinks.none(), (o, v) -> o.add("links", Adapters.Serializers.PLUGIN_LINKS.toJsonTree(v.links)));
+            GsonUtils.applyIfValid(obj, value, p -> !p.contributors.isEmpty(), (o, v) -> o.add("contributors", GsonUtils.write(Adapters.Serializers.PLUGIN_CONTRIBUTOR, v.contributors)));
+            GsonUtils.applyIfValid(obj, value, p -> !p.dependencies.isEmpty(), (o, v) -> o.add("dependencies", GsonUtils.write(Adapters.Serializers.PLUGIN_DEPENDENCY, v.dependencies)));
             GsonUtils.applyIfValid(obj, value, p -> !p.properties.isEmpty(), (o, v) -> o.add("properties", GsonUtils.write(e -> new JsonPrimitive(e.toString()), v.properties)));
             return obj;
         }

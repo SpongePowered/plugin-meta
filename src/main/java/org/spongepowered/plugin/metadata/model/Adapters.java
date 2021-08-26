@@ -28,15 +28,36 @@ import com.google.gson.TypeAdapter;
 
 public final class Adapters {
 
-    public static final TypeAdapter<PluginBranding> PLUGIN_BRANDING = new PluginBranding.Adapter();
+    public static final class Deserializers {
 
-    public static final TypeAdapter<PluginContributor> PLUGIN_CONTRIBUTOR = new PluginContributor.Adapter();
+        public static final TypeAdapter<PluginBranding.Builder> PLUGIN_BRANDING = new PluginBranding.Deserializer();
 
-    public static final TypeAdapter<PluginDependency> PLUGIN_DEPENDENCY = new PluginDependency.Adapter();
+        public static final TypeAdapter<PluginContributor.Builder> PLUGIN_CONTRIBUTOR = new PluginContributor.Deserializer();
 
-    public static final TypeAdapter<PluginLinks> PLUGIN_LINKS = new PluginLinks.Adapter();
+        public static final TypeAdapter<PluginDependency.Builder> PLUGIN_DEPENDENCY = new PluginDependency.Deserializer();
 
-    public static final TypeAdapter<PluginLoader> PLUGIN_LOADER = new PluginLoader.Adapter();
+        public static final TypeAdapter<PluginLinks.Builder> PLUGIN_LINKS = new PluginLinks.Deserializer();
+
+        public static final TypeAdapter<PluginLoader.Builder> PLUGIN_LOADER = new PluginLoader.Deserializer();
+
+        private Deserializers() {
+        }
+    }
+
+    public static final class Serializers {
+        public static final TypeAdapter<PluginBranding> PLUGIN_BRANDING = new PluginBranding.Serializer();
+
+        public static final TypeAdapter<PluginContributor> PLUGIN_CONTRIBUTOR = new PluginContributor.Serializer();
+
+        public static final TypeAdapter<PluginDependency> PLUGIN_DEPENDENCY = new PluginDependency.Serializer();
+
+        public static final TypeAdapter<PluginLinks> PLUGIN_LINKS = new PluginLinks.Serializer();
+
+        public static final TypeAdapter<PluginLoader> PLUGIN_LOADER = new PluginLoader.Serializer();
+
+        private Serializers() {
+        }
+    }
 
     private Adapters() {
     }
