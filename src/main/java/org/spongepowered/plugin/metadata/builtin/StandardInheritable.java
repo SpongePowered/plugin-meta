@@ -141,7 +141,7 @@ public class StandardInheritable implements Inheritable {
                 .add("contributors=" + this.contributors)
                 .add("dependencies=" + this.dependencies)
                 .add("properties=" + this.properties)
-        ;
+                ;
     }
 
     @SuppressWarnings("unchecked")

@@ -42,7 +42,7 @@ public final class MetadataParser {
                 .registerTypeAdapter(StandardInheritable.class, new StandardInheritable.Serializer())
                 .registerTypeAdapter(StandardPluginMetadata.Builder.class, new StandardPluginMetadata.Deserializer())
                 .registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadata.Serializer())
-        ;
+                ;
     }
 
     public static MetadataHolder read(final Path path, final Gson gson) throws IOException {
