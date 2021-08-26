@@ -158,7 +158,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         }
     }
 
-    public static final class Serializer implements JsonDeserializer<StandardPluginMetadata.Builder>, JsonSerializer<StandardPluginMetadata> {
+    public static final class Deserializer implements JsonDeserializer<StandardPluginMetadata.Builder> {
 
         @Override
         public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
@@ -174,6 +174,9 @@ public final class StandardPluginMetadata extends StandardInheritable implements
 
             return builder;
         }
+    }
+
+    public static final class Serializer implements JsonSerializer<StandardPluginMetadata> {
 
         @Override
         public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {

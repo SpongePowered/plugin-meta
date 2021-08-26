@@ -28,7 +28,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
@@ -181,7 +180,7 @@ public final class MetadataHolder implements Holder {
 
             final JsonElement globalElement = obj.get("global");
             @Nullable StandardInheritable inheritable = null;
-            if (!(globalElement instanceof JsonNull)) {
+            if (globalElement instanceof JsonObject) {
                 inheritable = context.deserialize(globalElement, StandardInheritable.class);
                 builder.globalMetadata(inheritable);
             }
