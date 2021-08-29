@@ -35,21 +35,58 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Represents metadata that is meant to be inherited/overwritten, per contract.
+ *
+ * @see org.spongepowered.plugin.metadata.builtin.StandardInheritable for a generic implementation
+ * @see PluginMetadata for specific "plugin" metadata
+ */
 public interface Inheritable {
 
+    /**
+     * @return The version, as a maven artifact.
+     */
     ArtifactVersion version();
 
+    /**
+     * @return The {@link PluginBranding branding}.
+     */
     PluginBranding branding();
 
+    /**
+     * @return {@link PluginLinks links} to various web resources.
+     */
     PluginLinks links();
 
+    /**
+     * @return The {@link PluginContributor contributors} as an unmodifiable {@link List}.
+     */
     List<PluginContributor> contributors();
 
+    /**
+     * Gets the {@link PluginDependency} by {@link String id}.
+     *
+     * @param id The id
+     * @return The dependency or {@link Optional#empty()} otherwise.
+     */
     Optional<PluginDependency> dependency(String id);
 
+    /**
+     * @return The {@link PluginDependency dependencies} as an unmodifiable {@link Set}.
+     */
     Set<PluginDependency> dependencies();
 
+    /**
+     * Gets the {@link T property} by {@link String key}.
+     *
+     * @param key The key
+     * @param <T> The type
+     * @return The property or {@link Optional#empty()} otherwise.
+     */
     <T> Optional<T> property(String key);
 
+    /**
+     * @return The properties as an unmodifiable {@link Map}.
+     */
     Map<String, Object> properties();
 }

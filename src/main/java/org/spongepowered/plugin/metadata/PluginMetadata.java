@@ -26,15 +26,49 @@ package org.spongepowered.plugin.metadata;
 
 import java.util.Optional;
 
+/**
+ * Represents specific, unique metadata to a plugin.
+ *
+ * @see Inheritable for metadata that might be shared between multiple plugin metadata.
+ */
 public interface PluginMetadata extends Inheritable {
 
-    Holder holder();
+    /**
+     * @return The {@link Container container}.
+     */
+    Container container();
 
+    /**
+     * Gets the {@link String id}.
+     *
+     * <p>Ids must conform to the following requirements:</p>
+     *
+     * <ul>
+     *     <li>Must be between 2 and 64 characters in length</li>
+     *     <li>Must start with a lower case letter (a-z)</li>
+     *     <li>May only contain a mix of lower case letters (a-z),
+     *     numbers (0-9), dashes (-), and underscores (_)</li>
+     * </ul>
+     * @return The id
+     */
     String id();
 
+    /**
+     * Gets the {@link String entrypoint}.
+     *
+     * <p>Consult the vendor of this library for how this field is used. As an example,
+     * this could be the name of a module or a fully realized path to a discrete class.</p>
+     * @return The entrypoint
+     */
     String entrypoint();
 
+    /**
+     * @return The {@link String name} or {@link Optional#empty()} otherwise.
+     */
     Optional<String> name();
 
+    /**
+     * @return The {@link String description} or {@link Optional#empty()} otherwise.
+     */
     Optional<String> description();
 }

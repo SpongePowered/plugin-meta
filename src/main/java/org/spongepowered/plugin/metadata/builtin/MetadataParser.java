@@ -38,32 +38,32 @@ public final class MetadataParser {
 
     public static GsonBuilder gsonBuilder() {
         return new GsonBuilder()
-                .registerTypeAdapter(MetadataHolder.class, new MetadataHolder.Serializer())
+                .registerTypeAdapter(MetadataContainer.class, new MetadataContainer.Serializer())
                 .registerTypeAdapter(StandardInheritable.class, new StandardInheritable.Serializer())
                 .registerTypeAdapter(StandardPluginMetadata.Builder.class, new StandardPluginMetadata.Deserializer())
                 .registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadata.Serializer())
                 ;
     }
 
-    public static MetadataHolder read(final Path path, final Gson gson) throws IOException {
+    public static MetadataContainer read(final Path path, final Gson gson) throws IOException {
         Objects.requireNonNull(path, "path");
         Objects.requireNonNull(gson, "gson");
 
         try (final JsonReader reader = new JsonReader(Files.newBufferedReader(path))) {
-            return gson.fromJson(reader, MetadataHolder.class);
+            return gson.fromJson(reader, MetadataContainer.class);
         }
     }
 
-    public static void write(final Path path, final MetadataHolder holder, final Gson gson, final boolean indent) throws IOException {
+    public static void write(final Path path, final MetadataContainer container, final Gson gson, final boolean indent) throws IOException {
         Objects.requireNonNull(path, "path");
-        Objects.requireNonNull(holder, "holder");
+        Objects.requireNonNull(container, "container");
         Objects.requireNonNull(gson, "gson");
 
         try (final JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path))) {
             if (indent) {
                 writer.setIndent("  ");
             }
-            gson.toJson(holder, MetadataHolder.class, writer);
+            gson.toJson(container, MetadataContainer.class, writer);
         }
     }
 

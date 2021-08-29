@@ -33,7 +33,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
-import org.spongepowered.plugin.metadata.Holder;
+import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
@@ -45,7 +45,7 @@ import java.util.StringJoiner;
 
 public final class StandardPluginMetadata extends StandardInheritable implements PluginMetadata {
 
-    @Nullable private Holder holder;
+    @Nullable private Container container;
     private final String id, entrypoint;
     @Nullable private final String name, description;
 
@@ -58,8 +58,8 @@ public final class StandardPluginMetadata extends StandardInheritable implements
     }
 
     @Override
-    public Holder holder() {
-        return this.holder;
+    public Container container() {
+        return this.container;
     }
 
     @Override
@@ -82,8 +82,8 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return Optional.ofNullable(this.description);
     }
 
-    void setHolder(final MetadataHolder holder) {
-        this.holder = holder;
+    void setContainer(final MetadataContainer container) {
+        this.container = container;
     }
 
     @Override

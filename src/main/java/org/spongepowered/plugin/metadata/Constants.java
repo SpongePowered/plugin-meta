@@ -29,10 +29,14 @@ import java.util.regex.Pattern;
 public final class Constants {
 
     /**
-     * The pattern plugin IDs must match. Plugin IDs must be lower case, and
-     * start with an alphabetic character. It may only contain alphanumeric
-     * characters, dashes or underscores. It must be at least 2 characters, and
-     * cannot be longer than 64 characters.
+     * <p>Ids must conform to the following requirements:</p>
+     *
+     * <ul>
+     *     <li>Must be between 2 and 64 characters in length</li>
+     *     <li>Must start with a lower case letter (a-z)</li>
+     *     <li>May only contain a mix of lower case letters (a-z),
+     *     numbers (0-9), dashes (-), and underscores (_)</li>
+     * </ul>
      */
     public static final Pattern VALID_ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-_]{1,63}$");
 

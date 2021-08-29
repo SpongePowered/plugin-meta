@@ -34,7 +34,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.Holder;
+import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.model.Adapters;
@@ -53,7 +53,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-public final class MetadataHolder implements Holder {
+public final class MetadataContainer implements Container {
 
     private final String license;
     @Nullable private final String mappings;
@@ -62,7 +62,7 @@ public final class MetadataHolder implements Holder {
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
 
-    private MetadataHolder(final Builder builder) {
+    private MetadataContainer(final Builder builder) {
         this.loader = builder.loader;
         this.license = builder.license;
         this.mappings = builder.mappings;
@@ -70,7 +70,7 @@ public final class MetadataHolder implements Holder {
         this.metadata.addAll(builder.metadata);
         for (final StandardPluginMetadata pm : this.metadata) {
             this.metadataById.put(pm.id(), pm);
-            pm.setHolder(this);
+            pm.setContainer(this);
         }
     }
 
@@ -106,7 +106,7 @@ public final class MetadataHolder implements Holder {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", MetadataHolder.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", MetadataContainer.class.getSimpleName() + "[", "]")
                 .add("loader=" + this.loader)
                 .add("license=" + this.license)
                 .add("mappings=" + this.mappings)
@@ -154,7 +154,7 @@ public final class MetadataHolder implements Holder {
             return this;
         }
 
-        public MetadataHolder build() throws IllegalStateException, InvalidVersionSpecificationException {
+        public MetadataContainer build() throws IllegalStateException, InvalidVersionSpecificationException {
             Objects.requireNonNull(this.license, "license");
             Objects.requireNonNull(this.loader, "loader");
 
@@ -162,14 +162,14 @@ public final class MetadataHolder implements Holder {
                 throw new IllegalStateException("A MetadataHolder must hold at least 1 PluginMetadata!");
             }
 
-            return new MetadataHolder(this);
+            return new MetadataContainer(this);
         }
     }
 
-    public static final class Serializer implements JsonSerializer<MetadataHolder>, JsonDeserializer<MetadataHolder> {
+    public static final class Serializer implements JsonSerializer<MetadataContainer>, JsonDeserializer<MetadataContainer> {
 
         @Override
-        public MetadataHolder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
+        public MetadataContainer deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
             final Builder builder = new Builder()
@@ -217,7 +217,7 @@ public final class MetadataHolder implements Holder {
         }
 
         @Override
-        public JsonElement serialize(final MetadataHolder value, final Type type, final JsonSerializationContext context) {
+        public JsonElement serialize(final MetadataContainer value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
             obj.add("loader", Adapters.Serializers.PLUGIN_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
