@@ -24,150 +24,19 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.util.GsonUtils;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
 
 /**
  * Specification for an entity considered to be a "contributor" to a plugin.
  *
- * Required: Name
- * Optional: Description
- *
  * How these values are used are not enforced on an implementation, consult the documentation
  * of that entity for more details.
+ *
+ * @see org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor for a generic implementation
  */
-public final class PluginContributor {
+public interface PluginContributor {
 
-    private final String name;
-    @Nullable private final String description;
+    String name();
 
-    private PluginContributor(final Builder builder) {
-        this.name = builder.name;
-        this.description = builder.description;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public String name() {
-        return this.name;
-    }
-
-    public Optional<String> description() {
-        return Optional.ofNullable(this.description);
-    }
-
-    public PluginContributor.Builder toBuilder() {
-        final Builder builder = PluginContributor.builder();
-        builder.name = this.name;
-        builder.description = this.description;
-
-        return builder;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", PluginContributor.class.getSimpleName() + "[", "]")
-                .add("name=" + this.name)
-                .add("description=" + this.description)
-                .toString();
-    }
-
-    public static final class Builder {
-
-        @Nullable String name, description;
-
-        private Builder() {
-        }
-
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name);
-            return this;
-        }
-
-        public Builder description(@Nullable final String description) {
-            this.description = description;
-            return this;
-        }
-
-        public PluginContributor build() {
-            Objects.requireNonNull(this.name, "name");
-
-            return new PluginContributor(this);
-        }
-    }
-
-    public static final class Deserializer extends TypeAdapter<PluginContributor.Builder> {
-
-        @Override
-        public void write(final JsonWriter out, final Builder builder) throws IOException {
-            throw new UnsupportedOperationException("This adapter is for reading only");
-        }
-
-        @Override
-        public Builder read(final JsonReader in) throws IOException {
-            Objects.requireNonNull(in, "in");
-
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
-
-            in.beginObject();
-            final Set<String> processedKeys = new HashSet<>();
-            final PluginContributor.Builder builder = PluginContributor.builder();
-            while (in.hasNext()) {
-                final String key = in.nextName();
-                if (!processedKeys.add(key)) {
-                    throw new JsonParseException(String.format("Duplicate contributor key '%s' in %s", key, in));
-                }
-                switch (key) {
-                    case "name":
-                        builder.name(in.nextString());
-                        break;
-                    case "description":
-                        builder.description(in.nextString());
-                        break;
-                }
-            }
-            in.endObject();
-            return builder;
-        }
-    }
-
-    public static final class Serializer extends TypeAdapter<PluginContributor> {
-
-        @Override
-        public void write(final JsonWriter out, final PluginContributor value) throws IOException {
-            Objects.requireNonNull(out, "out");
-
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            out.beginObject();
-            out.name("name").value(value.name());
-            GsonUtils.writeIfPresent(out, "description", value.description());
-            out.endObject();
-        }
-
-        @Override
-        public PluginContributor read(final JsonReader in) throws IOException {
-            throw new UnsupportedOperationException("This adapter is for writing only");
-        }
-    }
+    Optional<String> description();
 }

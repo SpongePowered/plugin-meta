@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.model;
+package org.spongepowered.plugin.metadata.builtin.model;
 
 import com.google.gson.TypeAdapter;
 
@@ -30,30 +30,30 @@ public final class Adapters {
 
     public static final class Deserializers {
 
-        public static final TypeAdapter<PluginBranding.Builder> PLUGIN_BRANDING = new PluginBranding.Deserializer();
+        public static final TypeAdapter<StandardPluginBranding.Builder> PLUGIN_BRANDING = new StandardPluginBranding.Deserializer();
 
-        public static final TypeAdapter<PluginContributor.Builder> PLUGIN_CONTRIBUTOR = new PluginContributor.Deserializer();
+        public static final TypeAdapter<StandardPluginContributor.Builder> PLUGIN_CONTRIBUTOR = new StandardPluginContributor.Deserializer();
 
-        public static final TypeAdapter<PluginDependency.Builder> PLUGIN_DEPENDENCY = new PluginDependency.Deserializer();
+        public static final TypeAdapter<StandardPluginDependency.Builder> PLUGIN_DEPENDENCY = new StandardPluginDependency.Deserializer();
 
-        public static final TypeAdapter<PluginLinks.Builder> PLUGIN_LINKS = new PluginLinks.Deserializer();
+        public static final TypeAdapter<StandardPluginLinks.Builder> PLUGIN_LINKS = new StandardPluginLinks.Deserializer();
 
-        public static final TypeAdapter<PluginLoader.Builder> PLUGIN_LOADER = new PluginLoader.Deserializer();
+        public static final TypeAdapter<StandardPluginLoader.Builder> PLUGIN_LOADER = new StandardPluginLoader.Deserializer();
 
         private Deserializers() {
         }
     }
 
     public static final class Serializers {
-        public static final TypeAdapter<PluginBranding> PLUGIN_BRANDING = new PluginBranding.Serializer();
+        public static final TypeAdapter<StandardPluginBranding> PLUGIN_BRANDING = new StandardPluginBranding.Serializer();
 
-        public static final TypeAdapter<PluginContributor> PLUGIN_CONTRIBUTOR = new PluginContributor.Serializer();
+        public static final TypeAdapter<StandardPluginContributor> PLUGIN_CONTRIBUTOR = new StandardPluginContributor.Serializer();
 
-        public static final TypeAdapter<PluginDependency> PLUGIN_DEPENDENCY = new PluginDependency.Serializer();
+        public static final TypeAdapter<StandardPluginDependency> PLUGIN_DEPENDENCY = new StandardPluginDependency.Serializer();
 
-        public static final TypeAdapter<PluginLinks> PLUGIN_LINKS = new PluginLinks.Serializer();
+        public static final TypeAdapter<StandardPluginLinks> PLUGIN_LINKS = new StandardPluginLinks.Serializer();
 
-        public static final TypeAdapter<PluginLoader> PLUGIN_LOADER = new PluginLoader.Serializer();
+        public static final TypeAdapter<StandardPluginLoader> PLUGIN_LOADER = new StandardPluginLoader.Serializer();
 
         private Serializers() {
         }

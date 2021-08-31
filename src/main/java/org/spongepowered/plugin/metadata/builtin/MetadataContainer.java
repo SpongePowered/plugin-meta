@@ -37,8 +37,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.model.Adapters;
-import org.spongepowered.plugin.metadata.model.PluginLoader;
+import org.spongepowered.plugin.metadata.builtin.model.Adapters;
+import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLoader;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.lang.reflect.Type;
@@ -57,7 +57,7 @@ public final class MetadataContainer implements Container {
 
     private final String license;
     @Nullable private final String mappings;
-    private final PluginLoader loader;
+    private final StandardPluginLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
@@ -75,7 +75,7 @@ public final class MetadataContainer implements Container {
     }
 
     @Override
-    public PluginLoader loader() {
+    public StandardPluginLoader loader() {
         return this.loader;
     }
 
@@ -118,10 +118,10 @@ public final class MetadataContainer implements Container {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
         @Nullable String license, mappings;
-        @Nullable PluginLoader loader;
+        @Nullable StandardPluginLoader loader;
         @Nullable Inheritable globalMetadata;
 
-        public Builder loader(final PluginLoader loader) {
+        public Builder loader(final StandardPluginLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
             return this;
         }
