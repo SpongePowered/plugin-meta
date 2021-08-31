@@ -36,7 +36,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
  */
 public interface PluginLoader {
 
-    String id();
+    String name();
 
     VersionRange version();
 }

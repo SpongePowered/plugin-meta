@@ -41,12 +41,12 @@ import java.util.StringJoiner;
 
 public final class StandardPluginLoader implements PluginLoader {
 
-    private final String id;
+    private final String name;
     private final String rawVersion;
     private final VersionRange version;
 
     private StandardPluginLoader(final Builder builder) {
-        this.id = builder.id;
+        this.name = builder.name;
         this.version = builder.version;
         this.rawVersion = builder.rawVersion;
     }
@@ -56,8 +56,8 @@ public final class StandardPluginLoader implements PluginLoader {
     }
 
     @Override
-    public String id() {
-        return this.id;
+    public String name() {
+        return this.name;
     }
 
     @Override
@@ -67,7 +67,7 @@ public final class StandardPluginLoader implements PluginLoader {
 
     public StandardPluginLoader.Builder toBuilder() {
         final Builder builder = StandardPluginLoader.builder();
-        builder.id = this.id;
+        builder.name = this.name;
         builder.version = this.version;
         builder.rawVersion = this.rawVersion;
 
@@ -76,7 +76,7 @@ public final class StandardPluginLoader implements PluginLoader {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.id);
+        return Objects.hashCode(this.name);
     }
 
     @Override
@@ -88,27 +88,27 @@ public final class StandardPluginLoader implements PluginLoader {
             return false;
         }
         final StandardPluginLoader that = (StandardPluginLoader) o;
-        return this.id.equals(that.id);
+        return this.name.equals(that.name);
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", StandardPluginLoader.class.getSimpleName() + "[", "]")
-                .add("id=" + this.id)
+                .add("name=" + this.name)
                 .add("version=" + this.rawVersion)
                 .toString();
     }
 
     public static final class Builder {
 
-        @Nullable String id, rawVersion;
+        @Nullable String name, rawVersion;
         @Nullable VersionRange version;
 
         private Builder() {
         }
 
-        public Builder id(final String id) {
-            this.id = id;
+        public Builder name(final String name) {
+            this.name = name;
             return this;
         }
 
@@ -119,7 +119,7 @@ public final class StandardPluginLoader implements PluginLoader {
         }
 
         public StandardPluginLoader build() {
-            Objects.requireNonNull(this.id, "id");
+            Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.version, "version");
 
             return new StandardPluginLoader(this);
@@ -151,8 +151,8 @@ public final class StandardPluginLoader implements PluginLoader {
                     throw new JsonParseException(String.format("Duplicate id key '%s' in %s", key, in));
                 }
                 switch (key) {
-                    case "id":
-                        builder.id(in.nextString());
+                    case "name":
+                        builder.name(in.nextString());
                         break;
                     case "version":
                         builder.version(in.nextString());
@@ -177,7 +177,7 @@ public final class StandardPluginLoader implements PluginLoader {
             }
 
             out.beginObject();
-            out.name("id").value(value.id());
+            out.name("name").value(value.name);
             out.name("version").value(value.rawVersion);
             out.endObject();
         }
