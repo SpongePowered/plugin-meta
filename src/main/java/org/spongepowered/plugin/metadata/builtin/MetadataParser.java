@@ -26,6 +26,7 @@ package org.spongepowered.plugin.metadata.builtin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.BufferedReader;
@@ -69,8 +70,6 @@ public final class MetadataParser {
      * Reads a {@link MetadataContainer container} from a given {@link Reader reader} with configured {@link Gson deserializer}.
      * <p>
      * To get a standard deserializer, {@link MetadataParser#gsonBuilder()} is available.
-     * <p>
-     * The reader is not closed in this call therefore callers need to be sure to do so.
      * @param reader The reader
      * @param gson The deserializer
      * @return The container
@@ -80,7 +79,9 @@ public final class MetadataParser {
         Objects.requireNonNull(reader, "reader");
         Objects.requireNonNull(gson, "gson");
 
-        return gson.fromJson(reader, MetadataContainer.class);
+        try (final JsonReader jsonReader = new JsonReader(reader)) {
+            return gson.fromJson(jsonReader, MetadataContainer.class);
+        }
     }
 
     /**
@@ -110,8 +111,6 @@ public final class MetadataParser {
      * Writes a {@link MetadataContainer container} to the given {@link Path path} using the configured {@link Gson serializer}.
      * <p>
      * To get a standard serializer, {@link MetadataParser#gsonBuilder()} is available.
-     * <p>
-     * The writer is not closed in this call therefore callers need to be sure to do so.
      * @param writer The writer
      * @param container The container
      * @param gson The serializer
