@@ -49,6 +49,18 @@ public final class MetadataParser {
     }
 
     /**
+     * Reads a {@link MetadataContainer container} from a given {@link Path path} using the default {@link Gson deserializer}
+     * (retrieved from {@link #gsonBuilder()}).
+     *
+     * @param path The path
+     * @return The container
+     * @throws IOException if the container fails to be read
+     */
+    public static MetadataContainer read(final Path path) throws IOException {
+        return MetadataParser.read(path, MetadataParser.gsonBuilder().create());
+    }
+
+    /**
      * Reads a {@link MetadataContainer container} from a given {@link Path path} with configured {@link Gson deserializer}.
      * <p>
      * To get a standard deserializer, {@link MetadataParser#gsonBuilder()} is available.
@@ -64,6 +76,18 @@ public final class MetadataParser {
         try (final BufferedReader reader = Files.newBufferedReader(path)) {
             return gson.fromJson(reader, MetadataContainer.class);
         }
+    }
+
+    /**
+     * Reads a {@link MetadataContainer container} from a given {@link Reader reader} using the default {@link Gson deserializer}
+     * (retrieved from {@link #gsonBuilder()}).
+     *
+     * @param reader The reader
+     * @return The container
+     * @throws IOException if the container fails to be read
+     */
+    public static MetadataContainer read(final Reader reader) throws IOException {
+        return MetadataParser.read(reader, MetadataParser.gsonBuilder().create());
     }
 
     /**
