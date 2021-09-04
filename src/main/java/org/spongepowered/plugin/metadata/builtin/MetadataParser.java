@@ -39,6 +39,9 @@ import java.util.Objects;
 
 public final class MetadataParser {
 
+    private MetadataParser() {
+    }
+
     public static GsonBuilder gsonBuilder() {
         return new GsonBuilder()
                 .registerTypeAdapter(MetadataContainer.class, new MetadataContainer.Serializer())
@@ -152,8 +155,5 @@ public final class MetadataParser {
             }
             gson.toJson(container, MetadataContainer.class, jsonWriter);
         }
-    }
-
-    private MetadataParser() {
     }
 }

@@ -45,9 +45,9 @@ import java.util.StringJoiner;
 
 public final class StandardPluginMetadata extends StandardInheritable implements PluginMetadata {
 
-    @Nullable private Container container;
     private final String id, entrypoint;
     @Nullable private final String name, description;
+    @Nullable private Container container;
 
     private StandardPluginMetadata(final Builder builder) {
         super(builder);
@@ -55,6 +55,10 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         this.entrypoint = builder.entrypoint;
         this.name = builder.name;
         this.description = builder.description;
+    }
+
+    public static StandardPluginMetadata.Builder builder() {
+        return new Builder();
     }
 
     @Override

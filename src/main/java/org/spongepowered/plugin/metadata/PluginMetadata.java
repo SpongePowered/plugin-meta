@@ -29,7 +29,8 @@ import java.util.Optional;
 /**
  * Represents specific, unique metadata to a plugin.
  *
- * @see Inheritable for metadata that might be shared between multiple plugin metadata.
+ * @see Inheritable Inheritable, for metadata that might be shared between multiple plugin metadata
+ * @see org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata StandardPluginMetadata, for a generic implementation
  */
 public interface PluginMetadata extends Inheritable {
 
@@ -55,9 +56,10 @@ public interface PluginMetadata extends Inheritable {
 
     /**
      * Gets the {@link String entrypoint}.
+     * <p>
+     * Consult the vendor for how this field is used. As an example, this could be
+     * the name of a module or a fully realized path to a discrete class.
      *
-     * <p>Consult the vendor of this library for how this field is used. As an example,
-     * this could be the name of a module or a fully realized path to a discrete class.</p>
      * @return The entrypoint
      */
     String entrypoint();

@@ -38,13 +38,13 @@ import java.util.Set;
 /**
  * Represents metadata that is meant to be inherited/overwritten, per contract.
  *
- * @see org.spongepowered.plugin.metadata.builtin.StandardInheritable for a generic implementation
- * @see PluginMetadata for specific "plugin" metadata
+ * @see org.spongepowered.plugin.metadata.builtin.StandardInheritable StandardInheritable, for a generic implementation
+ * @see PluginMetadata PluginMetadata, for specific "plugin" metadata
  */
 public interface Inheritable {
 
     /**
-     * @return The version, as a maven artifact.
+     * @return The {@link ArtifactVersion version}.
      */
     ArtifactVersion version();
 
@@ -54,7 +54,7 @@ public interface Inheritable {
     PluginBranding branding();
 
     /**
-     * @return {@link PluginLinks links} to various web resources.
+     * @return The {@link PluginLinks links} to various web resources.
      */
     PluginLinks links();
 
@@ -64,8 +64,9 @@ public interface Inheritable {
     List<PluginContributor> contributors();
 
     /**
-     * Gets the {@link PluginDependency} by {@link String id}.
-     *
+     * Gets the {@link PluginDependency plugin dependency} by {@link String id}.
+     * <p>
+     * This maps to {@link PluginDependency#id()}.
      * @param id The id
      * @return The dependency or {@link Optional#empty()} otherwise.
      */

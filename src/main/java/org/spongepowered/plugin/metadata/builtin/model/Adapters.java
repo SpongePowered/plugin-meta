@@ -28,7 +28,12 @@ import com.google.gson.TypeAdapter;
 
 public final class Adapters {
 
+    private Adapters() {
+    }
+
     public static final class Deserializers {
+
+        public static final TypeAdapter<StandardContainerLoader.Builder> CONTAINER_LOADER = new StandardContainerLoader.Deserializer();
 
         public static final TypeAdapter<StandardPluginBranding.Builder> PLUGIN_BRANDING = new StandardPluginBranding.Deserializer();
 
@@ -38,13 +43,14 @@ public final class Adapters {
 
         public static final TypeAdapter<StandardPluginLinks.Builder> PLUGIN_LINKS = new StandardPluginLinks.Deserializer();
 
-        public static final TypeAdapter<StandardPluginLoader.Builder> PLUGIN_LOADER = new StandardPluginLoader.Deserializer();
-
         private Deserializers() {
         }
     }
 
     public static final class Serializers {
+
+        public static final TypeAdapter<StandardContainerLoader> CONTAINER_LOADER = new StandardContainerLoader.Serializer();
+
         public static final TypeAdapter<StandardPluginBranding> PLUGIN_BRANDING = new StandardPluginBranding.Serializer();
 
         public static final TypeAdapter<StandardPluginContributor> PLUGIN_CONTRIBUTOR = new StandardPluginContributor.Serializer();
@@ -53,12 +59,7 @@ public final class Adapters {
 
         public static final TypeAdapter<StandardPluginLinks> PLUGIN_LINKS = new StandardPluginLinks.Serializer();
 
-        public static final TypeAdapter<StandardPluginLoader> PLUGIN_LOADER = new StandardPluginLoader.Serializer();
-
         private Serializers() {
         }
-    }
-
-    private Adapters() {
     }
 }

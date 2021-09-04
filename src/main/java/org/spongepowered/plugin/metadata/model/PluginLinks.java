@@ -24,22 +24,34 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.spongepowered.plugin.metadata.Inheritable;
+import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLinks;
+
 import java.net.URL;
 import java.util.Optional;
 
 /**
- * Specification for an entity representing the links to "web resources" of a plugin.
- *
- * How these values are used are not enforced on an implementation, consult the documentation
- * of that entity for more details.
- *
- * @see org.spongepowered.plugin.metadata.builtin.model.StandardPluginLinks for a generic implementation
+ * Specification for an entity representing the links to "web resources" of an {@link Inheritable inheritable}
+ * or {@link PluginMetadata plugin metadata}.
+ * <p>
+ * Consult the vendor for further information on how this is used.
+ * @see StandardPluginLinks StandardPluginLinks, for a generic implementation
  */
 public interface PluginLinks {
 
+    /**
+     * @return The {@link URL homepage} or {@link Optional#empty()} otherwise
+     */
     Optional<URL> homepage();
 
+    /**
+     * @return The {@link URL source} or {@link Optional#empty()} otherwise
+     */
     Optional<URL> source();
 
+    /**
+     * @return The {@link URL issues} or {@link Optional#empty()} otherwise
+     */
     Optional<URL> issues();
 }

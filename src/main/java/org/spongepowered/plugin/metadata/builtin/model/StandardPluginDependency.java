@@ -88,7 +88,7 @@ public final class StandardPluginDependency implements PluginDependency {
     }
 
     public StandardPluginDependency.Builder toBuilder() {
-        final Builder builder = StandardPluginDependency.builder();
+        final Builder builder = new Builder();
         builder.id = this.id;
         builder.version = this.version;
         builder.rawVersion = this.rawVersion;

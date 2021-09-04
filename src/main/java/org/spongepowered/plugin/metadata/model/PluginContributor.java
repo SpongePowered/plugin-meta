@@ -24,19 +24,28 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.spongepowered.plugin.metadata.Inheritable;
+import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor;
+
 import java.util.Optional;
 
 /**
- * Specification for an entity considered to be a "contributor" to a plugin.
- *
- * How these values are used are not enforced on an implementation, consult the documentation
- * of that entity for more details.
- *
- * @see org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor for a generic implementation
+ * Specification for an entity considered to be a "contributor" to an {@link Inheritable inheritable}
+ * or {@link PluginMetadata plugin metadata}.
+ * <p>
+ * Consult the vendor for further information on how this is used.
+ * @see StandardPluginContributor StandardPluginContributor, for a generic implementation
  */
 public interface PluginContributor {
 
+    /**
+     * @return The {@link String name}
+     */
     String name();
 
+    /**
+     * @return The {@link String description} or {@link Optional#empty()} otherwise
+     */
     Optional<String> description();
 }

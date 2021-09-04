@@ -63,7 +63,7 @@ public final class StandardPluginContributor implements PluginContributor {
     }
 
     public StandardPluginContributor.Builder toBuilder() {
-        final Builder builder = StandardPluginContributor.builder();
+        final Builder builder = new Builder();
         builder.name = this.name;
         builder.description = this.description;
 

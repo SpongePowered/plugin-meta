@@ -25,29 +25,56 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.Inheritable;
+import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.builtin.model.StandardPluginDependency;
 
 /**
- * Specification for an entity considered to be a "dependency" for a plugin.
- *
- * How these values are used are not enforced on an implementation, consult the documentation
- * of that entity for more details.
- *
- * @see org.spongepowered.plugin.metadata.builtin.model.StandardPluginDependency for a generic implementation
+ * Specification for an entity considered to be a "dependency" for an {@link Inheritable inheritable}
+ * or {@link PluginMetadata plugin metadata}.
+ * <p>
+ * Consult the vendor for further information on how this is used.
+ * @see StandardPluginDependency StandardPluginDependency, for a generic implementation
  */
 public interface PluginDependency {
 
+    /**
+     * Gets the {@link String id}.
+     *
+     * <p>Ids must conform to the following requirements:</p>
+     *
+     * <ul>
+     *     <li>Must be between 2 and 64 characters in length</li>
+     *     <li>Must start with a lower case letter (a-z)</li>
+     *     <li>May only contain a mix of lower case letters (a-z),
+     *     numbers (0-9), dashes (-), and underscores (_)</li>
+     * </ul>
+     * @return The id
+     */
     String id();
 
+    /**
+     * @return The {@link VersionRange version}, as a maven range.
+     */
     VersionRange version();
 
+    /**
+     * @return The {@link LoadOrder load order}
+     */
     LoadOrder loadOrder();
 
+    /**
+     * @return True if optional, false if not
+     */
     boolean optional();
 
     /**
-     * Represents the ordering of the dependency being loaded vs. the plugin by the implementation
+     * Represents the ordering of how dependencies are loaded versus others.
+     * <p>
+     * A vendor *may* choose to introduce additional behavior beyond what is
+     * documented here. It is recommended to consult with that entity on any
+     * further behavioral changes.
      */
-
     enum LoadOrder {
         /**
          * The plugin can be loaded regardless of when the dependency is loaded.

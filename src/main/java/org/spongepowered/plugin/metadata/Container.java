@@ -24,7 +24,8 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import org.spongepowered.plugin.metadata.model.PluginLoader;
+import org.apache.maven.artifact.Artifact;
+import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.util.Optional;
 import java.util.Set;
@@ -32,39 +33,42 @@ import java.util.Set;
 /**
  *  A container joins together {@link Inheritable global metadata} with specific one or more
  *  {@link PluginMetadata plugin metadata}.
+ *  <p>
+ *  How the vendor utilizes this concept is largely left up to their discretion. A
+ *  typical use case would be to load a file as a container.
  *
- *  <p>How a library consumer utilizes this concept is largely left up to their discretion. A
- *  typical use case would be to load a file as a container</p>
- *
- * @see org.spongepowered.plugin.metadata.builtin.MetadataContainer for a generic implementation
+ * @see org.spongepowered.plugin.metadata.builtin.MetadataContainer MetadataContainer, for a generic implementation
  */
 public interface Container {
 
     /**
-     * @return The {@link PluginLoader loader}.
+     * @return The {@link ContainerLoader loader}.
      */
-    PluginLoader loader();
+    ContainerLoader loader();
 
     /**
      * Gets the {@link String license} of the data within this container.
-     *
-     * <p>Consult the vendor of this library for how this field is used. In the generic
-     * implementation, a license's name is expected (i.e. MIT or All Rights Reserved).</p>
+     * <p>
+     * Consult the vendor for how this field is used.
+     * <p>
+     * In the generic implementation, a license's name is expected.
+     * <p>
+     * Notable examples include MIT or All Rights Reserved.
      *
      * @return The license
      */
     String license();
 
     /**
-     * Gets the {@link String mappings} that code within this container might be written in.
+     * Gets the {@link Artifact mappings} that code within this container might be written in.
+     * <p>
+     * The format of this string should be in maven dependency format (group:artifact:version).
+     * <p>
+     * Consult the vendor for how this field is used. As an example, that entity could use this
+     * purely for information purposes or go farther and perform artifact remapping from these
+     * mappings to another.
      *
-     * <p>The format of this string should be in maven dependency format (group:artifact:version).</p>
-     *
-     * <p>Consult the vendor of this library for how this field is used. As an example, a vendor could
-     * use this purely for information purposes or go farther and perform artifact remapping from
-     * this mappings to another.</p>
-     *
-     * @return The {@link String mappings} or {@link Optional#empty()} otherwise
+     * @return The mappings or {@link Optional#empty()} otherwise
      */
     Optional<String> mappings();
 
@@ -74,9 +78,9 @@ public interface Container {
     Optional<Inheritable> globalMetadata();
 
     /**
-     * Gets a {@link PluginMetadata} by its {@link String id}.
-     *
-     * <p>This maps to {@link PluginMetadata#id()}</p>
+     * Gets a {@link PluginMetadata plugin metadata} by its {@link String id}.
+     * <p>
+     * This maps to {@link PluginMetadata#id()}.
      *
      * @param id The id
      * @return The plugin metadata or {@link Optional#empty()} otherwise
@@ -84,7 +88,7 @@ public interface Container {
     Optional<PluginMetadata> metadata(String id);
 
     /**
-     * @return The {@link PluginMetadata plugin metadata} as an unmodifiable {@link Set}.
+     * @return All of the {@link PluginMetadata plugin metadata} as an unmodifiable {@link Set}.
      */
     Set<PluginMetadata> metadata();
 }

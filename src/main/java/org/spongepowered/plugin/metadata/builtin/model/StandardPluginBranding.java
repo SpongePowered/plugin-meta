@@ -75,7 +75,7 @@ public final class StandardPluginBranding implements PluginBranding {
     }
 
     public StandardPluginBranding.Builder toBuilder() {
-        final Builder builder = StandardPluginBranding.builder();
+        final Builder builder = new Builder();
         builder.logo = this.logo;
         builder.icon = this.icon;
 

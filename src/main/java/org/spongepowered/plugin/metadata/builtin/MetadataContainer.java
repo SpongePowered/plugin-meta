@@ -32,13 +32,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.model.Adapters;
-import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLoader;
+import org.spongepowered.plugin.metadata.builtin.model.StandardContainerLoader;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.lang.reflect.Type;
@@ -57,7 +58,7 @@ public final class MetadataContainer implements Container {
 
     private final String license;
     @Nullable private final String mappings;
-    private final StandardPluginLoader loader;
+    private final StandardContainerLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
     private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
@@ -75,7 +76,7 @@ public final class MetadataContainer implements Container {
     }
 
     @Override
-    public StandardPluginLoader loader() {
+    public StandardContainerLoader loader() {
         return this.loader;
     }
 
@@ -118,10 +119,10 @@ public final class MetadataContainer implements Container {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
         @Nullable String license, mappings;
-        @Nullable StandardPluginLoader loader;
+        @Nullable StandardContainerLoader loader;
         @Nullable Inheritable globalMetadata;
 
-        public Builder loader(final StandardPluginLoader loader) {
+        public Builder loader(final StandardContainerLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
             return this;
         }
@@ -132,10 +133,14 @@ public final class MetadataContainer implements Container {
         }
 
         public Builder mappings(@Nullable final String mappings) {
-            this.mappings = mappings;
-            if (this.mappings != null) {
-                // TODO validation
+
+            if (mappings != null) {
+                final String[] elements = mappings.split("\\.", 3);
+                // Triggers their sanity checks
+                ArtifactUtils.key(elements[0], elements[1], elements[2]);
             }
+
+            this.mappings = mappings;
             return this;
         }
 
@@ -173,7 +178,7 @@ public final class MetadataContainer implements Container {
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
             final Builder builder = new Builder()
-                    .loader(Adapters.Deserializers.PLUGIN_LOADER.fromJsonTree(obj.get("loader")).build())
+                    .loader(Adapters.Deserializers.CONTAINER_LOADER.fromJsonTree(obj.get("loader")).build())
                     .license(obj.get("license").getAsString());
 
             GsonUtils.consumeIfPresent(obj, "mappings", e -> builder.mappings(e.getAsString()));
@@ -219,11 +224,10 @@ public final class MetadataContainer implements Container {
         @Override
         public JsonElement serialize(final MetadataContainer value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
-            obj.add("loader", Adapters.Serializers.PLUGIN_LOADER.toJsonTree(value.loader));
+            obj.add("loader", Adapters.Serializers.CONTAINER_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
             GsonUtils.writeIfPresent(obj, "mappings", value.mappings());
 
-            // TODO Determine what properties are equal and not write all the plugin's metadata?
             final JsonArray plugins = new JsonArray();
             for (final PluginMetadata metadata : value.metadata) {
                 plugins.add(context.serialize(metadata, StandardPluginMetadata.class));

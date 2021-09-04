@@ -31,7 +31,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.model.PluginLoader;
+import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -39,13 +39,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 
-public final class StandardPluginLoader implements PluginLoader {
+public final class StandardContainerLoader implements ContainerLoader {
 
     private final String name;
     private final String rawVersion;
     private final VersionRange version;
 
-    private StandardPluginLoader(final Builder builder) {
+    private StandardContainerLoader(final Builder builder) {
         this.name = builder.name;
         this.version = builder.version;
         this.rawVersion = builder.rawVersion;
@@ -65,8 +65,8 @@ public final class StandardPluginLoader implements PluginLoader {
         return this.version;
     }
 
-    public StandardPluginLoader.Builder toBuilder() {
-        final Builder builder = StandardPluginLoader.builder();
+    public StandardContainerLoader.Builder toBuilder() {
+        final Builder builder = new Builder();
         builder.name = this.name;
         builder.version = this.version;
         builder.rawVersion = this.rawVersion;
@@ -84,16 +84,16 @@ public final class StandardPluginLoader implements PluginLoader {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof StandardPluginLoader)) {
+        if (!(o instanceof StandardContainerLoader)) {
             return false;
         }
-        final StandardPluginLoader that = (StandardPluginLoader) o;
+        final StandardContainerLoader that = (StandardContainerLoader) o;
         return this.name.equals(that.name);
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", StandardPluginLoader.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", StandardContainerLoader.class.getSimpleName() + "[", "]")
                 .add("name=" + this.name)
                 .add("version=" + this.rawVersion)
                 .toString();
@@ -118,15 +118,15 @@ public final class StandardPluginLoader implements PluginLoader {
             return this;
         }
 
-        public StandardPluginLoader build() {
+        public StandardContainerLoader build() {
             Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.version, "version");
 
-            return new StandardPluginLoader(this);
+            return new StandardContainerLoader(this);
         }
     }
 
-    public static final class Deserializer extends TypeAdapter<StandardPluginLoader.Builder> {
+    public static final class Deserializer extends TypeAdapter<StandardContainerLoader.Builder> {
 
         @Override
         public void write(final JsonWriter out, final Builder builder) throws IOException {
@@ -134,7 +134,7 @@ public final class StandardPluginLoader implements PluginLoader {
         }
 
         @Override
-        public StandardPluginLoader.Builder read(final JsonReader in) throws IOException {
+        public StandardContainerLoader.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -144,7 +144,7 @@ public final class StandardPluginLoader implements PluginLoader {
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
-            final StandardPluginLoader.Builder builder = StandardPluginLoader.builder();
+            final StandardContainerLoader.Builder builder = StandardContainerLoader.builder();
             while (in.hasNext()) {
                 final String key = in.nextName();
                 if (!processedKeys.add(key)) {
@@ -165,10 +165,10 @@ public final class StandardPluginLoader implements PluginLoader {
         }
     }
 
-    public static final class Serializer extends TypeAdapter<StandardPluginLoader> {
+    public static final class Serializer extends TypeAdapter<StandardContainerLoader> {
 
         @Override
-        public void write(final JsonWriter out, final StandardPluginLoader value) throws IOException {
+        public void write(final JsonWriter out, final StandardContainerLoader value) throws IOException {
             Objects.requireNonNull(out, "out");
 
             if (value == null) {
@@ -183,7 +183,7 @@ public final class StandardPluginLoader implements PluginLoader {
         }
 
         @Override
-        public StandardPluginLoader read(final JsonReader in) throws IOException {
+        public StandardContainerLoader read(final JsonReader in) throws IOException {
             throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }

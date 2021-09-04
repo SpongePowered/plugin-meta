@@ -83,7 +83,7 @@ public final class StandardPluginLinks implements PluginLinks {
     }
 
     public StandardPluginLinks.Builder toBuilder() {
-        final Builder builder = StandardPluginLinks.builder();
+        final Builder builder = new Builder();
         builder.homepage = this.homepage;
         builder.source = this.source;
         builder.issues = this.issues;

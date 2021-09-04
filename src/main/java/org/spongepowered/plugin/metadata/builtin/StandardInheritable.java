@@ -72,6 +72,7 @@ public class StandardInheritable implements Inheritable {
     protected final Map<String, Object> properties = new LinkedHashMap<>();
     private final Map<String, StandardPluginDependency> dependenciesById = new LinkedHashMap<>();
 
+    @SuppressWarnings("rawtypes")
     protected StandardInheritable(final AbstractBuilder builder) {
         this.version = builder.version;
         this.rawVersion = builder.rawVersion;
@@ -83,10 +84,6 @@ public class StandardInheritable implements Inheritable {
             this.dependenciesById.put(dependency.id(), dependency);
         }
         this.properties.putAll(builder.properties);
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Override
@@ -254,16 +251,15 @@ public class StandardInheritable implements Inheritable {
 
         @Override
         public StandardInheritable deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
-            throws JsonParseException {
+                throws JsonParseException {
 
             final JsonObject obj = element.getAsJsonObject();
-            final Builder builder = StandardInheritable.builder().version(GsonUtils.<String>get(obj, "version", JsonElement::getAsString).orElse(null));
+            final Builder builder = new Builder();
+            builder.version(GsonUtils.get(obj, "version", JsonElement::getAsString).orElse(null));
             GsonUtils.consumeIfPresent(obj, "branding", e -> builder.branding(Adapters.Deserializers.PLUGIN_BRANDING.fromJsonTree(e).build()));
             GsonUtils.consumeIfPresent(obj, "links", e -> builder.links(Adapters.Deserializers.PLUGIN_LINKS.fromJsonTree(e).build()));
-            GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_CONTRIBUTOR, LinkedList::new).stream().map(
-                    StandardPluginContributor.Builder::build).collect(Collectors.toList())));
-            GsonUtils.consumeIfPresent(obj, "dependencies", e -> builder.dependencies(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_DEPENDENCY, LinkedHashSet::new).stream().map(
-                    StandardPluginDependency.Builder::build).collect(Collectors.toList())));
+            GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_CONTRIBUTOR, LinkedList::new).stream().map(StandardPluginContributor.Builder::build).collect(Collectors.toList())));
+            GsonUtils.consumeIfPresent(obj, "dependencies", e -> builder.dependencies(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_DEPENDENCY, LinkedHashSet::new).stream().map(StandardPluginDependency.Builder::build).collect(Collectors.toList())));
             GsonUtils.consumeIfPresent(obj, "properties", e -> builder.properties(GsonUtils.read((JsonObject) e, JsonElement::getAsString, LinkedHashMap::new)));
 
             return builder.build();

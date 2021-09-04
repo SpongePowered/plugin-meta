@@ -25,18 +25,24 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.Container;
+import org.spongepowered.plugin.metadata.builtin.model.StandardContainerLoader;
 
 /**
- * Specification for an entity representing the loader of a holder.
- *
- * How these values are used are not enforced on an implementation, consult the documentation
- * of that entity for more details.
- *
- * @see org.spongepowered.plugin.metadata.builtin.model.StandardPluginLoader for a generic implementation
+ * Specification for an entity representing the "loader" of a {@link Container container}.
+ * <p>
+ * Consult the vendor for further information on how this is used.
+ * @see StandardContainerLoader StandardContainerLoader, for a generic implementation
  */
-public interface PluginLoader {
+public interface ContainerLoader {
 
+    /**
+     * @return The {@link String name}
+     */
     String name();
 
+    /**
+     * @return The {@link VersionRange version}, as a maven range.
+     */
     VersionRange version();
 }
