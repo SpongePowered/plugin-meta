@@ -177,6 +177,16 @@ public final class MetadataContainer implements Container {
         public MetadataContainer deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
+            if (!obj.has("loader")) {
+                throw new MissingRequiredFieldException("loader");
+            }
+            if (!obj.has("license")) {
+                throw new MissingRequiredFieldException("license");
+            }
+            if (!obj.has("plugins")) {
+                throw new MissingRequiredFieldException("plugins");
+            }
+
             final Builder builder = new Builder()
                     .loader(Adapters.Deserializers.CONTAINER_LOADER.fromJsonTree(obj.get("loader")).build())
                     .license(obj.get("license").getAsString());

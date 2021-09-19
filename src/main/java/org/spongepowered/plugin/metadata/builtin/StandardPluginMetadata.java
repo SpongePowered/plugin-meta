@@ -168,6 +168,12 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
                 throws JsonParseException {
             final JsonObject obj = element.getAsJsonObject();
+            if (!obj.has("id")) {
+                throw new MissingRequiredFieldException("id");
+            }
+            if (!obj.has("entrypoint")) {
+                throw new MissingRequiredFieldException("entrypoint");
+            }
             final StandardPluginMetadata.Builder builder = new StandardPluginMetadata.Builder();
             builder
                     .id(obj.get("id").getAsString())
