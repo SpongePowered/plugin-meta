@@ -1,13 +1,14 @@
 plugins {
-    id("org.spongepowered.gradle.sponge.dev") version "1.1.1"
-    id("net.kyori.indra.checkstyle") version "2.0.6"
-    id("net.kyori.indra.publishing.sonatype") version "2.0.6"
+    id("org.spongepowered.gradle.sponge.dev") version "2.0.2"
+    id("net.kyori.indra.checkstyle") version "2.1.1"
+    id("net.kyori.indra.crossdoc") version "2.1.1"
+    id("net.kyori.indra.publishing.sonatype") version "2.1.1"
 }
 
 dependencies {
-    compileOnlyApi("org.checkerframework:checker-qual:3.17.0")
+    compileOnlyApi("org.checkerframework:checker-qual:3.23.0")
     api("com.google.code.gson:gson:2.8.0")
-    api("org.apache.maven:maven-artifact:3.8.1")
+    api("org.apache.maven:maven-artifact:3.8.6")
 }
 
 tasks.jar {
@@ -18,8 +19,9 @@ tasks.jar {
 
 allprojects {
     apply(plugin = "org.spongepowered.gradle.sponge.dev")
-    apply(plugin = "net.kyori.indra.publishing")
     apply(plugin = "net.kyori.indra.checkstyle")
+    apply(plugin = "net.kyori.indra.crossdoc")
+    apply(plugin = "net.kyori.indra.publishing")
 
     repositories {
         org.spongepowered.gradle.convention.ConventionConstants.spongeRepo(this)
@@ -44,8 +46,12 @@ allprojects {
             add(sourceOutput.name, project.files(it.relativeTo(project.projectDir).path))
         }
 
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    }
+
+    indraCrossdoc {
+      baseUrl(providers.gradleProperty("javadocPublishRoot"))
     }
 
     tasks {
@@ -56,8 +62,8 @@ allprojects {
             options {
                 (this as StandardJavadocDocletOptions).apply {
                     links(
-                        "http://www.slf4j.org/apidocs/",
-                        "https://google.github.io/guava/releases/21.0/api/docs/",
+                        "https://www.slf4j.org/apidocs/",
+                        "https://guava.dev/releases/21.0/api/docs/",
                         "https://google.github.io/guice/api-docs/4.1/javadoc/"
                     )
                 }
