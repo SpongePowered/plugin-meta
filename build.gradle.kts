@@ -16,13 +16,6 @@ sourceSets.main {
     multirelease.moduleName("org.spongepowered.plugin.metadata")
 }
 
-tasks.javadoc {
-    (options as StandardJavadocDocletOptions).links(
-        "https://www.javadoc.io/doc/com.google.code.gson/gson/latest/",
-        "https://checkerframework.org/api/",
-        "https://maven.apache.org/ref/3.8.6/maven-artifact/apidocs"
-    )
-}
 
 allprojects {
     apply(plugin = "org.spongepowered.gradle.sponge.dev")
@@ -59,7 +52,7 @@ allprojects {
         multirelease {
             alternateVersions(9)
             requireAllPackagesExported()
-            applyToJavadoc()
+            applyToJavadoc(true)
         }
     }
 
@@ -77,15 +70,15 @@ allprojects {
                options.compilerArgs.addAll(listOf("--module-path", classpath.asPath))
            }
         }
-
         javadoc {
-            options {
-                (this as StandardJavadocDocletOptions).apply {
-                    links(
-                        "https://guava.dev/releases/21.0/api/docs/",
-                        "https://google.github.io/guice/api-docs/4.1/javadoc/"
-                    )
-                }
+            (options as StandardJavadocDocletOptions).links(
+                    "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.9/",
+                    "https://checkerframework.org/api/",
+                    "https://maven.apache.org/ref/3.8.6/maven-artifact/apidocs"
+            )
+
+            doFirst {
+                options.modulePath(classpath.toList())
             }
         }
     }
