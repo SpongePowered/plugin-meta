@@ -115,7 +115,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
                 .add("id=" + this.id)
                 .add("name=" + this.name)
                 .add("entrypoint=" + this.entrypoint)
-                .add("description=" + description);
+                .add("description=" + this.description);
         joiner.merge(this.stringJoiner());
         return joiner.toString();
     }

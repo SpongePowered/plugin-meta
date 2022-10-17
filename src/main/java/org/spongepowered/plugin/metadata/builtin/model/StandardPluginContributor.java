@@ -54,10 +54,12 @@ public final class StandardPluginContributor implements PluginContributor {
         return new Builder();
     }
 
+    @Override
     public String name() {
         return this.name;
     }
 
+    @Override
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
     }

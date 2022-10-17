@@ -28,6 +28,8 @@ import com.google.gson.JsonParseException;
 
 public final class MissingRequiredFieldException extends JsonParseException {
 
+    private static final long serialVersionUID = 223908766837278356L;
+
     public MissingRequiredFieldException(final String field) {
         super(String.format("Required field '%s' is missing!", field));
     }
