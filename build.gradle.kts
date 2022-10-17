@@ -35,6 +35,10 @@ allprojects {
         sponge.all()
     }
 
+    indra {
+        javaVersions().minimumToolchain(17)
+    }
+
     spongeConvention {
         repository("plugin-meta") {
             ci(true)

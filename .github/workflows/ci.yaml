@@ -14,5 +14,6 @@ jobs:
   call-build:
     uses: SpongePowered/.github/.github/workflows/shared-ci.yaml@master
     with:
+      runtime_version: 17
       publish_snapshot_javadoc: true
     secrets: inherit
