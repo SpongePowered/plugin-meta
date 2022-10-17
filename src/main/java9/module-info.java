@@ -7,5 +7,5 @@ module org.spongepowered.plugin.metadata {
 
     requires transitive com.google.gson;
     requires static transitive org.checkerframework.checker.qual;
-    requires static maven.artifact; // Generated module name
+    requires static transitive maven.artifact; // Generated module name, may change?
 }

@@ -67,7 +67,7 @@ allprojects {
     tasks {
         withType(JavaCompile::class).configureEach {
            doFirst {
-               options.compilerArgs.addAll(listOf("--module-path", classpath.asPath))
+               options.compilerArgs.addAll(listOf("--module-path", classpath.asPath, "--module-version", project.version.toString()))
            }
         }
         javadoc {
