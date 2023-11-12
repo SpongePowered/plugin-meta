@@ -1,9 +1,9 @@
 plugins {
     id("org.spongepowered.gradle.sponge.dev") version "2.1.1"
     id("org.spongepowered.gradle.repository") version "2.1.1"
-    id("net.kyori.indra.checkstyle") version "3.0.1"
-    id("net.kyori.indra.crossdoc") version "3.0.1"
-    id("net.kyori.indra.publishing.sonatype") version "3.0.1"
+    id("net.kyori.indra.checkstyle") version "3.1.3"
+    id("net.kyori.indra.crossdoc") version "3.1.3"
+    id("net.kyori.indra.publishing.sonatype") version "3.1.3"
 }
 
 dependencies {
