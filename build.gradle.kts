@@ -9,7 +9,7 @@ plugins {
 dependencies {
     compileOnlyApi("org.checkerframework:checker-qual:3.26.0")
     api("com.google.code.gson:gson:2.8.9")
-    api("org.apache.maven:maven-artifact:3.8.6")
+    api("org.apache.maven:maven-artifact:4.0.0-alpha-12")
 }
 
 sourceSets.main {
