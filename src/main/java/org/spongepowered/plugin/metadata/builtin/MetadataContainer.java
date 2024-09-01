@@ -115,6 +115,16 @@ public final class MetadataContainer implements Container {
                 .toString();
     }
 
+    public MetadataContainer.Builder toBuilder() {
+        final Builder builder = new Builder();
+        builder.loader = this.loader;
+        builder.license = this.license;
+        builder.mappings = this.mappings;
+        builder.globalMetadata = this.globalMetadata;
+        builder.metadata.addAll(this.metadata);
+        return builder;
+    }
+
     public static final class Builder {
 
         final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
@@ -150,6 +160,13 @@ public final class MetadataContainer implements Container {
         }
 
         public Builder metadata(final List<StandardPluginMetadata> metadata) {
+            Objects.requireNonNull(metadata, "metadata");
+            this.metadata.clear();
+            this.metadata.addAll(metadata);
+            return this;
+        }
+
+        public Builder addMetadata(final List<StandardPluginMetadata> metadata) {
             this.metadata.addAll(Objects.requireNonNull(metadata, "metadata"));
             return this;
         }
