@@ -28,7 +28,7 @@ import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLinks;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Optional;
 
 /**
@@ -41,17 +41,17 @@ import java.util.Optional;
 public interface PluginLinks {
 
     /**
-     * @return The {@link URL homepage} or {@link Optional#empty()} otherwise
+     * @return The {@link URI homepage} or {@link Optional#empty()} otherwise
      */
-    Optional<URL> homepage();
+    Optional<URI> homepage();
 
     /**
-     * @return The {@link URL source} or {@link Optional#empty()} otherwise
+     * @return The {@link URI source} or {@link Optional#empty()} otherwise
      */
-    Optional<URL> source();
+    Optional<URI> source();
 
     /**
-     * @return The {@link URL issues} or {@link Optional#empty()} otherwise
+     * @return The {@link URI issues} or {@link Optional#empty()} otherwise
      */
-    Optional<URL> issues();
+    Optional<URI> issues();
 }

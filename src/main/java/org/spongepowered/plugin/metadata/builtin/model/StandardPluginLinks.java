@@ -34,7 +34,7 @@ import org.spongepowered.plugin.metadata.model.PluginLinks;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public final class StandardPluginLinks implements PluginLinks {
 
     private static final StandardPluginLinks NONE = new StandardPluginLinks();
 
-    private final @Nullable URL homepage, source, issues;
+    private final @Nullable URI homepage, source, issues;
 
     private StandardPluginLinks(final Builder builder) {
         this.homepage = builder.homepage;
@@ -68,17 +68,17 @@ public final class StandardPluginLinks implements PluginLinks {
     }
 
     @Override
-    public Optional<URL> homepage() {
+    public Optional<URI> homepage() {
         return Optional.ofNullable(this.homepage);
     }
 
     @Override
-    public Optional<URL> source() {
+    public Optional<URI> source() {
         return Optional.ofNullable(this.source);
     }
 
     @Override
-    public Optional<URL> issues() {
+    public Optional<URI> issues() {
         return Optional.ofNullable(this.issues);
     }
 
@@ -97,22 +97,22 @@ public final class StandardPluginLinks implements PluginLinks {
 
     public static final class Builder {
 
-        private @Nullable URL homepage, source, issues;
+        private @Nullable URI homepage, source, issues;
 
         private Builder() {
         }
 
-        public Builder homepage(@Nullable final URL homepage) {
+        public Builder homepage(@Nullable final URI homepage) {
             this.homepage = homepage;
             return this;
         }
 
-        public Builder source(@Nullable final URL source) {
+        public Builder source(@Nullable final URI source) {
             this.source = source;
             return this;
         }
 
-        public Builder issues(@Nullable final URL issues) {
+        public Builder issues(@Nullable final URI issues) {
             this.issues = issues;
             return this;
         }
@@ -156,13 +156,13 @@ public final class StandardPluginLinks implements PluginLinks {
                 }
                 switch (key) {
                     case "homepage":
-                        builder.homepage(new URL(in.nextString()));
+                        builder.homepage(URI.create(in.nextString()));
                         break;
                     case "source":
-                        builder.source(new URL(in.nextString()));
+                        builder.source(URI.create(in.nextString()));
                         break;
                     case "issues":
-                        builder.issues(new URL(in.nextString()));
+                        builder.issues(URI.create(in.nextString()));
                         break;
                 }
             }
