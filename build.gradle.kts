@@ -14,14 +14,8 @@ dependencies {
     compileOnlyApi("org.checkerframework:checker-qual:3.26.0")
     api("com.google.code.gson:gson:2.8.9")
     api("org.apache.maven:maven-artifact:3.8.6")
-}
-
-sourceSets.main {
-    multirelease.moduleName("org.spongepowered.plugin.metadata")
-}
-
-indra {
-    javaVersions().minimumToolchain(17)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 }
 
 spongeConvention {
@@ -35,25 +29,12 @@ spongeConvention {
     }
 }
 
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
-}
-
-sourceSets.main {
-    multirelease {
-        alternateVersions(9)
-        requireAllPackagesExported()
-        applyToJavadoc(true)
-    }
+indra {
+    javaVersions().target(21)
 }
 
 indraCrossdoc {
     baseUrl(providers.gradleProperty("javadocPublishRoot"))
-}
-
-java {
-    modularity.inferModulePath.set(false)
 }
 
 tasks {
