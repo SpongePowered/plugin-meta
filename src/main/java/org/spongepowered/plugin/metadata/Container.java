@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.metadata;
 
-import org.apache.maven.artifact.Artifact;
 import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.util.Optional;
@@ -58,19 +57,6 @@ public interface Container {
      * @return The license
      */
     String license();
-
-    /**
-     * Gets the {@link Artifact mappings} that code within this container might be written in.
-     * <p>
-     * The format of this string should be in maven dependency format (group:artifact:version).
-     * <p>
-     * Consult the vendor for how this field is used. As an example, that entity could use this
-     * purely for information purposes or go farther and perform artifact remapping from these
-     * mappings to another.
-     *
-     * @return The mappings or {@link Optional#empty()} otherwise
-     */
-    Optional<String> mappings();
 
     /**
      * @return The {@link Inheritable global metadata} or {@link Optional#empty()} otherwise

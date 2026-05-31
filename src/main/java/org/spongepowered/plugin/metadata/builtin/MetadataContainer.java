@@ -57,7 +57,6 @@ import java.util.StringJoiner;
 public final class MetadataContainer implements Container {
 
     private final String license;
-    @Nullable private final String mappings;
     private final StandardContainerLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
@@ -66,7 +65,6 @@ public final class MetadataContainer implements Container {
     private MetadataContainer(final Builder builder) {
         this.loader = builder.loader;
         this.license = builder.license;
-        this.mappings = builder.mappings;
         this.globalMetadata = builder.globalMetadata;
         this.metadata.addAll(builder.metadata);
         for (final StandardPluginMetadata pm : this.metadata) {
@@ -83,11 +81,6 @@ public final class MetadataContainer implements Container {
     @Override
     public String license() {
         return this.license;
-    }
-
-    @Override
-    public Optional<String> mappings() {
-        return Optional.ofNullable(this.mappings);
     }
 
     @Override
@@ -110,7 +103,6 @@ public final class MetadataContainer implements Container {
         return new StringJoiner(", ", MetadataContainer.class.getSimpleName() + "[", "]")
                 .add("loader=" + this.loader)
                 .add("license=" + this.license)
-                .add("mappings=" + this.mappings)
                 .add("globalMetadata=" + this.globalMetadata)
                 .toString();
     }
@@ -119,7 +111,6 @@ public final class MetadataContainer implements Container {
         final Builder builder = new Builder();
         builder.loader = this.loader;
         builder.license = this.license;
-        builder.mappings = this.mappings;
         builder.globalMetadata = this.globalMetadata;
         builder.metadata.addAll(this.metadata);
         return builder;
@@ -208,8 +199,6 @@ public final class MetadataContainer implements Container {
                     .loader(Adapters.Deserializers.CONTAINER_LOADER.fromJsonTree(obj.get("loader")).build())
                     .license(obj.get("license").getAsString());
 
-            GsonUtils.consumeIfPresent(obj, "mappings", e -> builder.mappings(e.getAsString()));
-
             final JsonElement globalElement = obj.get("global");
             @Nullable StandardInheritable inheritable = null;
             if (globalElement instanceof JsonObject) {
@@ -253,7 +242,6 @@ public final class MetadataContainer implements Container {
             final JsonObject obj = new JsonObject();
             obj.add("loader", Adapters.Serializers.CONTAINER_LOADER.toJsonTree(value.loader));
             obj.addProperty("license", value.license);
-            GsonUtils.writeIfPresent(obj, "mappings", value.mappings());
 
             final JsonArray plugins = new JsonArray();
             for (final PluginMetadata metadata : value.metadata) {
