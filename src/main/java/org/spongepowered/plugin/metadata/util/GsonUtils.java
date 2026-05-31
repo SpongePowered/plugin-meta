@@ -88,19 +88,13 @@ public final class GsonUtils {
 
     public static <T> void writeIfPresent(final JsonObject out, final String key, final Optional<T> value) {
         final @Nullable T val = value.orElse(null);
-        if (val == null) {
-            return;
-        }
-        if (val instanceof JsonElement) {
-            out.add(key, (JsonElement) val);
-        } else if (val instanceof String) {
-            out.addProperty(key, (String) val);
-        } else if (val instanceof Number) {
-            out.addProperty(key, (Number) val);
-        } else if (val instanceof Boolean) {
-            out.addProperty(key, (Boolean) val);
-        } else if (val instanceof Character) {
-            out.addProperty(key, (Character) val);
+        switch (val) {
+            case JsonElement jsonElement -> out.add(key, jsonElement);
+            case String s -> out.addProperty(key, s);
+            case Number number -> out.addProperty(key, number);
+            case Boolean b -> out.addProperty(key, b);
+            case Character c -> out.addProperty(key, c);
+            case null, default -> {}
         }
     }
 

@@ -102,11 +102,10 @@ public final class StandardPluginMetadata extends StandardInheritable implements
             return true;
         }
 
-        if (!(o instanceof StandardPluginMetadata)) {
+        if (!(o instanceof StandardPluginMetadata other)) {
             return false;
         }
 
-        final StandardPluginMetadata other = (StandardPluginMetadata) o;
         return this.id.equals(other.id);
     }
 

@@ -26,8 +26,11 @@ package org.spongepowered.plugin.metadata.builtin;
 
 import com.google.gson.JsonParseException;
 
+import java.io.Serial;
+
 public final class MissingRequiredFieldException extends JsonParseException {
 
+    @Serial
     private static final long serialVersionUID = 223908766837278356L;
 
     public MissingRequiredFieldException(final String field) {
