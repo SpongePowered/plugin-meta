@@ -38,8 +38,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.builtin.model.Adapters;
-import org.spongepowered.plugin.metadata.builtin.model.StandardContainerLoader;
+import org.spongepowered.plugin.metadata.builtin.adapter.Adapters;
+import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -54,7 +54,7 @@ import java.util.StringJoiner;
 public final class MetadataContainer implements Container {
 
     private final String license;
-    private final StandardContainerLoader loader;
+    private final ContainerLoader loader;
     @Nullable private final Inheritable globalMetadata;
     private final Map<String, StandardPluginMetadata> metadata;
 
@@ -70,7 +70,7 @@ public final class MetadataContainer implements Container {
     }
 
     @Override
-    public StandardContainerLoader loader() {
+    public ContainerLoader loader() {
         return this.loader;
     }
 
@@ -111,10 +111,10 @@ public final class MetadataContainer implements Container {
 
         private final Map<String, StandardPluginMetadata> metadata = new LinkedHashMap<>();
         private @MonotonicNonNull String license;
-        private @MonotonicNonNull StandardContainerLoader loader;
+        private @MonotonicNonNull ContainerLoader loader;
         private @Nullable Inheritable globalMetadata;
 
-        public Builder loader(final StandardContainerLoader loader) {
+        public Builder loader(final ContainerLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
             return this;
         }

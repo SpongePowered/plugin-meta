@@ -22,107 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.builtin.model;
+package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.StringJoiner;
 
-public final class StandardPluginBranding implements PluginBranding {
+public final class PluginBrandingAdapter {
 
-    private static final StandardPluginBranding NONE = new StandardPluginBranding();
-
-    private final @Nullable String logo, icon;
-
-    private StandardPluginBranding(final Builder builder) {
-        this.logo = builder.logo;
-        this.icon = builder.icon;
-    }
-
-    private StandardPluginBranding() {
-        this.logo = null;
-        this.icon = null;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static StandardPluginBranding none() {
-        return StandardPluginBranding.NONE;
-    }
-
-    @Override
-    public Optional<String> logo() {
-        return Optional.ofNullable(this.logo);
-    }
-
-    @Override
-    public Optional<String> icon() {
-        return Optional.ofNullable(this.icon);
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", StandardPluginBranding.class.getSimpleName() + "[", "]")
-                .add("logo=" + this.logo)
-                .add("icon=" + this.icon)
-                .toString();
-    }
-
-    public StandardPluginBranding.Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private @Nullable String logo, icon;
-
-        private Builder() {
-        }
-
-        public Builder logo(@Nullable final String logo) {
-            this.logo = logo;
-            return this;
-        }
-
-        public Builder icon(@Nullable final String icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        public Builder from(final StandardPluginBranding value) {
-            Objects.requireNonNull(value, "value");
-            this.logo = value.logo;
-            this.icon = value.icon;
-            return this;
-        }
-
-        public StandardPluginBranding build() {
-            return new StandardPluginBranding(this);
-        }
-    }
-
-    public static final class Deserializer extends TypeAdapter<StandardPluginBranding.Builder> {
+    public static final class Deserializer extends TypeAdapter<PluginBranding.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final Builder builder) throws IOException {
+        public void write(final JsonWriter out, final PluginBranding.Builder builder) throws IOException {
             throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public Builder read(final JsonReader in) throws IOException {
+        public PluginBranding.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -132,7 +57,7 @@ public final class StandardPluginBranding implements PluginBranding {
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
-            final StandardPluginBranding.Builder builder = StandardPluginBranding.builder();
+            final PluginBranding.Builder builder = PluginBranding.builder();
             while (in.hasNext()) {
                 final String key = in.nextName();
                 if (!processedKeys.add(key)) {
@@ -153,10 +78,10 @@ public final class StandardPluginBranding implements PluginBranding {
         }
     }
 
-    public static final class Serializer extends TypeAdapter<StandardPluginBranding> {
+    public static final class Serializer extends TypeAdapter<PluginBranding> {
 
         @Override
-        public void write(final JsonWriter out, final StandardPluginBranding value) throws IOException {
+        public void write(final JsonWriter out, final PluginBranding value) throws IOException {
             Objects.requireNonNull(out, "out");
 
             if (value == null) {
@@ -171,7 +96,7 @@ public final class StandardPluginBranding implements PluginBranding {
         }
 
         @Override
-        public StandardPluginBranding read(final JsonReader in) throws IOException {
+        public PluginBranding read(final JsonReader in) throws IOException {
             throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }

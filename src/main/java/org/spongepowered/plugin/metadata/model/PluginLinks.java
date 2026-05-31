@@ -24,11 +24,12 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLinks;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -36,22 +37,64 @@ import java.util.Optional;
  * or {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
- * @see StandardPluginLinks StandardPluginLinks, for a generic implementation
+ *
+ * @param homepage The {@link URI homepage}
+ * @param source The {@link URI source}
+ * @param issues The {@link URI issues}
  */
-public interface PluginLinks {
+public record PluginLinks(Optional<URI> homepage, Optional<URI> source, Optional<URI> issues) {
+    private static final PluginLinks NONE = new PluginLinks(Optional.empty(), Optional.empty(), Optional.empty());
 
-    /**
-     * @return The {@link URI homepage} or {@link Optional#empty()} otherwise
-     */
-    Optional<URI> homepage();
+    public PluginLinks {
+        Objects.requireNonNull(homepage, "homepage");
+        Objects.requireNonNull(source, "source");
+        Objects.requireNonNull(issues, "issues");
+    }
 
-    /**
-     * @return The {@link URI source} or {@link Optional#empty()} otherwise
-     */
-    Optional<URI> source();
+    public static PluginLinks none() {
+        return PluginLinks.NONE;
+    }
 
-    /**
-     * @return The {@link URI issues} or {@link Optional#empty()} otherwise
-     */
-    Optional<URI> issues();
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
+    public static final class Builder {
+
+        private Optional<URI> homepage = Optional.empty(), source = Optional.empty(), issues = Optional.empty();
+
+        private Builder() {
+        }
+
+        public Builder homepage(@Nullable final URI homepage) {
+            this.homepage = Optional.ofNullable(homepage);
+            return this;
+        }
+
+        public Builder source(@Nullable final URI source) {
+            this.source = Optional.ofNullable(source);
+            return this;
+        }
+
+        public Builder issues(@Nullable final URI issues) {
+            this.issues = Optional.ofNullable(issues);
+            return this;
+        }
+
+        public Builder from(final PluginLinks value) {
+            Objects.requireNonNull(value, "value");
+            this.homepage = value.homepage;
+            this.source = value.source;
+            this.issues = value.issues;
+            return this;
+        }
+
+        public PluginLinks build() {
+            return new PluginLinks(this.homepage, this.source, this.issues);
+        }
+    }
 }

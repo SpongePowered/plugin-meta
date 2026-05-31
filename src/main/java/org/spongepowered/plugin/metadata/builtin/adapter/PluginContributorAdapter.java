@@ -22,100 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.builtin.model;
+package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.StringJoiner;
 
-public final class StandardPluginContributor implements PluginContributor {
+public final class PluginContributorAdapter {
 
-    private final String name;
-    @Nullable private final String description;
-
-    private StandardPluginContributor(final Builder builder) {
-        this.name = builder.name;
-        this.description = builder.description;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public String name() {
-        return this.name;
-    }
-
-    @Override
-    public Optional<String> description() {
-        return Optional.ofNullable(this.description);
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", StandardPluginContributor.class.getSimpleName() + "[", "]")
-                .add("name=" + this.name)
-                .add("description=" + this.description)
-                .toString();
-    }
-
-    public StandardPluginContributor.Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private @MonotonicNonNull String name;
-        private @Nullable String description;
-
-        private Builder() {
-        }
-
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name, "name");
-            return this;
-        }
-
-        public Builder description(@Nullable final String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder from(final StandardPluginContributor value) {
-            Objects.requireNonNull(value, "value");
-            this.name = value.name;
-            this.description = value.description;
-            return this;
-        }
-
-        public StandardPluginContributor build() {
-            Objects.requireNonNull(this.name, "name");
-            return new StandardPluginContributor(this);
-        }
-    }
-
-    public static final class Deserializer extends TypeAdapter<StandardPluginContributor.Builder> {
+    public static final class Deserializer extends TypeAdapter<PluginContributor.Builder> {
 
         @Override
-        public void write(final JsonWriter out, final Builder builder) throws IOException {
+        public void write(final JsonWriter out, final PluginContributor.Builder builder) throws IOException {
             throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public Builder read(final JsonReader in) throws IOException {
+        public PluginContributor.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -125,7 +57,7 @@ public final class StandardPluginContributor implements PluginContributor {
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
-            final StandardPluginContributor.Builder builder = StandardPluginContributor.builder();
+            final PluginContributor.Builder builder = PluginContributor.builder();
             while (in.hasNext()) {
                 final String key = in.nextName();
                 if (!processedKeys.add(key)) {
@@ -145,10 +77,10 @@ public final class StandardPluginContributor implements PluginContributor {
         }
     }
 
-    public static final class Serializer extends TypeAdapter<StandardPluginContributor> {
+    public static final class Serializer extends TypeAdapter<PluginContributor> {
 
         @Override
-        public void write(final JsonWriter out, final StandardPluginContributor value) throws IOException {
+        public void write(final JsonWriter out, final PluginContributor value) throws IOException {
             Objects.requireNonNull(out, "out");
 
             if (value == null) {
@@ -163,7 +95,7 @@ public final class StandardPluginContributor implements PluginContributor {
         }
 
         @Override
-        public StandardPluginContributor read(final JsonReader in) throws IOException {
+        public PluginContributor read(final JsonReader in) throws IOException {
             throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }

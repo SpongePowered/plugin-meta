@@ -61,7 +61,7 @@ public interface Inheritable {
     /**
      * @return The {@link PluginContributor contributors} as an unmodifiable {@link List}.
      */
-    List<? extends PluginContributor> contributors();
+    List<PluginContributor> contributors();
 
     /**
      * Gets the {@link PluginDependency plugin dependency} by {@link String id}.
@@ -75,7 +75,7 @@ public interface Inheritable {
     /**
      * @return The {@link PluginDependency dependencies} as an unmodifiable {@link Collection}.
      */
-    Collection<? extends PluginDependency> dependencies();
+    Collection<PluginDependency> dependencies();
 
     /**
      * Gets the {@link T property} by {@link String key}.

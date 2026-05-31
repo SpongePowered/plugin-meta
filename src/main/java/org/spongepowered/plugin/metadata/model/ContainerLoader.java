@@ -25,24 +25,65 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.spongepowered.plugin.metadata.Container;
-import org.spongepowered.plugin.metadata.builtin.model.StandardContainerLoader;
+
+import java.util.Objects;
 
 /**
  * Specification for an entity representing the "loader" of a {@link Container container}.
  * <p>
  * Consult the vendor for further information on how this is used.
- * @see StandardContainerLoader StandardContainerLoader, for a generic implementation
+ *
+ * @param name The {@link String name}
+ * @param version The {@link VersionRange version}, as a maven range.
  */
-public interface ContainerLoader {
+public record ContainerLoader(String name, VersionRange version) {
 
-    /**
-     * @return The {@link String name}
-     */
-    String name();
+    public ContainerLoader {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(version, "version");
+    }
 
-    /**
-     * @return The {@link VersionRange version}, as a maven range.
-     */
-    VersionRange version();
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
+    public static final class Builder {
+        private @MonotonicNonNull String name;
+        private @MonotonicNonNull VersionRange version;
+
+        private Builder() {
+        }
+
+        public Builder name(final String name) {
+            this.name = Objects.requireNonNull(name, "name");
+            return this;
+        }
+
+        public Builder version(final String version) {
+            this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
+            return this;
+        }
+
+        public Builder version(final VersionRange version) {
+            this.version = Objects.requireNonNull(version, "version");
+            return this;
+        }
+
+        public Builder from(final ContainerLoader value) {
+            Objects.requireNonNull(value, "value");
+            this.name = value.name();
+            this.version = value.version();
+            return this;
+        }
+
+        public ContainerLoader build() {
+            return new ContainerLoader(this.name, this.version);
+        }
+    }
 }

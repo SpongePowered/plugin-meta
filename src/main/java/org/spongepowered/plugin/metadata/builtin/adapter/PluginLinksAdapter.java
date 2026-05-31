@@ -22,14 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.builtin.model;
+package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
@@ -37,108 +36,19 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.StringJoiner;
 
-public final class StandardPluginLinks implements PluginLinks {
+public final class PluginLinksAdapter {
 
-    private static final StandardPluginLinks NONE = new StandardPluginLinks();
-
-    private final @Nullable URI homepage, source, issues;
-
-    private StandardPluginLinks(final Builder builder) {
-        this.homepage = builder.homepage;
-        this.source = builder.source;
-        this.issues = builder.issues;
-    }
-
-    private StandardPluginLinks() {
-        this.homepage = null;
-        this.source = null;
-        this.issues = null;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static StandardPluginLinks none() {
-        return StandardPluginLinks.NONE;
-    }
-
-    @Override
-    public Optional<URI> homepage() {
-        return Optional.ofNullable(this.homepage);
-    }
-
-    @Override
-    public Optional<URI> source() {
-        return Optional.ofNullable(this.source);
-    }
-
-    @Override
-    public Optional<URI> issues() {
-        return Optional.ofNullable(this.issues);
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", StandardPluginLinks.class.getSimpleName() + "[", "]")
-                .add("homepage=" + this.homepage)
-                .add("source=" + this.source)
-                .add("issues=" + this.issues)
-                .toString();
-    }
-
-    public StandardPluginLinks.Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-
-        private @Nullable URI homepage, source, issues;
-
-        private Builder() {
-        }
-
-        public Builder homepage(@Nullable final URI homepage) {
-            this.homepage = homepage;
-            return this;
-        }
-
-        public Builder source(@Nullable final URI source) {
-            this.source = source;
-            return this;
-        }
-
-        public Builder issues(@Nullable final URI issues) {
-            this.issues = issues;
-            return this;
-        }
-
-        public Builder from(final StandardPluginLinks value) {
-            Objects.requireNonNull(value, "value");
-            this.homepage = value.homepage;
-            this.source = value.source;
-            this.issues = value.issues;
-            return this;
-        }
-
-        public StandardPluginLinks build() {
-            return new StandardPluginLinks(this);
-        }
-    }
-
-    public static final class Deserializer extends TypeAdapter<StandardPluginLinks.Builder> {
+    public static final class Deserializer extends TypeAdapter<PluginLinks.Builder> {
 
         @Override
-        public void write(final JsonWriter in, final Builder builder) throws IOException {
+        public void write(final JsonWriter in, final PluginLinks.Builder builder) throws IOException {
             throw new UnsupportedOperationException("This adapter is for reading only");
         }
 
         @Override
-        public StandardPluginLinks.Builder read(final JsonReader in) throws IOException {
+        public PluginLinks.Builder read(final JsonReader in) throws IOException {
             Objects.requireNonNull(in, "in");
 
             if (in.peek() == JsonToken.NULL) {
@@ -148,7 +58,7 @@ public final class StandardPluginLinks implements PluginLinks {
 
             in.beginObject();
             final Set<String> processedKeys = new HashSet<>();
-            final StandardPluginLinks.Builder builder = StandardPluginLinks.builder();
+            final PluginLinks.Builder builder = PluginLinks.builder();
             while (in.hasNext()) {
                 final String key = in.nextName();
                 if (!processedKeys.add(key)) {
@@ -172,10 +82,10 @@ public final class StandardPluginLinks implements PluginLinks {
         }
     }
 
-    public static final class Serializer extends TypeAdapter<StandardPluginLinks> {
+    public static final class Serializer extends TypeAdapter<PluginLinks> {
 
         @Override
-        public void write(final JsonWriter out, final StandardPluginLinks value) throws IOException {
+        public void write(final JsonWriter out, final PluginLinks value) throws IOException {
             Objects.requireNonNull(out, "out");
 
             if (value == null) {
@@ -191,7 +101,7 @@ public final class StandardPluginLinks implements PluginLinks {
         }
 
         @Override
-        public StandardPluginLinks read(final JsonReader out) throws IOException {
+        public PluginLinks read(final JsonReader out) throws IOException {
             throw new UnsupportedOperationException("This adapter is for writing only");
         }
     }

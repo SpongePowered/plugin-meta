@@ -24,10 +24,11 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.builtin.model.StandardPluginBranding;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,29 +36,55 @@ import java.util.Optional;
  * or {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
- * @see StandardPluginBranding StandardPluginBranding, for a generic implementation
+ *
+ * @param icon The {@link String} that represents the location of the icon.
+ * @param logo The {@link String} that represents the location of the logo.
  */
-public interface PluginBranding {
+public record PluginBranding(Optional<String> icon, Optional<String> logo) {
+    private static final PluginBranding NONE = new PluginBranding(Optional.empty(), Optional.empty());
 
-    /**
-     * Gets the {@link String} that represents the location of the icon.
-     * <p>
-     * Consult the vendor on the composition of this value. For example, it
-     * could be an absolute path or relative path (commonly fed to a {@link java.io.File} or
-     * {@link java.nio.file.Path}), or a serialized {@link java.net.URI}.
-     *
-     * @return The icon or {@link Optional#empty()} otherwise
-     */
-    Optional<String> icon();
+    public PluginBranding {
+        Objects.requireNonNull(icon, "icon");
+        Objects.requireNonNull(logo, "logo");
+    }
 
-    /**
-     * Gets the {@link String} that represents the location of the logo.
-     * <p>
-     * Consult the vendor on the composition of this value. For example, it
-     * could be an absolute path or relative path (commonly fed to a {@link java.io.File} or
-     * {@link java.nio.file.Path}), or a serialized {@link java.net.URI}.
-     *
-     * @return The icon or {@link Optional#empty()} otherwise
-     */
-    Optional<String> logo();
+    public static PluginBranding none() {
+        return PluginBranding.NONE;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
+    public static final class Builder {
+        private Optional<String> logo = Optional.empty(), icon = Optional.empty();
+
+        private Builder() {
+        }
+
+        public Builder logo(@Nullable final String logo) {
+            this.logo = Optional.ofNullable(logo);
+            return this;
+        }
+
+        public Builder icon(@Nullable final String icon) {
+            this.icon = Optional.ofNullable(icon);
+            return this;
+        }
+
+        public Builder from(final PluginBranding value) {
+            Objects.requireNonNull(value, "value");
+            this.logo = value.logo();
+            this.icon = value.icon();
+            return this;
+        }
+
+        public PluginBranding build() {
+            return new PluginBranding(this.icon, this.logo);
+        }
+    }
 }

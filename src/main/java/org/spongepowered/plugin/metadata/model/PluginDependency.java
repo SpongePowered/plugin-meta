@@ -25,48 +25,101 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.builtin.model.StandardPluginDependency;
+
+import java.util.Objects;
 
 /**
  * Specification for an entity considered to be a "dependency" for an {@link Inheritable inheritable}
  * or {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
- * @see StandardPluginDependency StandardPluginDependency, for a generic implementation
+ *
+ * <p>Ids must conform to the following requirements:</p>
+ *
+ * <ul>
+ *     <li>Must be between 2 and 64 characters in length</li>
+ *     <li>Must start with a lower case letter (a-z)</li>
+ *     <li>May only contain a mix of lower case letters (a-z),
+ *     numbers (0-9), dashes (-), and underscores (_)</li>
+ * </ul>
+ *
+ * @param id The {@link String id}
+ * @param version The {@link VersionRange version}, as a maven range.
+ * @param loadOrder The {@link LoadOrder load order}
+ * @param optional Whether this dependency is optional
  */
-public interface PluginDependency {
+public record PluginDependency(String id, VersionRange version, LoadOrder loadOrder, boolean optional) {
 
-    /**
-     * Gets the {@link String id}.
-     *
-     * <p>Ids must conform to the following requirements:</p>
-     *
-     * <ul>
-     *     <li>Must be between 2 and 64 characters in length</li>
-     *     <li>Must start with a lower case letter (a-z)</li>
-     *     <li>May only contain a mix of lower case letters (a-z),
-     *     numbers (0-9), dashes (-), and underscores (_)</li>
-     * </ul>
-     * @return The id
-     */
-    String id();
+    public PluginDependency {
+        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(version, "version");
+        Objects.requireNonNull(loadOrder, "loadOrder");
 
-    /**
-     * @return The {@link VersionRange version}, as a maven range.
-     */
-    VersionRange version();
+        if (!Constants.VALID_ID_PATTERN.matcher(id).matches()) {
+            throw new IllegalStateException(String.format("Dependency with supplied ID '{%s}' is invalid. %s", id,
+                    Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
+        }
+    }
 
-    /**
-     * @return The {@link LoadOrder load order}
-     */
-    LoadOrder loadOrder();
+    public static Builder builder() {
+        return new Builder();
+    }
 
-    /**
-     * @return True if optional, false if not
-     */
-    boolean optional();
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
+    public static final class Builder {
+        private @MonotonicNonNull String id;
+        private @MonotonicNonNull VersionRange version;
+        private LoadOrder loadOrder = LoadOrder.UNDEFINED;
+        private boolean optional = false;
+
+        private Builder() {
+        }
+
+        public Builder id(final String id) {
+            this.id = Objects.requireNonNull(id, "id");
+            return this;
+        }
+
+        public Builder version(final String version) {
+            this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
+            return this;
+        }
+
+        public Builder version(final VersionRange version) {
+            this.version = Objects.requireNonNull(version, "version");
+            return this;
+        }
+
+        public Builder loadOrder(final LoadOrder loadOrder) {
+            this.loadOrder = Objects.requireNonNull(loadOrder, "load order");
+            return this;
+        }
+
+        public Builder optional(final boolean optional) {
+            this.optional = optional;
+            return this;
+        }
+
+        public Builder from(final PluginDependency value) {
+            Objects.requireNonNull(value, "value");
+            this.id = value.id;
+            this.version = value.version;
+            this.loadOrder = value.loadOrder;
+            this.optional = value.optional;
+            return this;
+        }
+
+        public PluginDependency build() {
+            return new PluginDependency(this.id, this.version, this.loadOrder, this.optional);
+        }
+    }
 
     /**
      * Represents the ordering of how dependencies are loaded versus others.
@@ -75,7 +128,7 @@ public interface PluginDependency {
      * documented here. It is recommended to consult with that entity on any
      * further behavioral changes.
      */
-    enum LoadOrder {
+    public enum LoadOrder {
         /**
          * The plugin can be loaded regardless of when the dependency is loaded.
          */

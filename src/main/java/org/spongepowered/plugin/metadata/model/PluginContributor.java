@@ -24,10 +24,12 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,17 +37,51 @@ import java.util.Optional;
  * or {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
- * @see StandardPluginContributor StandardPluginContributor, for a generic implementation
+ *
+ * @param name The {@link String name}
+ * @param description The {@link String description} or {@link Optional#empty()} otherwise
  */
-public interface PluginContributor {
+public record PluginContributor(String name, Optional<String> description) {
 
-    /**
-     * @return The {@link String name}
-     */
-    String name();
+    public PluginContributor {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(description, "description");
+    }
 
-    /**
-     * @return The {@link String description} or {@link Optional#empty()} otherwise
-     */
-    Optional<String> description();
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
+    public static final class Builder {
+        private @MonotonicNonNull String name;
+        private Optional<String> description = Optional.empty();
+
+        private Builder() {
+        }
+
+        public Builder name(final String name) {
+            this.name = Objects.requireNonNull(name, "name");
+            return this;
+        }
+
+        public Builder description(@Nullable final String description) {
+            this.description = Optional.ofNullable(description);
+            return this;
+        }
+
+        public Builder from(final PluginContributor value) {
+            Objects.requireNonNull(value, "value");
+            this.name = value.name;
+            this.description = value.description;
+            return this;
+        }
+
+        public PluginContributor build() {
+            return new PluginContributor(this.name, this.description);
+        }
+    }
 }
