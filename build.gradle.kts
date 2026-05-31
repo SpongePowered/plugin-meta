@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi("org.checkerframework:checker-qual:3.26.0")
-    api("com.google.code.gson:gson:2.8.9")
-    api("org.apache.maven:maven-artifact:3.8.6")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    compileOnlyApi("org.checkerframework:checker-qual:3.42.0")
+    api("com.google.code.gson:gson:2.10.1")
+    api("org.apache.maven:maven-artifact:3.9.16")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 }
 
 spongeConvention {
@@ -45,9 +45,9 @@ tasks {
     }
     javadoc {
         (options as StandardJavadocDocletOptions).links(
-            "https://www.javadoc.io/doc/com.google.code.gson/gson/2.8.9/",
+            "https://www.javadoc.io/doc/com.google.code.gson/gson/2.10.1/",
             "https://checkerframework.org/api/",
-            "https://maven.apache.org/ref/3.8.6/maven-artifact/apidocs"
+            "https://maven.apache.org/ref/3.9.16/maven-artifact/apidocs"
         )
 
         doFirst {
