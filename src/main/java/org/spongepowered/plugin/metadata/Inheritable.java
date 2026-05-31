@@ -30,10 +30,10 @@ import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Represents metadata that is meant to be inherited/overwritten, per contract.
@@ -61,7 +61,7 @@ public interface Inheritable {
     /**
      * @return The {@link PluginContributor contributors} as an unmodifiable {@link List}.
      */
-    List<PluginContributor> contributors();
+    List<? extends PluginContributor> contributors();
 
     /**
      * Gets the {@link PluginDependency plugin dependency} by {@link String id}.
@@ -73,9 +73,9 @@ public interface Inheritable {
     Optional<PluginDependency> dependency(String id);
 
     /**
-     * @return The {@link PluginDependency dependencies} as an unmodifiable {@link Set}.
+     * @return The {@link PluginDependency dependencies} as an unmodifiable {@link Collection}.
      */
-    Set<PluginDependency> dependencies();
+    Collection<? extends PluginDependency> dependencies();
 
     /**
      * Gets the {@link T property} by {@link String key}.

@@ -82,15 +82,6 @@ public final class StandardPluginLinks implements PluginLinks {
         return Optional.ofNullable(this.issues);
     }
 
-    public StandardPluginLinks.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.homepage = this.homepage;
-        builder.source = this.source;
-        builder.issues = this.issues;
-
-        return builder;
-    }
-
     @Override
     public String toString() {
         return new StringJoiner(", ", StandardPluginLinks.class.getSimpleName() + "[", "]")
@@ -100,9 +91,13 @@ public final class StandardPluginLinks implements PluginLinks {
                 .toString();
     }
 
+    public StandardPluginLinks.Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
     public static final class Builder {
 
-        @Nullable URL homepage, source, issues;
+        private @Nullable URL homepage, source, issues;
 
         private Builder() {
         }
@@ -119,6 +114,14 @@ public final class StandardPluginLinks implements PluginLinks {
 
         public Builder issues(@Nullable final URL issues) {
             this.issues = issues;
+            return this;
+        }
+
+        public Builder from(final StandardPluginLinks value) {
+            Objects.requireNonNull(value, "value");
+            this.homepage = value.homepage;
+            this.source = value.source;
+            this.issues = value.issues;
             return this;
         }
 

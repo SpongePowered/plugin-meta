@@ -30,7 +30,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.io.IOException;
@@ -42,13 +42,11 @@ import java.util.StringJoiner;
 public final class StandardContainerLoader implements ContainerLoader {
 
     private final String name;
-    private final String rawVersion;
     private final VersionRange version;
 
     private StandardContainerLoader(final Builder builder) {
         this.name = builder.name;
         this.version = builder.version;
-        this.rawVersion = builder.rawVersion;
     }
 
     public static Builder builder() {
@@ -63,15 +61,6 @@ public final class StandardContainerLoader implements ContainerLoader {
     @Override
     public VersionRange version() {
         return this.version;
-    }
-
-    public StandardContainerLoader.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.name = this.name;
-        builder.version = this.version;
-        builder.rawVersion = this.rawVersion;
-
-        return builder;
     }
 
     @Override
@@ -95,33 +84,47 @@ public final class StandardContainerLoader implements ContainerLoader {
     public String toString() {
         return new StringJoiner(", ", StandardContainerLoader.class.getSimpleName() + "[", "]")
                 .add("name=" + this.name)
-                .add("version=" + this.rawVersion)
+                .add("version=" + this.version)
                 .toString();
+    }
+
+    public StandardContainerLoader.Builder toBuilder() {
+        return new Builder().from(this);
     }
 
     public static final class Builder {
 
-        @Nullable String name, rawVersion;
-        @Nullable VersionRange version;
+        private @MonotonicNonNull String name;
+        private @MonotonicNonNull VersionRange version;
 
         private Builder() {
         }
 
         public Builder name(final String name) {
-            this.name = name;
+            this.name = Objects.requireNonNull(name, "name");
             return this;
         }
 
         public Builder version(final String version) {
             this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
-            this.rawVersion = version;
+            return this;
+        }
+
+        public Builder version(final VersionRange version) {
+            this.version = Objects.requireNonNull(version, "version");
+            return this;
+        }
+
+        public Builder from(final StandardContainerLoader value) {
+            Objects.requireNonNull(value, "value");
+            this.name = value.name;
+            this.version = value.version;
             return this;
         }
 
         public StandardContainerLoader build() {
             Objects.requireNonNull(this.name, "name");
             Objects.requireNonNull(this.version, "version");
-
             return new StandardContainerLoader(this);
         }
     }
@@ -178,7 +181,7 @@ public final class StandardContainerLoader implements ContainerLoader {
 
             out.beginObject();
             out.name("name").value(value.name);
-            out.name("version").value(value.rawVersion);
+            out.name("version").value(value.version.toString());
             out.endObject();
         }
 

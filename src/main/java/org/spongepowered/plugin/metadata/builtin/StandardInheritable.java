@@ -42,13 +42,11 @@ import org.spongepowered.plugin.metadata.builtin.model.StandardPluginBranding;
 import org.spongepowered.plugin.metadata.builtin.model.StandardPluginContributor;
 import org.spongepowered.plugin.metadata.builtin.model.StandardPluginDependency;
 import org.spongepowered.plugin.metadata.builtin.model.StandardPluginLinks;
-import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -56,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -64,26 +61,20 @@ import java.util.stream.Collectors;
 public class StandardInheritable implements Inheritable {
 
     protected final ArtifactVersion version;
-    protected final String rawVersion;
     protected final StandardPluginBranding branding;
     protected final StandardPluginLinks links;
-    protected final List<StandardPluginContributor> contributors = new LinkedList<>();
-    protected final Set<StandardPluginDependency> dependencies = new LinkedHashSet<>();
-    protected final Map<String, Object> properties = new LinkedHashMap<>();
-    private final Map<String, StandardPluginDependency> dependenciesById = new LinkedHashMap<>();
+    protected final List<StandardPluginContributor> contributors;
+    protected final Map<String, StandardPluginDependency> dependencies;
+    protected final Map<String, Object> properties;
 
     @SuppressWarnings("rawtypes")
     protected StandardInheritable(final AbstractBuilder builder) {
         this.version = builder.version;
-        this.rawVersion = builder.rawVersion;
         this.branding = builder.branding;
         this.links = builder.links;
-        this.contributors.addAll(builder.contributors);
-        this.dependencies.addAll(builder.dependencies);
-        for (final StandardPluginDependency dependency : this.dependencies) {
-            this.dependenciesById.put(dependency.id(), dependency);
-        }
-        this.properties.putAll(builder.properties);
+        this.contributors = List.copyOf(builder.contributors);
+        this.dependencies = Map.copyOf(builder.dependencies);
+        this.properties = Map.copyOf(builder.properties);
     }
 
     @Override
@@ -102,18 +93,18 @@ public class StandardInheritable implements Inheritable {
     }
 
     @Override
-    public List<PluginContributor> contributors() {
-        return Collections.unmodifiableList(this.contributors);
+    public List<StandardPluginContributor> contributors() {
+        return this.contributors;
     }
 
     @Override
     public Optional<PluginDependency> dependency(final String id) {
-        return Optional.ofNullable(this.dependenciesById.get(Objects.requireNonNull(id, "id")));
+        return Optional.ofNullable(this.dependencies.get(Objects.requireNonNull(id, "id")));
     }
 
     @Override
-    public Set<PluginDependency> dependencies() {
-        return Collections.unmodifiableSet(this.dependencies);
+    public Collection<StandardPluginDependency> dependencies() {
+        return this.dependencies.values();
     }
 
     @SuppressWarnings("unchecked")
@@ -124,7 +115,7 @@ public class StandardInheritable implements Inheritable {
 
     @Override
     public Map<String, Object> properties() {
-        return Collections.unmodifiableMap(this.properties);
+        return this.properties;
     }
 
     @Override
@@ -134,7 +125,7 @@ public class StandardInheritable implements Inheritable {
 
     protected StringJoiner stringJoiner() {
         return new StringJoiner(", ", StandardInheritable.class.getSimpleName() + "[", "]")
-                .add("version=" + this.rawVersion)
+                .add("version=" + this.version)
                 .add("branding=" + this.branding)
                 .add("links=" + this.links)
                 .add("contributors=" + this.contributors)
@@ -144,27 +135,25 @@ public class StandardInheritable implements Inheritable {
     }
 
     @SuppressWarnings("unchecked")
-    public abstract static class AbstractBuilder<T extends Inheritable, B extends AbstractBuilder<T, B>> {
+    public abstract static class AbstractBuilder<T extends StandardInheritable, B extends AbstractBuilder<T, B>> {
 
-        final List<StandardPluginContributor> contributors = new LinkedList<>();
-        final Set<StandardPluginDependency> dependencies = new LinkedHashSet<>();
-        final Map<String, Object> properties = new LinkedHashMap<>();
-        ArtifactVersion version = NullVersion.instance();
-        String rawVersion = "null";
-        StandardPluginBranding branding = StandardPluginBranding.none();
-        StandardPluginLinks links = StandardPluginLinks.none();
+        protected final List<StandardPluginContributor> contributors = new LinkedList<>();
+        protected final Map<String, StandardPluginDependency> dependencies = new LinkedHashMap<>();
+        protected final Map<String, Object> properties = new LinkedHashMap<>();
+        protected ArtifactVersion version = NullVersion.instance();
+        protected StandardPluginBranding branding = StandardPluginBranding.none();
+        protected StandardPluginLinks links = StandardPluginLinks.none();
 
         protected AbstractBuilder() {
         }
 
         public B version(final @Nullable String version) {
-            if (version == null) {
-                this.version = NullVersion.instance();
-                this.rawVersion = "null";
-            } else {
-                this.version = new DefaultArtifactVersion(Objects.requireNonNull(version, "version"));
-                this.rawVersion = version;
-            }
+            this.version = version == null ? NullVersion.instance() : new DefaultArtifactVersion(version);
+            return (B) this;
+        }
+
+        public B version(final @Nullable ArtifactVersion version) {
+            this.version = version == null ? NullVersion.instance() : version;
             return (B) this;
         }
 
@@ -178,7 +167,14 @@ public class StandardInheritable implements Inheritable {
             return (B) this;
         }
 
-        public B contributors(final Collection<StandardPluginContributor> contributors) {
+        public B contributors(final Collection<? extends StandardPluginContributor> contributors) {
+            Objects.requireNonNull(contributors, "contributors");
+            this.contributors.clear();
+            this.contributors.addAll(contributors);
+            return (B) this;
+        }
+
+        public B addContributors(final Collection<? extends StandardPluginContributor> contributors) {
             this.contributors.addAll(Objects.requireNonNull(contributors, "contributors"));
             return (B) this;
         }
@@ -189,44 +185,74 @@ public class StandardInheritable implements Inheritable {
         }
 
         public B dependencies(final Collection<StandardPluginDependency> dependencies) {
-            this.dependencies.addAll(Objects.requireNonNull(dependencies, "dependencies"));
+            Objects.requireNonNull(dependencies, "dependencies");
+            this.dependencies.clear();
+            return this.addDependencies(dependencies);
+        }
+
+        public B addDependencies(final Collection<? extends StandardPluginDependency> dependencies) {
+            for (final StandardPluginDependency element : Objects.requireNonNull(dependencies, "dependencies")) {
+                this.dependencies.put(Objects.requireNonNull(element, "element").id(), element);
+            }
             return (B) this;
         }
 
         public B addDependency(final StandardPluginDependency dependency) {
-            this.dependencies.add(Objects.requireNonNull(dependency, "dependency"));
+            this.dependencies.put(Objects.requireNonNull(dependency, "dependency").id(), dependency);
             return (B) this;
         }
 
         public B properties(final Map<String, Object> properties) {
+            Objects.requireNonNull(properties, "properties");
+            this.properties.clear();
+            this.properties.putAll(properties);
+            return (B) this;
+        }
+
+        public B addProperties(final Map<String, Object> properties) {
             this.properties.putAll(Objects.requireNonNull(properties, "properties"));
             return (B) this;
         }
 
-        public B property(final String key, final Object value) {
+        public B addProperty(final String key, final Object value) {
             this.properties.put(Objects.requireNonNull(key, "key"), Objects.requireNonNull(value, "value"));
             return (B) this;
         }
 
-        public B from(final StandardInheritable value) {
-            // TODO If we have "partial" entries, do we want to do deep merging? May start to get out of control...
-
-            // Inheritable
+        public B merge(final StandardInheritable value) {
+            Objects.requireNonNull(value, "value");
             if (this.version == NullVersion.instance()) {
-                this.version = value.version();
-                this.rawVersion = value.rawVersion;
+                this.version = value.version;
             }
             if (this.branding == StandardPluginBranding.none()) {
-                this.branding = value.branding();
+                this.branding = value.branding;
             }
             if (this.links == StandardPluginLinks.none()) {
                 this.links = value.links;
             }
-            this.contributors.addAll(value.contributors);
-            this.dependencies.addAll(value.dependencies);
-            for (final Map.Entry<String, Object> entry : value.properties().entrySet()) {
+            if (this.contributors.isEmpty()) {
+                this.contributors.addAll(value.contributors);
+            }
+            for (final Map.Entry<String, StandardPluginDependency> entry : value.dependencies.entrySet()) {
+                this.dependencies.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+            for (final Map.Entry<String, Object> entry : value.properties.entrySet()) {
                 this.properties.putIfAbsent(entry.getKey(), entry.getValue());
             }
+            return (B) this;
+        }
+
+        public B from(final T value) {
+            Objects.requireNonNull(value, "value");
+            this.version = value.version;
+            this.branding = value.branding;
+            this.links = value.links;
+            this.contributors.clear();
+            this.contributors.addAll(value.contributors);
+            this.dependencies.clear();
+            this.dependencies.putAll(value.dependencies);
+            this.properties.clear();
+            this.properties.putAll(value.properties);
             return (B) this;
         }
 
@@ -268,11 +294,11 @@ public class StandardInheritable implements Inheritable {
         @Override
         public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
             final JsonObject obj = new JsonObject();
-            GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.rawVersion));
+            GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.version.toString()));
             GsonUtils.applyIfValid(obj, value, p -> p.branding != StandardPluginBranding.none(), (o, v) -> o.add("branding", Adapters.Serializers.PLUGIN_BRANDING.toJsonTree(v.branding)));
             GsonUtils.applyIfValid(obj, value, p -> p.links != StandardPluginLinks.none(), (o, v) -> o.add("links", Adapters.Serializers.PLUGIN_LINKS.toJsonTree(v.links)));
             GsonUtils.applyIfValid(obj, value, p -> !p.contributors.isEmpty(), (o, v) -> o.add("contributors", GsonUtils.write(Adapters.Serializers.PLUGIN_CONTRIBUTOR, v.contributors)));
-            GsonUtils.applyIfValid(obj, value, p -> !p.dependencies.isEmpty(), (o, v) -> o.add("dependencies", GsonUtils.write(Adapters.Serializers.PLUGIN_DEPENDENCY, v.dependencies)));
+            GsonUtils.applyIfValid(obj, value, p -> !p.dependencies.isEmpty(), (o, v) -> o.add("dependencies", GsonUtils.write(Adapters.Serializers.PLUGIN_DEPENDENCY, v.dependencies())));
             GsonUtils.applyIfValid(obj, value, p -> !p.properties.isEmpty(), (o, v) -> o.add("properties", GsonUtils.write(e -> new JsonPrimitive(e.toString()), v.properties)));
             return obj;
         }

@@ -29,6 +29,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.util.GsonUtils;
@@ -64,14 +65,6 @@ public final class StandardPluginContributor implements PluginContributor {
         return Optional.ofNullable(this.description);
     }
 
-    public StandardPluginContributor.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.name = this.name;
-        builder.description = this.description;
-
-        return builder;
-    }
-
     @Override
     public String toString() {
         return new StringJoiner(", ", StandardPluginContributor.class.getSimpleName() + "[", "]")
@@ -80,15 +73,19 @@ public final class StandardPluginContributor implements PluginContributor {
                 .toString();
     }
 
-    public static final class Builder {
+    public StandardPluginContributor.Builder toBuilder() {
+        return new Builder().from(this);
+    }
 
-        @Nullable String name, description;
+    public static final class Builder {
+        private @MonotonicNonNull String name;
+        private @Nullable String description;
 
         private Builder() {
         }
 
         public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name);
+            this.name = Objects.requireNonNull(name, "name");
             return this;
         }
 
@@ -97,9 +94,15 @@ public final class StandardPluginContributor implements PluginContributor {
             return this;
         }
 
+        public Builder from(final StandardPluginContributor value) {
+            Objects.requireNonNull(value, "value");
+            this.name = value.name;
+            this.description = value.description;
+            return this;
+        }
+
         public StandardPluginContributor build() {
             Objects.requireNonNull(this.name, "name");
-
             return new StandardPluginContributor(this);
         }
     }

@@ -30,7 +30,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 
@@ -46,14 +46,12 @@ public final class StandardPluginDependency implements PluginDependency {
 
     private final String id;
     private final VersionRange version;
-    private final String rawVersion;
     private final LoadOrder loadOrder;
     private final boolean optional;
 
     private StandardPluginDependency(final Builder builder) {
         this.id = builder.id;
         this.version = builder.version;
-        this.rawVersion = builder.rawVersion;
         this.loadOrder = builder.loadOrder;
         this.optional = builder.optional;
     }
@@ -87,17 +85,6 @@ public final class StandardPluginDependency implements PluginDependency {
         return this.optional;
     }
 
-    public StandardPluginDependency.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.id = this.id;
-        builder.version = this.version;
-        builder.rawVersion = this.rawVersion;
-        builder.loadOrder = this.loadOrder;
-        builder.optional = this.optional;
-
-        return builder;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(this.id);
@@ -119,19 +106,21 @@ public final class StandardPluginDependency implements PluginDependency {
     public String toString() {
         return new StringJoiner(", ", StandardPluginDependency.class.getSimpleName() + "[", "]")
                 .add("id=" + this.id)
-                .add("version=" + this.rawVersion)
+                .add("version=" + this.version)
                 .add("loadOrder=" + this.loadOrder)
                 .add("optional=" + this.optional)
                 .toString();
     }
 
-    public static final class Builder {
+    public StandardPluginDependency.Builder toBuilder() {
+        return new Builder().from(this);
+    }
 
-        @Nullable String id;
-        @Nullable VersionRange version;
-        @Nullable String rawVersion;
-        LoadOrder loadOrder = LoadOrder.UNDEFINED;
-        boolean optional = false;
+    public static final class Builder {
+        private @MonotonicNonNull String id;
+        private @MonotonicNonNull VersionRange version;
+        private LoadOrder loadOrder = LoadOrder.UNDEFINED;
+        private boolean optional = false;
 
         private Builder() {
         }
@@ -143,7 +132,11 @@ public final class StandardPluginDependency implements PluginDependency {
 
         public Builder version(final String version) {
             this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
-            this.rawVersion = version;
+            return this;
+        }
+
+        public Builder version(final VersionRange version) {
+            this.version = Objects.requireNonNull(version, "version");
             return this;
         }
 
@@ -154,6 +147,15 @@ public final class StandardPluginDependency implements PluginDependency {
 
         public Builder optional(final boolean optional) {
             this.optional = optional;
+            return this;
+        }
+
+        public Builder from(final StandardPluginDependency value) {
+            Objects.requireNonNull(value, "value");
+            this.id = value.id;
+            this.version = value.version;
+            this.loadOrder = value.loadOrder;
+            this.optional = value.optional;
             return this;
         }
 
@@ -230,7 +232,7 @@ public final class StandardPluginDependency implements PluginDependency {
 
             out.beginObject();
             out.name("id").value(value.id());
-            out.name("version").value(value.rawVersion);
+            out.name("version").value(value.version().toString());
             out.name("load-order").value(value.loadOrder().name().toLowerCase(Locale.ROOT));
             out.name("optional").value(value.optional());
             out.endObject();

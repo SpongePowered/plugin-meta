@@ -34,6 +34,8 @@ public final class NullVersion implements ArtifactVersion {
         return NullVersion.INSTANCE;
     }
 
+    private NullVersion() {}
+
     @Override
     public int getMajorVersion() {
         throw new RuntimeException("This is a null version and should not be used!");

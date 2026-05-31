@@ -26,8 +26,8 @@ package org.spongepowered.plugin.metadata;
 
 import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  *  A container joins together {@link Inheritable global metadata} with specific one or more
@@ -74,7 +74,7 @@ public interface Container {
     Optional<PluginMetadata> metadata(String id);
 
     /**
-     * @return All of the {@link PluginMetadata plugin metadata} as an unmodifiable {@link Set}.
+     * @return All of the {@link PluginMetadata plugin metadata} as an unmodifiable {@link Collection}.
      */
-    Set<PluginMetadata> metadata();
+    Collection<? extends PluginMetadata> metadata();
 }

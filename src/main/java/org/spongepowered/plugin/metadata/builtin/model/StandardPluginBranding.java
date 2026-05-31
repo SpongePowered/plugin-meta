@@ -74,14 +74,6 @@ public final class StandardPluginBranding implements PluginBranding {
         return Optional.ofNullable(this.icon);
     }
 
-    public StandardPluginBranding.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.logo = this.logo;
-        builder.icon = this.icon;
-
-        return builder;
-    }
-
     @Override
     public String toString() {
         return new StringJoiner(", ", StandardPluginBranding.class.getSimpleName() + "[", "]")
@@ -90,9 +82,12 @@ public final class StandardPluginBranding implements PluginBranding {
                 .toString();
     }
 
-    public static final class Builder {
+    public StandardPluginBranding.Builder toBuilder() {
+        return new Builder().from(this);
+    }
 
-        @Nullable String logo, icon;
+    public static final class Builder {
+        private @Nullable String logo, icon;
 
         private Builder() {
         }
@@ -104,6 +99,13 @@ public final class StandardPluginBranding implements PluginBranding {
 
         public Builder icon(@Nullable final String icon) {
             this.icon = icon;
+            return this;
+        }
+
+        public Builder from(final StandardPluginBranding value) {
+            Objects.requireNonNull(value, "value");
+            this.logo = value.logo;
+            this.icon = value.icon;
             return this;
         }
 

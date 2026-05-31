@@ -31,6 +31,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Container;
@@ -66,6 +67,10 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return this.container;
     }
 
+    void setContainer(final MetadataContainer container) {
+        this.container = container;
+    }
+
     @Override
     public String id() {
         return this.id;
@@ -84,10 +89,6 @@ public final class StandardPluginMetadata extends StandardInheritable implements
     @Override
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
-    }
-
-    void setContainer(final MetadataContainer container) {
-        this.container = container;
     }
 
     @Override
@@ -120,9 +121,14 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return joiner.toString();
     }
 
+    public StandardPluginMetadata.Builder toBuilder() {
+        return new StandardPluginMetadata.Builder().from(this);
+    }
+
     public static final class Builder extends StandardInheritable.AbstractBuilder<StandardPluginMetadata, Builder> {
 
-        @Nullable String id, entrypoint, name, description;
+        private @MonotonicNonNull String id, entrypoint;
+        private @Nullable String name, description;
 
         public Builder() {
         }
@@ -137,14 +143,23 @@ public final class StandardPluginMetadata extends StandardInheritable implements
             return this;
         }
 
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name, "name");
+        public Builder name(final @Nullable String name) {
+            this.name = name;
             return this;
         }
 
-        public Builder description(final String description) {
-            this.description = Objects.requireNonNull(description, "description");
+        public Builder description(final @Nullable String description) {
+            this.description = description;
             return this;
+        }
+
+        @Override
+        public Builder from(final StandardPluginMetadata value) {
+            this.id = value.id;
+            this.entrypoint = value.entrypoint;
+            this.name = value.name;
+            this.description = value.description;
+            return super.from(value);
         }
 
         @Override
@@ -180,7 +195,7 @@ public final class StandardPluginMetadata extends StandardInheritable implements
                     .entrypoint(obj.get("entrypoint").getAsString());
             GsonUtils.consumeIfPresent(obj, "name", e -> builder.name(e.getAsString()));
             GsonUtils.consumeIfPresent(obj, "description", e -> builder.description(e.getAsString()));
-            builder.from(context.deserialize(element, StandardInheritable.class));
+            builder.merge(context.deserialize(element, StandardInheritable.class));
 
             return builder;
         }

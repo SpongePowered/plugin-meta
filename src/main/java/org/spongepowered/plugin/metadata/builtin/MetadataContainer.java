@@ -32,26 +32,23 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.model.Adapters;
 import org.spongepowered.plugin.metadata.builtin.model.StandardContainerLoader;
-import org.spongepowered.plugin.metadata.util.GsonUtils;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 
 public final class MetadataContainer implements Container {
@@ -59,17 +56,16 @@ public final class MetadataContainer implements Container {
     private final String license;
     private final StandardContainerLoader loader;
     @Nullable private final Inheritable globalMetadata;
-    private final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
-    private final Map<String, StandardPluginMetadata> metadataById = new LinkedHashMap<>();
+    private final Map<String, StandardPluginMetadata> metadata;
 
     private MetadataContainer(final Builder builder) {
         this.loader = builder.loader;
         this.license = builder.license;
         this.globalMetadata = builder.globalMetadata;
-        this.metadata.addAll(builder.metadata);
-        for (final StandardPluginMetadata pm : this.metadata) {
-            this.metadataById.put(pm.id(), pm);
-            pm.setContainer(this);
+        this.metadata = Map.copyOf(builder.metadata);
+
+        for (final StandardPluginMetadata element : this.metadata.values()) {
+            element.setContainer(this);
         }
     }
 
@@ -90,12 +86,12 @@ public final class MetadataContainer implements Container {
 
     @Override
     public Optional<PluginMetadata> metadata(final String id) {
-        return Optional.ofNullable(this.metadataById.get(Objects.requireNonNull(id, "id")));
+        return Optional.ofNullable(this.metadata.get(Objects.requireNonNull(id, "id")));
     }
 
     @Override
-    public Set<PluginMetadata> metadata() {
-        return Collections.unmodifiableSet(this.metadata);
+    public Collection<StandardPluginMetadata> metadata() {
+        return this.metadata.values();
     }
 
     @Override
@@ -108,20 +104,15 @@ public final class MetadataContainer implements Container {
     }
 
     public MetadataContainer.Builder toBuilder() {
-        final Builder builder = new Builder();
-        builder.loader = this.loader;
-        builder.license = this.license;
-        builder.globalMetadata = this.globalMetadata;
-        builder.metadata.addAll(this.metadata);
-        return builder;
+        return new MetadataContainer.Builder().from(this);
     }
 
     public static final class Builder {
 
-        final Set<StandardPluginMetadata> metadata = new LinkedHashSet<>();
-        @Nullable String license, mappings;
-        @Nullable StandardContainerLoader loader;
-        @Nullable Inheritable globalMetadata;
+        private final Map<String, StandardPluginMetadata> metadata = new LinkedHashMap<>();
+        private @MonotonicNonNull String license;
+        private @MonotonicNonNull StandardContainerLoader loader;
+        private @Nullable Inheritable globalMetadata;
 
         public Builder loader(final StandardContainerLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
@@ -133,37 +124,36 @@ public final class MetadataContainer implements Container {
             return this;
         }
 
-        public Builder mappings(@Nullable final String mappings) {
-
-            if (mappings != null) {
-                final String[] elements = mappings.split("\\.", 3);
-                // Triggers their sanity checks
-                ArtifactUtils.key(elements[0], elements[1], elements[2]);
-            }
-
-            this.mappings = mappings;
+        public Builder globalMetadata(final @Nullable Inheritable globalMetadata) {
+            this.globalMetadata = globalMetadata;
             return this;
         }
 
-        public Builder globalMetadata(final Inheritable globalMetadata) {
-            this.globalMetadata = Objects.requireNonNull(globalMetadata, "globalMetadata");
-            return this;
-        }
-
-        public Builder metadata(final List<StandardPluginMetadata> metadata) {
+        public Builder metadata(final Collection<? extends StandardPluginMetadata> metadata) {
             Objects.requireNonNull(metadata, "metadata");
             this.metadata.clear();
-            this.metadata.addAll(metadata);
-            return this;
+            return this.addMetadata(metadata);
         }
 
-        public Builder addMetadata(final List<StandardPluginMetadata> metadata) {
-            this.metadata.addAll(Objects.requireNonNull(metadata, "metadata"));
+        public Builder addMetadata(final Collection<? extends StandardPluginMetadata> metadata) {
+            for (final StandardPluginMetadata element : Objects.requireNonNull(metadata, "metadata")) {
+                this.metadata.put(Objects.requireNonNull(element, "element").id(), element);
+            }
             return this;
         }
 
         public Builder addMetadata(final StandardPluginMetadata metadata) {
-            this.metadata.add(Objects.requireNonNull(metadata, "metadata"));
+            this.metadata.put(Objects.requireNonNull(metadata, "metadata").id(), metadata);
+            return this;
+        }
+
+        public Builder from(final MetadataContainer value) {
+            Objects.requireNonNull(value, "value");
+            this.loader = value.loader;
+            this.license = value.license;
+            this.globalMetadata = value.globalMetadata;
+            this.metadata.clear();
+            this.metadata.putAll(value.metadata);
             return this;
         }
 
@@ -224,7 +214,7 @@ public final class MetadataContainer implements Container {
             for (final JsonObject pluginObject : pluginObjects) {
                 final StandardPluginMetadata.Builder pluginBuilder = context.deserialize(pluginObject, StandardPluginMetadata.Builder.class);
                 if (inheritable != null) {
-                    pluginBuilder.from(inheritable);
+                    pluginBuilder.merge(inheritable);
                 }
 
                 builder.addMetadata(pluginBuilder.build());
@@ -244,7 +234,7 @@ public final class MetadataContainer implements Container {
             obj.addProperty("license", value.license);
 
             final JsonArray plugins = new JsonArray();
-            for (final PluginMetadata metadata : value.metadata) {
+            for (final PluginMetadata metadata : value.metadata()) {
                 plugins.add(context.serialize(metadata, StandardPluginMetadata.class));
             }
             obj.add("plugins", plugins);
