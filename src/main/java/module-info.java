@@ -1,9 +1,10 @@
 module org.spongepowered.plugin.metadata {
     exports org.spongepowered.plugin.metadata;
+    exports org.spongepowered.plugin.metadata.model;
     exports org.spongepowered.plugin.metadata.builtin;
     exports org.spongepowered.plugin.metadata.builtin.adapter;
-    exports org.spongepowered.plugin.metadata.model;
-    exports org.spongepowered.plugin.metadata.util;
+    exports org.spongepowered.plugin.metadata.builtin.adapter.model;
+    exports org.spongepowered.plugin.metadata.builtin.adapter.version;
 
     requires transitive com.google.gson;
     requires static transitive org.checkerframework.checker.qual;

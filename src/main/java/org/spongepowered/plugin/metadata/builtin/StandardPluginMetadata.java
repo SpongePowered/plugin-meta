@@ -24,22 +24,12 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Container;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.util.GsonUtils;
 
-import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -176,46 +166,4 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         }
     }
 
-    public static final class Deserializer implements JsonDeserializer<StandardPluginMetadata.Builder> {
-
-        @Override
-        public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
-                throws JsonParseException {
-            final JsonObject obj = element.getAsJsonObject();
-            if (!obj.has("id")) {
-                throw new MissingRequiredFieldException("id");
-            }
-            if (!obj.has("entrypoint")) {
-                throw new MissingRequiredFieldException("entrypoint");
-            }
-            final StandardPluginMetadata.Builder builder = new StandardPluginMetadata.Builder();
-            builder
-                    .id(obj.get("id").getAsString())
-                    .entrypoint(obj.get("entrypoint").getAsString());
-            GsonUtils.consumeIfPresent(obj, "name", e -> builder.name(e.getAsString()));
-            GsonUtils.consumeIfPresent(obj, "description", e -> builder.description(e.getAsString()));
-            builder.merge(context.deserialize(element, StandardInheritable.class));
-
-            return builder;
-        }
-    }
-
-    public static final class Serializer implements JsonSerializer<StandardPluginMetadata> {
-
-        @Override
-        public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
-            final JsonObject obj = new JsonObject();
-            obj.addProperty("id", value.id);
-            obj.addProperty("entrypoint", value.entrypoint);
-            GsonUtils.writeIfPresent(obj, "name", value.name());
-            GsonUtils.writeIfPresent(obj, "description", value.description());
-
-            final JsonObject inheritableElement = (JsonObject) context.serialize(value, StandardInheritable.class);
-            // TODO Sort this?
-            for (final Map.Entry<String, JsonElement> entry : inheritableElement.entrySet()) {
-                obj.add(entry.getKey(), entry.getValue());
-            }
-            return obj;
-        }
-    }
 }

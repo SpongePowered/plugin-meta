@@ -24,39 +24,24 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
-import org.spongepowered.plugin.metadata.builtin.adapter.Adapters;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
-import org.spongepowered.plugin.metadata.util.GsonUtils;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
 public class StandardInheritable implements Inheritable {
 
     protected final ArtifactVersion version;
@@ -66,7 +51,7 @@ public class StandardInheritable implements Inheritable {
     protected final Map<String, PluginDependency> dependencies;
     protected final Map<String, Object> properties;
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected StandardInheritable(final AbstractBuilder builder) {
         this.version = builder.version;
         this.branding = builder.branding;
@@ -269,37 +254,6 @@ public class StandardInheritable implements Inheritable {
         @Override
         protected StandardInheritable build0() {
             return new StandardInheritable(this);
-        }
-    }
-
-    public static final class Serializer implements JsonSerializer<StandardInheritable>, JsonDeserializer<StandardInheritable> {
-
-        @Override
-        public StandardInheritable deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
-                throws JsonParseException {
-
-            final JsonObject obj = element.getAsJsonObject();
-            final Builder builder = new Builder();
-            builder.version(GsonUtils.get(obj, "version", JsonElement::getAsString).orElse(null));
-            GsonUtils.consumeIfPresent(obj, "branding", e -> builder.branding(Adapters.Deserializers.PLUGIN_BRANDING.fromJsonTree(e).build()));
-            GsonUtils.consumeIfPresent(obj, "links", e -> builder.links(Adapters.Deserializers.PLUGIN_LINKS.fromJsonTree(e).build()));
-            GsonUtils.consumeIfPresent(obj, "contributors", e -> builder.contributors(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_CONTRIBUTOR, LinkedList::new).stream().map(PluginContributor.Builder::build).collect(Collectors.toList())));
-            GsonUtils.consumeIfPresent(obj, "dependencies", e -> builder.dependencies(GsonUtils.read((JsonArray) e, Adapters.Deserializers.PLUGIN_DEPENDENCY, LinkedHashSet::new).stream().map(PluginDependency.Builder::build).collect(Collectors.toList())));
-            GsonUtils.consumeIfPresent(obj, "properties", e -> builder.properties(GsonUtils.read((JsonObject) e, JsonElement::getAsString, LinkedHashMap::new)));
-
-            return builder.build();
-        }
-
-        @Override
-        public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
-            final JsonObject obj = new JsonObject();
-            GsonUtils.applyIfValid(obj, value, p -> p.version != NullVersion.instance(), (o, v) -> o.addProperty("version", v.version.toString()));
-            GsonUtils.applyIfValid(obj, value, p -> p.branding != PluginBranding.none(), (o, v) -> o.add("branding", Adapters.Serializers.PLUGIN_BRANDING.toJsonTree(v.branding)));
-            GsonUtils.applyIfValid(obj, value, p -> p.links != PluginLinks.none(), (o, v) -> o.add("links", Adapters.Serializers.PLUGIN_LINKS.toJsonTree(v.links)));
-            GsonUtils.applyIfValid(obj, value, p -> !p.contributors.isEmpty(), (o, v) -> o.add("contributors", GsonUtils.write(Adapters.Serializers.PLUGIN_CONTRIBUTOR, v.contributors)));
-            GsonUtils.applyIfValid(obj, value, p -> !p.dependencies.isEmpty(), (o, v) -> o.add("dependencies", GsonUtils.write(Adapters.Serializers.PLUGIN_DEPENDENCY, v.dependencies())));
-            GsonUtils.applyIfValid(obj, value, p -> !p.properties.isEmpty(), (o, v) -> o.add("properties", GsonUtils.write(e -> new JsonPrimitive(e.toString()), v.properties)));
-            return obj;
         }
     }
 }

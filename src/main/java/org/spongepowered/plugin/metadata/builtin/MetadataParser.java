@@ -28,6 +28,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.builtin.adapter.MetadataContainerAdapter;
+import org.spongepowered.plugin.metadata.builtin.adapter.StandardInheritableAdapter;
+import org.spongepowered.plugin.metadata.builtin.adapter.StandardPluginMetadataBuilderDeserializer;
+import org.spongepowered.plugin.metadata.builtin.adapter.StandardPluginMetadataSerializer;
+import org.spongepowered.plugin.metadata.builtin.adapter.model.*;
+import org.spongepowered.plugin.metadata.builtin.adapter.version.ArtifactVersionAdapter;
+import org.spongepowered.plugin.metadata.builtin.adapter.version.VersionRangeAdapter;
+import org.spongepowered.plugin.metadata.model.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,35 +48,47 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public final class MetadataParser {
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(ContainerLoader.class, new ContainerLoaderAdapter())
+            .registerTypeAdapter(PluginBranding.class, new PluginBrandingAdapter())
+            .registerTypeAdapter(PluginContributor.class, new PluginContributorAdapter())
+            .registerTypeAdapter(PluginDependency.class, new PluginDependencyAdapter())
+            .registerTypeAdapter(PluginLinks.class, new PluginLinksAdapter())
+            .registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter())
+            .registerTypeAdapter(VersionRange.class, new VersionRangeAdapter())
+            .registerTypeAdapter(MetadataContainer.class, new MetadataContainerAdapter())
+            .registerTypeAdapter(StandardInheritable.class, new StandardInheritableAdapter())
+            .registerTypeAdapter(StandardPluginMetadata.Builder.class, new StandardPluginMetadataBuilderDeserializer())
+            .registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadataSerializer())
+            .create();
 
     private MetadataParser() {
     }
 
+    public static Gson gson() {
+        return MetadataParser.GSON;
+    }
+
     public static GsonBuilder gsonBuilder() {
-        return new GsonBuilder()
-                .registerTypeAdapter(MetadataContainer.class, new MetadataContainer.Serializer())
-                .registerTypeAdapter(StandardInheritable.class, new StandardInheritable.Serializer())
-                .registerTypeAdapter(StandardPluginMetadata.Builder.class, new StandardPluginMetadata.Deserializer())
-                .registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadata.Serializer())
-                ;
+        return MetadataParser.GSON.newBuilder();
     }
 
     /**
      * Reads a {@link MetadataContainer container} from a given {@link Path path} using the default {@link Gson deserializer}
-     * (retrieved from {@link #gsonBuilder()}).
+     * (retrieved from {@link #gson()}).
      *
      * @param path The path
      * @return The container
      * @throws IOException if the container fails to be read
      */
     public static MetadataContainer read(final Path path) throws IOException {
-        return MetadataParser.read(path, MetadataParser.gsonBuilder().create());
+        return MetadataParser.read(path, MetadataParser.gson());
     }
 
     /**
      * Reads a {@link MetadataContainer container} from a given {@link Path path} with configured {@link Gson deserializer}.
      * <p>
-     * To get a standard deserializer, {@link MetadataParser#gsonBuilder()} is available.
+     * To get a standard deserializer, {@link MetadataParser#gson()} is available.
      * @param path The path
      * @param gson The deserializer
      * @return The container
@@ -83,20 +105,20 @@ public final class MetadataParser {
 
     /**
      * Reads a {@link MetadataContainer container} from a given {@link Reader reader} using the default {@link Gson deserializer}
-     * (retrieved from {@link #gsonBuilder()}).
+     * (retrieved from {@link #gson()}).
      *
      * @param reader The reader
      * @return The container
      * @throws IOException if the container fails to be read
      */
     public static MetadataContainer read(final Reader reader) throws IOException {
-        return MetadataParser.read(reader, MetadataParser.gsonBuilder().create());
+        return MetadataParser.read(reader, MetadataParser.gson());
     }
 
     /**
      * Reads a {@link MetadataContainer container} from a given {@link Reader reader} with configured {@link Gson deserializer}.
      * <p>
-     * To get a standard deserializer, {@link MetadataParser#gsonBuilder()} is available.
+     * To get a standard deserializer, {@link MetadataParser#gson()} is available.
      * @param reader The reader
      * @param gson The deserializer
      * @return The container
@@ -114,7 +136,7 @@ public final class MetadataParser {
     /**
      * Writes a {@link MetadataContainer container} to the given {@link Path path} using the configured {@link Gson serializer}.
      * <p>
-     * To get a standard serializer, {@link MetadataParser#gsonBuilder()} is available.
+     * To get a standard serializer, {@link MetadataParser#gson()} is available.
      * @param path The path
      * @param container The container
      * @param gson The serializer
@@ -137,7 +159,7 @@ public final class MetadataParser {
     /**
      * Writes a {@link MetadataContainer container} to the given {@link Path path} using the configured {@link Gson serializer}.
      * <p>
-     * To get a standard serializer, {@link MetadataParser#gsonBuilder()} is available.
+     * To get a standard serializer, {@link MetadataParser#gson()} is available.
      * @param writer The writer
      * @param container The container
      * @param gson The serializer

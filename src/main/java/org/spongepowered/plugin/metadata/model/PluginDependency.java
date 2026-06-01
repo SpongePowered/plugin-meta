@@ -25,7 +25,6 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
@@ -62,62 +61,6 @@ public record PluginDependency(String id, VersionRange version, LoadOrder loadOr
         if (!Constants.VALID_ID_PATTERN.matcher(id).matches()) {
             throw new IllegalStateException(String.format("Dependency with supplied ID '{%s}' is invalid. %s", id,
                     Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
-        }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private @MonotonicNonNull String id;
-        private @MonotonicNonNull VersionRange version;
-        private LoadOrder loadOrder = LoadOrder.UNDEFINED;
-        private boolean optional = false;
-
-        private Builder() {
-        }
-
-        public Builder id(final String id) {
-            this.id = Objects.requireNonNull(id, "id");
-            return this;
-        }
-
-        public Builder version(final String version) {
-            this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
-            return this;
-        }
-
-        public Builder version(final VersionRange version) {
-            this.version = Objects.requireNonNull(version, "version");
-            return this;
-        }
-
-        public Builder loadOrder(final LoadOrder loadOrder) {
-            this.loadOrder = Objects.requireNonNull(loadOrder, "load order");
-            return this;
-        }
-
-        public Builder optional(final boolean optional) {
-            this.optional = optional;
-            return this;
-        }
-
-        public Builder from(final PluginDependency value) {
-            Objects.requireNonNull(value, "value");
-            this.id = value.id;
-            this.version = value.version;
-            this.loadOrder = value.loadOrder;
-            this.optional = value.optional;
-            return this;
-        }
-
-        public PluginDependency build() {
-            return new PluginDependency(this.id, this.version, this.loadOrder, this.optional);
         }
     }
 

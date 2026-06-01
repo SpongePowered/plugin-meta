@@ -25,7 +25,6 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.spongepowered.plugin.metadata.Container;
 
 import java.util.Objects;
@@ -43,47 +42,5 @@ public record ContainerLoader(String name, VersionRange version) {
     public ContainerLoader {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(version, "version");
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private @MonotonicNonNull String name;
-        private @MonotonicNonNull VersionRange version;
-
-        private Builder() {
-        }
-
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name, "name");
-            return this;
-        }
-
-        public Builder version(final String version) {
-            this.version = VersionRange.createFromVersion(Objects.requireNonNull(version, "version"));
-            return this;
-        }
-
-        public Builder version(final VersionRange version) {
-            this.version = Objects.requireNonNull(version, "version");
-            return this;
-        }
-
-        public Builder from(final ContainerLoader value) {
-            Objects.requireNonNull(value, "value");
-            this.name = value.name();
-            this.version = value.version();
-            return this;
-        }
-
-        public ContainerLoader build() {
-            return new ContainerLoader(this.name, this.version);
-        }
     }
 }

@@ -22,35 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.model;
+package org.spongepowered.plugin.metadata.builtin.adapter.version;
 
-import org.spongepowered.plugin.metadata.Inheritable;
-import org.spongepowered.plugin.metadata.PluginMetadata;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import org.apache.maven.artifact.versioning.VersionRange;
 
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.Type;
 
-/**
- * Specification for an entity representing the links to "web resources" of an {@link Inheritable inheritable}
- * or {@link PluginMetadata plugin metadata}.
- * <p>
- * Consult the vendor for further information on how this is used.
- *
- * @param homepage The {@link URI homepage}
- * @param source The {@link URI source}
- * @param issues The {@link URI issues}
- */
-public record PluginLinks(Optional<URI> homepage, Optional<URI> source, Optional<URI> issues) {
-    private static final PluginLinks NONE = new PluginLinks(Optional.empty(), Optional.empty(), Optional.empty());
+public final class VersionRangeAdapter implements JsonSerializer<VersionRange>, JsonDeserializer<VersionRange> {
 
-    public PluginLinks {
-        Objects.requireNonNull(homepage, "homepage");
-        Objects.requireNonNull(source, "source");
-        Objects.requireNonNull(issues, "issues");
+    @Override
+    public VersionRange deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+        return VersionRange.createFromVersion(element.getAsString());
     }
 
-    public static PluginLinks none() {
-        return PluginLinks.NONE;
+    @Override
+    public JsonElement serialize(final VersionRange value, final Type type, final JsonSerializationContext context) {
+        return new JsonPrimitive(value.toString());
     }
 }

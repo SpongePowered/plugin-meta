@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -50,41 +49,5 @@ public record PluginBranding(Optional<String> icon, Optional<String> logo) {
 
     public static PluginBranding none() {
         return PluginBranding.NONE;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private Optional<String> logo = Optional.empty(), icon = Optional.empty();
-
-        private Builder() {
-        }
-
-        public Builder logo(@Nullable final String logo) {
-            this.logo = Optional.ofNullable(logo);
-            return this;
-        }
-
-        public Builder icon(@Nullable final String icon) {
-            this.icon = Optional.ofNullable(icon);
-            return this;
-        }
-
-        public Builder from(final PluginBranding value) {
-            Objects.requireNonNull(value, "value");
-            this.logo = value.logo();
-            this.icon = value.icon();
-            return this;
-        }
-
-        public PluginBranding build() {
-            return new PluginBranding(this.icon, this.logo);
-        }
     }
 }

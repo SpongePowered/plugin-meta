@@ -24,8 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -46,42 +44,5 @@ public record PluginContributor(String name, Optional<String> description) {
     public PluginContributor {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(description, "description");
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public Builder toBuilder() {
-        return new Builder().from(this);
-    }
-
-    public static final class Builder {
-        private @MonotonicNonNull String name;
-        private Optional<String> description = Optional.empty();
-
-        private Builder() {
-        }
-
-        public Builder name(final String name) {
-            this.name = Objects.requireNonNull(name, "name");
-            return this;
-        }
-
-        public Builder description(@Nullable final String description) {
-            this.description = Optional.ofNullable(description);
-            return this;
-        }
-
-        public Builder from(final PluginContributor value) {
-            Objects.requireNonNull(value, "value");
-            this.name = value.name;
-            this.description = value.description;
-            return this;
-        }
-
-        public PluginContributor build() {
-            return new PluginContributor(this.name, this.description);
-        }
     }
 }

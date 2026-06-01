@@ -1,0 +1,77 @@
+/*
+ * This file is part of plugin-meta, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) SpongePowered <https://www.spongepowered.org>
+ * Copyright (c) contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.spongepowered.plugin.metadata.builtin.adapter;
+
+import com.google.gson.*;
+import org.spongepowered.plugin.metadata.builtin.NullVersion;
+import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginContributor;
+import org.spongepowered.plugin.metadata.model.PluginDependency;
+import org.spongepowered.plugin.metadata.model.PluginLinks;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
+
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+
+public final class StandardInheritableAdapter implements JsonSerializer<StandardInheritable>, JsonDeserializer<StandardInheritable> {
+
+    @Override
+    public StandardInheritable deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+        final JsonObject obj = element.getAsJsonObject();
+        return new StandardInheritable.Builder()
+                .version(GsonUtils.optional(obj, "version").map(JsonElement::getAsString).orElse(null))
+                .branding(GsonUtils.optional(obj, "branding").map(v -> context.<PluginBranding>deserialize(v, PluginBranding.class)).orElseGet(PluginBranding::none))
+                .links(GsonUtils.optional(obj, "links").map(v -> context.<PluginLinks>deserialize(v, PluginLinks.class)).orElseGet(PluginLinks::none))
+                .contributors(GsonUtils.stream(obj, "contributors").map(v -> context.<PluginContributor>deserialize(v, PluginContributor.class)).toList())
+                .dependencies(GsonUtils.stream(obj, "dependencies").map(v -> context.<PluginDependency>deserialize(v, PluginDependency.class)).toList())
+                .properties(GsonUtils.deserializeMap(obj.get("properties"), JsonElement::getAsString, LinkedHashMap::new))
+                .build();
+    }
+
+    @Override
+    public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
+        final JsonObject obj = new JsonObject();
+        if (value.version() != NullVersion.instance()) {
+            obj.add("version", context.serialize(value.version(), ArtifactVersion.class));
+        }
+        if (value.branding() != PluginBranding.none()) {
+            obj.add("branding", context.serialize(value.branding(), PluginBranding.class));
+        }
+        if (value.links() != PluginLinks.none()) {
+            obj.add("links", context.serialize(value.links(), PluginLinks.class));
+        }
+        if (!value.contributors().isEmpty()) {
+            obj.add("contributors", GsonUtils.toArray(value.contributors().stream().map(v -> context.serialize(v, PluginContributor.class))));
+        }
+        if (!value.dependencies().isEmpty()) {
+            obj.add("dependencies", GsonUtils.toArray(value.dependencies().stream().map(v -> context.serialize(v, PluginDependency.class))));
+        }
+        if (!value.properties().isEmpty()) {
+            obj.add("properties", GsonUtils.serializeMap(value.properties(), v -> new JsonPrimitive(v.toString())));
+        }
+        return obj;
+    }
+}

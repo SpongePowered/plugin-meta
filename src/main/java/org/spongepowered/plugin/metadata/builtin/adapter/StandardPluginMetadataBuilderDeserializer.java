@@ -22,35 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata.model;
+package org.spongepowered.plugin.metadata.builtin.adapter;
 
-import org.spongepowered.plugin.metadata.Inheritable;
-import org.spongepowered.plugin.metadata.PluginMetadata;
+import com.google.gson.*;
+import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.Type;
 
-/**
- * Specification for an entity representing the links to "web resources" of an {@link Inheritable inheritable}
- * or {@link PluginMetadata plugin metadata}.
- * <p>
- * Consult the vendor for further information on how this is used.
- *
- * @param homepage The {@link URI homepage}
- * @param source The {@link URI source}
- * @param issues The {@link URI issues}
- */
-public record PluginLinks(Optional<URI> homepage, Optional<URI> source, Optional<URI> issues) {
-    private static final PluginLinks NONE = new PluginLinks(Optional.empty(), Optional.empty(), Optional.empty());
+public final class StandardPluginMetadataBuilderDeserializer implements JsonDeserializer<StandardPluginMetadata.Builder> {
 
-    public PluginLinks {
-        Objects.requireNonNull(homepage, "homepage");
-        Objects.requireNonNull(source, "source");
-        Objects.requireNonNull(issues, "issues");
-    }
-
-    public static PluginLinks none() {
-        return PluginLinks.NONE;
+    @Override
+    public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+        final JsonObject obj = element.getAsJsonObject();
+        return new StandardPluginMetadata.Builder()
+                .id(GsonUtils.require(obj, "id").getAsString())
+                .entrypoint(GsonUtils.require(obj, "entrypoint").getAsString())
+                .name(GsonUtils.optional(obj, "name").map(JsonElement::getAsString).orElse(null))
+                .description(GsonUtils.optional(obj, "description").map(JsonElement::getAsString).orElse(null))
+                .merge(context.deserialize(element, StandardInheritable.class));
     }
 }
