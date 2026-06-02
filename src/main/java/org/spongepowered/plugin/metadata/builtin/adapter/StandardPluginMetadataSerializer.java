@@ -39,9 +39,9 @@ public final class StandardPluginMetadataSerializer implements JsonSerializer<St
     public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
         obj.addProperty("id", value.id());
-        obj.addProperty("entrypoint", value.entrypoint());
         value.name().ifPresent(v -> obj.addProperty("name", v));
         value.description().ifPresent(v -> obj.addProperty("description", v));
+        obj.addProperty("entrypoint", value.entrypoint());
         obj.asMap().putAll(((JsonObject) context.serialize(value, StandardInheritable.class)).asMap());
         return obj;
     }

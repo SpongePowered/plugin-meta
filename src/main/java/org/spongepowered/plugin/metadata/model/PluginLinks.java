@@ -24,6 +24,7 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -48,6 +49,10 @@ public record PluginLinks(Optional<URI> homepage, Optional<URI> source, Optional
         Objects.requireNonNull(homepage, "homepage");
         Objects.requireNonNull(source, "source");
         Objects.requireNonNull(issues, "issues");
+    }
+
+    public PluginLinks(@Nullable URI homepage, @Nullable URI source, @Nullable URI issues) {
+        this(Optional.ofNullable(homepage), Optional.ofNullable(source), Optional.ofNullable(issues));
     }
 
     public static PluginLinks none() {

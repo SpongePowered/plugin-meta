@@ -69,10 +69,6 @@ public final class MetadataParser {
         return MetadataParser.GSON;
     }
 
-    public static GsonBuilder gsonBuilder() {
-        return MetadataParser.GSON.newBuilder();
-    }
-
     /**
      * Reads a {@link MetadataContainer container} from a given {@link Path path} using the default {@link Gson deserializer}
      * (retrieved from {@link #gson()}).
@@ -134,6 +130,19 @@ public final class MetadataParser {
     }
 
     /**
+     * Writes a {@link MetadataContainer container} to the given {@link Path path} using the default {@link Gson deserializer}
+     * (retrieved from {@link #gson()}).
+     *
+     * @param path The path
+     * @param container The container
+     * @param indent True to indent (pretty print) the resulting JSON, false if not
+     * @throws IOException If the container fails to serialize
+     */
+    public static void write(final Path path, final MetadataContainer container, final boolean indent) throws IOException {
+        MetadataParser.write(path, container, MetadataParser.gson(), indent);
+    }
+
+    /**
      * Writes a {@link MetadataContainer container} to the given {@link Path path} using the configured {@link Gson serializer}.
      * <p>
      * To get a standard serializer, {@link MetadataParser#gson()} is available.
@@ -154,6 +163,19 @@ public final class MetadataParser {
             }
             gson.toJson(container, MetadataContainer.class, writer);
         }
+    }
+
+    /**
+     * Writes a {@link MetadataContainer container} to the given {@link Path path} using the default {@link Gson deserializer}
+     * (retrieved from {@link #gson()}).
+     *
+     * @param writer The writer
+     * @param container The container
+     * @param indent True to indent (pretty print) the resulting JSON, false if not
+     * @throws IOException If the container fails to serialize
+     */
+    public static void write(final Writer writer, final MetadataContainer container, final boolean indent) throws IOException {
+        MetadataParser.write(writer, container, MetadataParser.gson(), indent);
     }
 
     /**

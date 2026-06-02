@@ -24,7 +24,6 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Container;
@@ -95,12 +94,18 @@ public final class MetadataContainer implements Container {
         return new MetadataContainer.Builder().from(this);
     }
 
+    public static MetadataContainer.Builder builder() {
+        return new MetadataContainer.Builder();
+    }
+
     public static final class Builder {
 
         private final Map<String, StandardPluginMetadata> metadata = new LinkedHashMap<>();
         private @MonotonicNonNull String license;
         private @MonotonicNonNull ContainerLoader loader;
         private @Nullable Inheritable globalMetadata;
+
+        private Builder() {}
 
         public Builder loader(final ContainerLoader loader) {
             this.loader = Objects.requireNonNull(loader, "loader");
@@ -145,7 +150,7 @@ public final class MetadataContainer implements Container {
             return this;
         }
 
-        public MetadataContainer build() throws IllegalStateException, InvalidVersionSpecificationException {
+        public MetadataContainer build() throws IllegalStateException {
             Objects.requireNonNull(this.license, "license");
             Objects.requireNonNull(this.loader, "loader");
 

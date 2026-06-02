@@ -36,7 +36,7 @@ public final class StandardPluginMetadataBuilderDeserializer implements JsonDese
     @Override
     public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
-        return new StandardPluginMetadata.Builder()
+        return StandardPluginMetadata.builder()
                 .id(GsonUtils.require(obj, "id").getAsString())
                 .entrypoint(GsonUtils.require(obj, "entrypoint").getAsString())
                 .name(GsonUtils.optional(obj, "name").map(JsonElement::getAsString).orElse(null))

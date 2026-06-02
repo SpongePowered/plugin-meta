@@ -24,6 +24,7 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -45,6 +46,10 @@ public record PluginBranding(Optional<String> icon, Optional<String> logo) {
     public PluginBranding {
         Objects.requireNonNull(icon, "icon");
         Objects.requireNonNull(logo, "logo");
+    }
+
+    public PluginBranding(@Nullable String icon, @Nullable String logo) {
+        this(Optional.ofNullable(icon), Optional.ofNullable(logo));
     }
 
     public static PluginBranding none() {

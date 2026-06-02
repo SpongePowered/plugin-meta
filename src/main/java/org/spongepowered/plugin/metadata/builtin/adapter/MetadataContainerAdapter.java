@@ -25,7 +25,6 @@
 package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.*;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.MetadataContainer;
@@ -45,7 +44,7 @@ public final class MetadataContainerAdapter implements JsonSerializer<MetadataCo
             throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
 
-        final MetadataContainer.Builder builder = new MetadataContainer.Builder()
+        final MetadataContainer.Builder builder = MetadataContainer.builder()
                 .loader(context.deserialize(GsonUtils.require(obj, "loader"), ContainerLoader.class))
                 .license(GsonUtils.require(obj, "license").getAsString());
 
@@ -79,11 +78,7 @@ public final class MetadataContainerAdapter implements JsonSerializer<MetadataCo
             builder.addMetadata(pluginBuilder.build());
         }
 
-        try {
-            return builder.build();
-        } catch (final InvalidVersionSpecificationException e) {
-            throw new JsonParseException(e);
-        }
+        return builder.build();
     }
 
     @Override

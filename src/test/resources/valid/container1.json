@@ -1,0 +1,35 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "some_license",
+  "plugins": [
+    {
+      "id": "test_plugin",
+      "name": "TestPlugin",
+      "description": "Some test plugin",
+      "entrypoint": "my.test.package.MyTestPlugin",
+      "version": "1.2.3",
+      "links": {
+        "homepage": "https://spongepowered.org/",
+        "source": "https://github.com/SpongePowered/Sponge",
+        "issues": "https://github.com/SpongePowered/Sponge/issues"
+      },
+      "contributors": [
+        {
+          "name": "Spongie",
+          "description": "Mascot"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "17.0.0",
+          "load-order": "AFTER",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

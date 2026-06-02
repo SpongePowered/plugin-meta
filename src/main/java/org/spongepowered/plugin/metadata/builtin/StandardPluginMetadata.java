@@ -48,10 +48,6 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         this.description = builder.description;
     }
 
-    public static StandardPluginMetadata.Builder builder() {
-        return new Builder();
-    }
-
     @Override
     public Container container() {
         return this.container;
@@ -114,13 +110,16 @@ public final class StandardPluginMetadata extends StandardInheritable implements
         return new StandardPluginMetadata.Builder().from(this);
     }
 
+    public static StandardPluginMetadata.Builder builder() {
+        return new StandardPluginMetadata.Builder();
+    }
+
     public static final class Builder extends StandardInheritable.AbstractBuilder<StandardPluginMetadata, Builder> {
 
         private @MonotonicNonNull String id, entrypoint;
         private @Nullable String name, description;
 
-        public Builder() {
-        }
+        private Builder() {}
 
         public Builder id(final String id) {
             this.id = Objects.requireNonNull(id, "id");

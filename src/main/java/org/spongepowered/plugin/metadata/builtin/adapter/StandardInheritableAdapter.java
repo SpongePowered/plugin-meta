@@ -25,6 +25,7 @@
 package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.*;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.spongepowered.plugin.metadata.builtin.NullVersion;
 import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
 import org.spongepowered.plugin.metadata.model.PluginBranding;

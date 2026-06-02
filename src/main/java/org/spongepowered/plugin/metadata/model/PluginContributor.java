@@ -24,6 +24,7 @@
  */
 package org.spongepowered.plugin.metadata.model;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -44,5 +45,9 @@ public record PluginContributor(String name, Optional<String> description) {
     public PluginContributor {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(description, "description");
+    }
+
+    public PluginContributor(String name, @Nullable String description) {
+        this(name, Optional.ofNullable(description));
     }
 }
