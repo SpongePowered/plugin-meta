@@ -22,27 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.plugin.metadata;
+package org.spongepowered.plugin.metadata.builtin.adapter.util;
 
-import java.util.regex.Pattern;
+import org.spongepowered.plugin.metadata.builtin.MetadataParser;
 
-public final class Constants {
+/**
+ * This is not public API as this package is not exported by the module.
+ */
+public class LegacyIds {
 
-    /**
-     * <p>Ids must conform to the following requirements:</p>
-     *
-     * <ul>
-     *     <li>Must be between 2 and 64 characters in length</li>
-     *     <li>Must start with a lower case letter (a-z)</li>
-     *     <li>May only contain a mix of lower case letters (a-z),
-     *     numbers (0-9) and underscores (_)</li>
-     * </ul>
-     */
-    public static final Pattern VALID_ID_PATTERN = Pattern.compile("^[a-z][a-z0-9_]{1,63}$");
-
-    public static final String INVALID_ID_REQUIREMENTS_MESSAGE = "IDs can be between 2 and 64 characters long and must start with a lower case"
-            + " letter, followed by any mix of lower case letters (a-z), numbers (0-9) and underscores (_).";
-
-    private Constants() {
+    public static String fix(final String original) {
+        if (original.indexOf('-') < 0) {
+            return original;
+        }
+        final String fixed = original.replace('-', '_');
+        MetadataParser.addWarning("Plugin id '" + original + "' is invalid and has been converted to '" + fixed + "'.");
+        return fixed;
     }
 }

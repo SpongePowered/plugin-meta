@@ -107,4 +107,25 @@ public class MetadataParserTest {
         final List<String> result = MetadataParserTest.writeContainer(container1);
         Assertions.assertLinesMatch(expected, result);
     }
+
+    @Test
+    public void readLegacyIdContainer() throws IOException {
+        final String pluginIdWarning = "Plugin id 'test-plugin' is invalid and has been converted to 'test_plugin'.";
+        final String dependencyIdWarning = "Plugin id 'test-dependency' is invalid and has been converted to 'test_dependency'.";
+        Assertions.assertFalse(MetadataParser.warnings().contains(pluginIdWarning));
+        Assertions.assertFalse(MetadataParser.warnings().contains(dependencyIdWarning));
+
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/legacy/legacy_id.json");
+
+        Assertions.assertEquals(1, parsed.metadata().size());
+        final PluginMetadata plugin = parsed.metadata().iterator().next();
+        Assertions.assertEquals("test_plugin", plugin.id());
+
+        Assertions.assertEquals(1, plugin.dependencies().size());
+        final PluginDependency dependency = plugin.dependencies().iterator().next();
+        Assertions.assertEquals("test_dependency", dependency.id());
+
+        Assertions.assertTrue(MetadataParser.warnings().contains(pluginIdWarning));
+        Assertions.assertTrue(MetadataParser.warnings().contains(dependencyIdWarning));
+    }
 }

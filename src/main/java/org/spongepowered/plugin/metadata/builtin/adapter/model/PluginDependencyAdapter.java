@@ -26,6 +26,7 @@ package org.spongepowered.plugin.metadata.builtin.adapter.model;
 
 import com.google.gson.*;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.LegacyIds;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 
@@ -37,7 +38,7 @@ public final class PluginDependencyAdapter implements JsonSerializer<PluginDepen
     public PluginDependency deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
         return new PluginDependency(
-                GsonUtils.require(obj, "id").getAsString(),
+                LegacyIds.fix(GsonUtils.require(obj, "id").getAsString()),
                 context.deserialize(GsonUtils.require(obj, "version"), VersionRange.class),
                 GsonUtils.optional(obj, "load-order")
                         .map(v -> context.<PluginDependency.LoadOrder>deserialize(v, PluginDependency.LoadOrder.class))

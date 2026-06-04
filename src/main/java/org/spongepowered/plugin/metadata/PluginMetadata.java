@@ -48,7 +48,7 @@ public interface PluginMetadata extends Inheritable {
      *     <li>Must be between 2 and 64 characters in length</li>
      *     <li>Must start with a lower case letter (a-z)</li>
      *     <li>May only contain a mix of lower case letters (a-z),
-     *     numbers (0-9), dashes (-), and underscores (_)</li>
+     *     numbers (0-9) and underscores (_)</li>
      * </ul>
      * @return The id
      */

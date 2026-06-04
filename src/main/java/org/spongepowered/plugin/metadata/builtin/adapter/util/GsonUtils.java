@@ -34,6 +34,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+/**
+ * This is not public API as this package is not exported by the module.
+ */
 public final class GsonUtils {
 
     public static JsonElement require(final JsonObject obj, final String name) {

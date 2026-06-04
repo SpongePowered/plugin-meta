@@ -28,6 +28,7 @@ import com.google.gson.*;
 import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.LegacyIds;
 
 import java.lang.reflect.Type;
 
@@ -37,7 +38,7 @@ public final class StandardPluginMetadataBuilderDeserializer implements JsonDese
     public StandardPluginMetadata.Builder deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
         return StandardPluginMetadata.builder()
-                .id(GsonUtils.require(obj, "id").getAsString())
+                .id(LegacyIds.fix(GsonUtils.require(obj, "id").getAsString()))
                 .entrypoint(GsonUtils.require(obj, "entrypoint").getAsString())
                 .name(GsonUtils.optional(obj, "name").map(JsonElement::getAsString).orElse(null))
                 .description(GsonUtils.optional(obj, "description").map(JsonElement::getAsString).orElse(null))
