@@ -32,6 +32,7 @@ import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.model.ContainerLoader;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +50,7 @@ public final class MetadataContainer implements Container {
         this.loader = builder.loader;
         this.license = builder.license;
         this.globalMetadata = builder.globalMetadata;
-        this.metadata = Map.copyOf(builder.metadata);
+        this.metadata = Collections.unmodifiableMap(new LinkedHashMap<>(builder.metadata));
 
         for (final StandardPluginMetadata element : this.metadata.values()) {
             element.setContainer(this);

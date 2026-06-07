@@ -34,6 +34,7 @@ import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,8 +58,8 @@ public class StandardInheritable implements Inheritable {
         this.branding = builder.branding;
         this.links = builder.links;
         this.contributors = List.copyOf(builder.contributors);
-        this.dependencies = Map.copyOf(builder.dependencies);
-        this.properties = Map.copyOf(builder.properties);
+        this.dependencies = Collections.unmodifiableMap(new LinkedHashMap<>(builder.dependencies));
+        this.properties = Collections.unmodifiableMap(new LinkedHashMap<>(builder.properties));
     }
 
     @Override
