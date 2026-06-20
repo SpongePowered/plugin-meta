@@ -7,10 +7,10 @@
   "plugins": [
     {
       "id": "test_plugin",
-      "name": "TestPlugin",
-      "description": "Some test plugin",
       "entrypoint": "my.test.package.MyTestPlugin",
       "version": "1.2.3",
+      "name": "TestPlugin",
+      "description": "Some test plugin",
       "links": {
         "homepage": "https://spongepowered.org/",
         "source": "https://github.com/SpongePowered/Sponge",

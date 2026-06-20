@@ -28,7 +28,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
 
 import java.lang.reflect.Type;
@@ -39,10 +39,8 @@ public final class StandardPluginMetadataSerializer implements JsonSerializer<St
     public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
         obj.addProperty("id", value.id());
-        value.name().ifPresent(v -> obj.addProperty("name", v));
-        value.description().ifPresent(v -> obj.addProperty("description", v));
         obj.addProperty("entrypoint", value.entrypoint());
-        obj.asMap().putAll(((JsonObject) context.serialize(value, StandardInheritable.class)).asMap());
+        obj.asMap().putAll(((JsonObject) context.serialize(value.override(), InheritableMetadata.class)).asMap());
         return obj;
     }
 }

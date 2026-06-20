@@ -25,7 +25,7 @@
 package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.*;
-import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.LegacyIds;
@@ -40,8 +40,6 @@ public final class StandardPluginMetadataBuilderDeserializer implements JsonDese
         return StandardPluginMetadata.builder()
                 .id(LegacyIds.fix(GsonUtils.require(obj, "id").getAsString()))
                 .entrypoint(GsonUtils.require(obj, "entrypoint").getAsString())
-                .name(GsonUtils.optional(obj, "name").map(JsonElement::getAsString).orElse(null))
-                .description(GsonUtils.optional(obj, "description").map(JsonElement::getAsString).orElse(null))
-                .merge(context.deserialize(element, StandardInheritable.class));
+                .override(context.deserialize(element, InheritableMetadata.class));
     }
 }

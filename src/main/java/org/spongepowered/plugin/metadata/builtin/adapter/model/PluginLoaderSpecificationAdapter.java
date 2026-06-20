@@ -32,24 +32,24 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.spongepowered.plugin.metadata.model.ContainerLoader;
+import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 
 import java.lang.reflect.Type;
 
-public final class ContainerLoaderAdapter implements JsonSerializer<ContainerLoader>, JsonDeserializer<ContainerLoader> {
+public final class PluginLoaderSpecificationAdapter implements JsonSerializer<PluginLoaderSpecification>, JsonDeserializer<PluginLoaderSpecification> {
 
     @Override
-    public ContainerLoader deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+    public PluginLoaderSpecification deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
-        return new ContainerLoader(
+        return new PluginLoaderSpecification(
                 GsonUtils.require(obj, "name").getAsString(),
                 context.deserialize(GsonUtils.require(obj, "version"), VersionRange.class)
         );
     }
 
     @Override
-    public JsonElement serialize(final ContainerLoader value, final Type type, final JsonSerializationContext context) {
+    public JsonElement serialize(final PluginLoaderSpecification value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
         obj.addProperty("name", value.name());
         obj.add("version", context.serialize(value.version(), VersionRange.class));

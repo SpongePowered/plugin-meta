@@ -24,20 +24,24 @@
  */
 package org.spongepowered.plugin.metadata;
 
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginContributor;
+import org.spongepowered.plugin.metadata.model.PluginDependency;
+import org.spongepowered.plugin.metadata.model.PluginLinks;
+import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents specific, unique metadata to a plugin.
+ * Represents the metadata of a plugin.
  *
- * @see Inheritable Inheritable, for metadata that might be shared between multiple plugin metadata
  * @see org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata StandardPluginMetadata, for a generic implementation
  */
-public interface PluginMetadata extends Inheritable {
-
-    /**
-     * @return The {@link Container container}.
-     */
-    Container container();
+public interface PluginMetadata {
 
     /**
      * Gets the {@link String id}.
@@ -65,6 +69,16 @@ public interface PluginMetadata extends Inheritable {
     String entrypoint();
 
     /**
+     * @return The {@link ArtifactVersion version}.
+     */
+    ArtifactVersion version();
+
+    /**
+     * @return The {@link PluginLoaderSpecification loader}.
+     */
+    PluginLoaderSpecification loader();
+
+    /**
      * @return The {@link String name} or {@link Optional#empty()} otherwise.
      */
     Optional<String> name();
@@ -73,4 +87,57 @@ public interface PluginMetadata extends Inheritable {
      * @return The {@link String description} or {@link Optional#empty()} otherwise.
      */
     Optional<String> description();
+
+    /**
+     * Gets the {@link String license} of the data within this container.
+     * <p>
+     * Notable examples include MIT or All Rights Reserved.
+     *
+     * @return The license
+     */
+    Optional<String> license();
+
+    /**
+     * @return The {@link PluginBranding branding}.
+     */
+    PluginBranding branding();
+
+    /**
+     * @return The {@link PluginLinks links} to various web resources.
+     */
+    PluginLinks links();
+
+    /**
+     * @return The {@link PluginContributor contributors} as an unmodifiable {@link List}.
+     */
+    List<PluginContributor> contributors();
+
+    /**
+     * Gets the {@link PluginDependency plugin dependency} by {@link String id}.
+     * <p>
+     * This maps to {@link PluginDependency#id()}.
+     * @param id The id
+     * @return The dependency or {@link Optional#empty()} otherwise.
+     */
+    Optional<PluginDependency> dependency(String id);
+
+    /**
+     * @return The {@link PluginDependency dependencies} as an unmodifiable {@link Collection}.
+     */
+    Collection<PluginDependency> dependencies();
+
+    /**
+     * Gets the {@link T property} by {@link String key}.
+     *
+     * @param key The key
+     * @param <T> The type
+     * @return The property or {@link Optional#empty()} otherwise.
+     */
+    <T> Optional<T> property(String key);
+
+    /**
+     * @return The properties as an unmodifiable {@link Map}.
+     */
+    Map<String, Object> properties();
+
 }

@@ -24,14 +24,15 @@
  */
 package org.spongepowered.plugin.metadata.builtin;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.spongepowered.plugin.metadata.PluginMetadata;
-import org.spongepowered.plugin.metadata.model.ContainerLoader;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
+import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 
 import java.io.*;
 import java.net.URI;
@@ -62,63 +63,107 @@ public class MetadataParserTest {
         return List.of(writer.toString().split("\n"));
     }
 
-    private static final MetadataContainer container1 = MetadataContainer.builder()
-            .loader(new ContainerLoader("java_plain", VersionRange.createFromVersion("1.0")))
+    private static final InheritableMetadata global = InheritableMetadata.builder()
+            .loader(new PluginLoaderSpecification("java_plain", VersionRange.createFromVersion("1.0")))
             .license("some_license")
-            .addMetadata(StandardPluginMetadata.builder()
-                    .id("test_plugin")
-                    .name("TestPlugin")
-                    .version("1.2.3")
-                    .entrypoint("my.test.package.MyTestPlugin")
-                    .description("Some test plugin")
-                    .links(new PluginLinks(
-                            URI.create("https://spongepowered.org/"),
-                            URI.create("https://github.com/SpongePowered/Sponge"),
-                            URI.create("https://github.com/SpongePowered/Sponge/issues")
-                    ))
-                    .addContributor(new PluginContributor("Spongie", "Mascot"))
-                    .addDependency(new PluginDependency("spongeapi", VersionRange.createFromVersion("17.0.0"), PluginDependency.LoadOrder.AFTER, false))
-                    .build())
             .build();
 
-    @Test
-    public void readValidContainer1() throws IOException {
-        // TODO MetadataContainer#equals ?
-        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/container1.json");
-        Assertions.assertEquals(container1.loader(), parsed.loader());
-        Assertions.assertEquals(container1.license(), parsed.license());
-        Assertions.assertEquals(1, parsed.metadata().size());
+    private static final InheritableMetadata override = InheritableMetadata.builder()
+            .name("TestPlugin")
+            .version(new DefaultArtifactVersion("1.2.3"))
+            .description("Some test plugin")
+            .links(new PluginLinks(
+                    URI.create("https://spongepowered.org/"),
+                    URI.create("https://github.com/SpongePowered/Sponge"),
+                    URI.create("https://github.com/SpongePowered/Sponge/issues")
+            ))
+            .addContributor(new PluginContributor("Spongie", "Mascot"))
+            .addDependency(new PluginDependency("spongeapi", VersionRange.createFromVersion("17.0.0"), PluginDependency.LoadOrder.AFTER, false))
+            .build();
 
-        final PluginMetadata plugin1 = container1.metadata().iterator().next();
-        final PluginMetadata parsedPlugin = parsed.metadata().iterator().next();
-        Assertions.assertEquals(plugin1.id(), parsedPlugin.id());
-        Assertions.assertEquals(plugin1.name(), parsedPlugin.name());
-        Assertions.assertEquals(plugin1.version(), parsedPlugin.version());
-        Assertions.assertEquals(plugin1.entrypoint(), parsedPlugin.entrypoint());
-        Assertions.assertEquals(plugin1.description(), parsedPlugin.description());
-        Assertions.assertEquals(plugin1.links(), parsedPlugin.links());
-        Assertions.assertIterableEquals(plugin1.contributors(), parsedPlugin.contributors());
-        Assertions.assertIterableEquals(plugin1.dependencies(), parsedPlugin.dependencies());
+    private static final InheritableMetadata full = global.with(override);
+
+    private static final MetadataContainer mixContainer = new MetadataContainer(global, List.of(
+            StandardPluginMetadata.builder()
+                    .id("test_plugin")
+                    .entrypoint("my.test.package.MyTestPlugin")
+                    .global(global)
+                    .override(override)
+                    .build()
+    ));
+
+    private static final MetadataContainer fullGlobalContainer = new MetadataContainer(full, List.of(
+            StandardPluginMetadata.builder()
+                    .id("test_plugin")
+                    .entrypoint("my.test.package.MyTestPlugin")
+                    .global(full)
+                    .build()
+    ));
+
+    private static final MetadataContainer fullOverrideContainer = new MetadataContainer(InheritableMetadata.none(), List.of(
+            StandardPluginMetadata.builder()
+                    .id("test_plugin")
+                    .entrypoint("my.test.package.MyTestPlugin")
+                    .override(full)
+                    .build()
+    ));
+
+    @Test
+    public void readMix() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/mix.json");
+        Assertions.assertEquals(mixContainer, parsed);
     }
 
     @Test
-    public void writeContainer1() throws IOException {
-        final List<String> expected = MetadataParserTest.readLines("/valid/container1.json");
-        final List<String> result = MetadataParserTest.writeContainer(container1);
+    public void readMixInRoot() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/mix_in_root.json");
+        Assertions.assertEquals(mixContainer, parsed);
+    }
+
+    @Test
+    public void readFullGlobal() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/full_global.json");
+        Assertions.assertEquals(fullGlobalContainer, parsed);
+    }
+
+    @Test
+    public void readFullOverride() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/full_override.json");
+        Assertions.assertEquals(fullOverrideContainer, parsed);
+    }
+
+    @Test
+    public void writeMix() throws IOException {
+        final List<String> expected = MetadataParserTest.readLines("/valid/mix.json");
+        final List<String> result = MetadataParserTest.writeContainer(mixContainer);
         Assertions.assertLinesMatch(expected, result);
     }
 
     @Test
-    public void readLegacyIdContainer() throws IOException {
+    public void writeFullGlobal() throws IOException {
+        final List<String> expected = MetadataParserTest.readLines("/valid/full_global.json");
+        final List<String> result = MetadataParserTest.writeContainer(fullGlobalContainer);
+        Assertions.assertLinesMatch(expected, result);
+    }
+
+    @Test
+    public void writeFullOverride() throws IOException {
+        final List<String> expected = MetadataParserTest.readLines("/valid/full_override.json");
+        final List<String> result = MetadataParserTest.writeContainer(fullOverrideContainer);
+        Assertions.assertLinesMatch(expected, result);
+    }
+
+    @Test
+    public void readLegacyDashInId() throws IOException {
         final String pluginIdWarning = "Plugin id 'test-plugin' is invalid and has been converted to 'test_plugin'.";
         final String dependencyIdWarning = "Plugin id 'test-dependency' is invalid and has been converted to 'test_dependency'.";
         Assertions.assertFalse(MetadataParser.warnings().contains(pluginIdWarning));
         Assertions.assertFalse(MetadataParser.warnings().contains(dependencyIdWarning));
 
-        final MetadataContainer parsed = MetadataParserTest.readContainer("/legacy/legacy_id.json");
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/legacy/dash_in_id.json");
 
-        Assertions.assertEquals(1, parsed.metadata().size());
-        final PluginMetadata plugin = parsed.metadata().iterator().next();
+        Assertions.assertEquals(1, parsed.plugins().size());
+        final PluginMetadata plugin = parsed.plugins().getFirst();
         Assertions.assertEquals("test_plugin", plugin.id());
 
         Assertions.assertEquals(1, plugin.dependencies().size());

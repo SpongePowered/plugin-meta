@@ -26,24 +26,28 @@ package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.*;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.spongepowered.plugin.metadata.builtin.NullVersion;
-import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
-import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
+import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 
-public final class StandardInheritableAdapter implements JsonSerializer<StandardInheritable>, JsonDeserializer<StandardInheritable> {
+public final class InheritableMetadataAdapter implements JsonSerializer<InheritableMetadata>, JsonDeserializer<InheritableMetadata> {
 
     @Override
-    public StandardInheritable deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+    public InheritableMetadata deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
-        return new StandardInheritable.Builder()
-                .version(GsonUtils.optional(obj, "version").map(JsonElement::getAsString).orElse(null))
+        return InheritableMetadata.builder()
+                .version(GsonUtils.optional(obj, "version").map(v -> context.<ArtifactVersion>deserialize(v, ArtifactVersion.class)).orElse(null))
+                .loader(GsonUtils.optional(obj, "loader").map(v -> context.<PluginLoaderSpecification>deserialize(v, PluginLoaderSpecification.class)).orElse(null))
+                .name(GsonUtils.optional(obj, "name").map(JsonElement::getAsString).orElse(null))
+                .description(GsonUtils.optional(obj, "description").map(JsonElement::getAsString).orElse(null))
+                .license(GsonUtils.optional(obj, "license").map(JsonElement::getAsString).orElse(null))
                 .branding(GsonUtils.optional(obj, "branding").map(v -> context.<PluginBranding>deserialize(v, PluginBranding.class)).orElseGet(PluginBranding::none))
                 .links(GsonUtils.optional(obj, "links").map(v -> context.<PluginLinks>deserialize(v, PluginLinks.class)).orElseGet(PluginLinks::none))
                 .contributors(GsonUtils.stream(obj, "contributors").map(v -> context.<PluginContributor>deserialize(v, PluginContributor.class)).toList())
@@ -53,22 +57,24 @@ public final class StandardInheritableAdapter implements JsonSerializer<Standard
     }
 
     @Override
-    public JsonElement serialize(final StandardInheritable value, final Type type, final JsonSerializationContext context) {
+    public JsonElement serialize(final InheritableMetadata value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
-        if (value.version() != NullVersion.instance()) {
-            obj.add("version", context.serialize(value.version(), ArtifactVersion.class));
-        }
-        if (value.branding() != PluginBranding.none()) {
+        value.version().ifPresent(v -> obj.add("version", context.serialize(v, ArtifactVersion.class)));
+        value.loader().ifPresent(v -> obj.add("loader", context.serialize(v, PluginLoaderSpecification.class)));
+        value.name().ifPresent(v -> obj.addProperty("name", v));
+        value.description().ifPresent(v -> obj.addProperty("description", v));
+        value.license().ifPresent(v -> obj.addProperty("license", v));
+        if (!value.branding().equals(PluginBranding.none())) {
             obj.add("branding", context.serialize(value.branding(), PluginBranding.class));
         }
-        if (value.links() != PluginLinks.none()) {
+        if (!value.links().equals(PluginLinks.none())) {
             obj.add("links", context.serialize(value.links(), PluginLinks.class));
         }
         if (!value.contributors().isEmpty()) {
             obj.add("contributors", GsonUtils.toArray(value.contributors().stream().map(v -> context.serialize(v, PluginContributor.class))));
         }
         if (!value.dependencies().isEmpty()) {
-            obj.add("dependencies", GsonUtils.toArray(value.dependencies().stream().map(v -> context.serialize(v, PluginDependency.class))));
+            obj.add("dependencies", GsonUtils.toArray(value.dependencies().values().stream().map(v -> context.serialize(v, PluginDependency.class))));
         }
         if (!value.properties().isEmpty()) {
             obj.add("properties", GsonUtils.serializeMap(value.properties(), v -> new JsonPrimitive(v.toString())));

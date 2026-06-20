@@ -25,21 +25,21 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.spongepowered.plugin.metadata.Container;
+import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Objects;
 
 /**
- * Specification for an entity representing the "loader" of a {@link Container container}.
+ * Specification for an entity representing the "loader" of a {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
  *
  * @param name The {@link String name}
  * @param version The {@link VersionRange version}, as a maven range.
  */
-public record ContainerLoader(String name, VersionRange version) {
+public record PluginLoaderSpecification(String name, VersionRange version) {
 
-    public ContainerLoader {
+    public PluginLoaderSpecification {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(version, "version");
     }

@@ -24,13 +24,18 @@
  */
 package org.spongepowered.plugin.metadata.builtin.adapter;
 
-import com.google.gson.*;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.PluginMetadata;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import org.spongepowered.plugin.metadata.builtin.MetadataContainer;
-import org.spongepowered.plugin.metadata.builtin.StandardInheritable;
+import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
-import org.spongepowered.plugin.metadata.model.ContainerLoader;
+import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 
 import java.lang.reflect.Type;
@@ -40,56 +45,43 @@ import java.util.List;
 public final class MetadataContainerAdapter implements JsonSerializer<MetadataContainer>, JsonDeserializer<MetadataContainer> {
 
     @Override
-    public MetadataContainer deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context)
-            throws JsonParseException {
+    public MetadataContainer deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject obj = element.getAsJsonObject();
 
-        final MetadataContainer.Builder builder = MetadataContainer.builder()
-                .loader(context.deserialize(GsonUtils.require(obj, "loader"), ContainerLoader.class))
-                .license(GsonUtils.require(obj, "license").getAsString());
+        // Read some global data in the root element for retro-compatibility
+        InheritableMetadata global = InheritableMetadata.builder()
+                .loader(GsonUtils.optional(obj, "loader").map(v -> context.<PluginLoaderSpecification>deserialize(v, PluginLoaderSpecification.class)).orElse(null))
+                .license(GsonUtils.optional(obj, "license").map(JsonElement::getAsString).orElse(null))
+                .build();
 
         final JsonElement globalElement = obj.get("global");
-        @Nullable StandardInheritable inheritable = null;
         if (globalElement instanceof JsonObject) {
-            inheritable = context.deserialize(globalElement, StandardInheritable.class);
-            builder.globalMetadata(inheritable);
+            global = global.with(context.deserialize(globalElement, InheritableMetadata.class));
         }
 
-        final JsonElement pluginsElement = GsonUtils.require(obj, "plugins");
-        final List<JsonObject> pluginObjects = new LinkedList<>();
-
-        if (pluginsElement.isJsonArray()) {
-            for (final JsonElement pluginElement : ((JsonArray) pluginsElement)) {
+        final List<StandardPluginMetadata> plugins = new LinkedList<>();
+        if (GsonUtils.require(obj, "plugins") instanceof JsonArray pluginsArray) {
+            for (final JsonElement pluginElement : pluginsArray) {
                 if (pluginElement.isJsonObject()) {
-                    pluginObjects.add((JsonObject) pluginElement);
+                    plugins.add(context.<StandardPluginMetadata.Builder>deserialize(pluginElement, StandardPluginMetadata.Builder.class)
+                            .global(global).build());
                 }
             }
         }
 
-        if (pluginObjects.isEmpty()) {
-            throw new JsonParseException("No plugin metadata has been specified for the 'plugins' tag!");
-        }
-
-        for (final JsonObject pluginObject : pluginObjects) {
-            final StandardPluginMetadata.Builder pluginBuilder = context.deserialize(pluginObject, StandardPluginMetadata.Builder.class);
-            if (inheritable != null) {
-                pluginBuilder.merge(inheritable);
-            }
-            builder.addMetadata(pluginBuilder.build());
-        }
-
-        return builder.build();
+        return new MetadataContainer(global, plugins);
     }
 
     @Override
     public JsonElement serialize(final MetadataContainer value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
-        obj.add("loader", context.serialize(value.loader(), ContainerLoader.class));
-        obj.addProperty("license", value.license());
+        if (!value.global().equals(InheritableMetadata.none())) {
+            obj.add("global", context.serialize(value.global(), InheritableMetadata.class));
+        }
 
         final JsonArray plugins = new JsonArray();
-        for (final PluginMetadata metadata : value.metadata()) {
-            plugins.add(context.serialize(metadata, StandardPluginMetadata.class));
+        for (final StandardPluginMetadata plugin : value.plugins()) {
+            plugins.add(context.serialize(plugin, StandardPluginMetadata.class));
         }
         obj.add("plugins", plugins);
 

@@ -30,8 +30,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.spongepowered.plugin.metadata.builtin.adapter.InheritableMetadataAdapter;
 import org.spongepowered.plugin.metadata.builtin.adapter.MetadataContainerAdapter;
-import org.spongepowered.plugin.metadata.builtin.adapter.StandardInheritableAdapter;
 import org.spongepowered.plugin.metadata.builtin.adapter.StandardPluginMetadataBuilderDeserializer;
 import org.spongepowered.plugin.metadata.builtin.adapter.StandardPluginMetadataSerializer;
 import org.spongepowered.plugin.metadata.builtin.adapter.model.*;
@@ -52,15 +52,15 @@ import java.util.Set;
 
 public final class MetadataParser {
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(ContainerLoader.class, new ContainerLoaderAdapter())
+            .registerTypeAdapter(PluginLoaderSpecification.class, new PluginLoaderSpecificationAdapter())
             .registerTypeAdapter(PluginBranding.class, new PluginBrandingAdapter())
             .registerTypeAdapter(PluginContributor.class, new PluginContributorAdapter())
             .registerTypeAdapter(PluginDependency.class, new PluginDependencyAdapter())
             .registerTypeAdapter(PluginLinks.class, new PluginLinksAdapter())
             .registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter())
             .registerTypeAdapter(VersionRange.class, new VersionRangeAdapter())
+            .registerTypeAdapter(InheritableMetadata.class, new InheritableMetadataAdapter())
             .registerTypeAdapter(MetadataContainer.class, new MetadataContainerAdapter())
-            .registerTypeAdapter(StandardInheritable.class, new StandardInheritableAdapter())
             .registerTypeAdapter(StandardPluginMetadata.Builder.class, new StandardPluginMetadataBuilderDeserializer())
             .registerTypeAdapter(StandardPluginMetadata.class, new StandardPluginMetadataSerializer())
             .create();

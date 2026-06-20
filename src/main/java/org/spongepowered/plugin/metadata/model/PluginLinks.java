@@ -25,7 +25,6 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.net.URI;
@@ -33,8 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Specification for an entity representing the links to "web resources" of an {@link Inheritable inheritable}
- * or {@link PluginMetadata plugin metadata}.
+ * Specification for an entity representing the links to "web resources" of a {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
  *

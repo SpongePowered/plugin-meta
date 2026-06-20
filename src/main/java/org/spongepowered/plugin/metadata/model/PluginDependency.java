@@ -26,14 +26,12 @@ package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.spongepowered.plugin.metadata.Constants;
-import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Objects;
 
 /**
- * Specification for an entity considered to be a "dependency" for an {@link Inheritable inheritable}
- * or {@link PluginMetadata plugin metadata}.
+ * Specification for an entity considered to be a "dependency" for a {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
  *

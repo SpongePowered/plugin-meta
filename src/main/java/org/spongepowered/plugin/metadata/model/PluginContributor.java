@@ -25,14 +25,13 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.plugin.metadata.Inheritable;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Specification for an entity considered to be a "contributor" to an {@link Inheritable inheritable}
+ * Specification for an entity considered to be a "contributor" to a {@link PluginMetadata metadata}
  * or {@link PluginMetadata plugin metadata}.
  * <p>
  * Consult the vendor for further information on how this is used.
