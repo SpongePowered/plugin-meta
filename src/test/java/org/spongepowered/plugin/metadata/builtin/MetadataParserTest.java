@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
+import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 
@@ -83,10 +84,18 @@ public class MetadataParserTest {
 
     private static final InheritableMetadata full = global.with(override);
 
+    private static final PluginEntrypoints entrypoints = new PluginEntrypoints(
+            List.of("my.test.package.MyTestPlugin_Main"),
+            List.of("my.test.package.MyTestPlugin_Server"),
+            List.of("my.test.package.MyTestPlugin_Client")
+    );
+
+    private static final PluginEntrypoints mainOnlyEntrypoints = new PluginEntrypoints(List.of("my.test.package.MyTestPlugin"));
+
     private static final MetadataContainer mixContainer = new MetadataContainer(global, List.of(
             StandardPluginMetadata.builder()
                     .id("test_plugin")
-                    .entrypoint("my.test.package.MyTestPlugin")
+                    .entrypoints(entrypoints)
                     .global(global)
                     .override(override)
                     .build()
@@ -95,7 +104,7 @@ public class MetadataParserTest {
     private static final MetadataContainer fullGlobalContainer = new MetadataContainer(full, List.of(
             StandardPluginMetadata.builder()
                     .id("test_plugin")
-                    .entrypoint("my.test.package.MyTestPlugin")
+                    .entrypoints(entrypoints)
                     .global(full)
                     .build()
     ));
@@ -103,8 +112,17 @@ public class MetadataParserTest {
     private static final MetadataContainer fullOverrideContainer = new MetadataContainer(InheritableMetadata.none(), List.of(
             StandardPluginMetadata.builder()
                     .id("test_plugin")
-                    .entrypoint("my.test.package.MyTestPlugin")
+                    .entrypoints(entrypoints)
                     .override(full)
+                    .build()
+    ));
+
+    private static final MetadataContainer mainEntrypointOnlyContainer = new MetadataContainer(global, List.of(
+            StandardPluginMetadata.builder()
+                    .id("test_plugin")
+                    .entrypoints(mainOnlyEntrypoints)
+                    .global(global)
+                    .override(override)
                     .build()
     ));
 
@@ -133,6 +151,12 @@ public class MetadataParserTest {
     }
 
     @Test
+    public void readMainEntrypointOnly() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/valid/main_entrypoint_only.json");
+        Assertions.assertEquals(mainEntrypointOnlyContainer, parsed);
+    }
+
+    @Test
     public void writeMix() throws IOException {
         final List<String> expected = MetadataParserTest.readLines("/valid/mix.json");
         final List<String> result = MetadataParserTest.writeContainer(mixContainer);
@@ -150,6 +174,13 @@ public class MetadataParserTest {
     public void writeFullOverride() throws IOException {
         final List<String> expected = MetadataParserTest.readLines("/valid/full_override.json");
         final List<String> result = MetadataParserTest.writeContainer(fullOverrideContainer);
+        Assertions.assertLinesMatch(expected, result);
+    }
+
+    @Test
+    public void writeMainEntrypointOnly() throws IOException {
+        final List<String> expected = MetadataParserTest.readLines("/valid/main_entrypoint_only.json");
+        final List<String> result = MetadataParserTest.writeContainer(mainEntrypointOnlyContainer);
         Assertions.assertLinesMatch(expected, result);
     }
 
@@ -172,5 +203,11 @@ public class MetadataParserTest {
 
         Assertions.assertTrue(MetadataParser.warnings().contains(pluginIdWarning));
         Assertions.assertTrue(MetadataParser.warnings().contains(dependencyIdWarning));
+    }
+
+    @Test
+    public void readLegacyEntrypoint() throws IOException {
+        final MetadataContainer parsed = MetadataParserTest.readContainer("/legacy/entrypoint.json");
+        Assertions.assertEquals(mainEntrypointOnlyContainer, parsed);
     }
 }

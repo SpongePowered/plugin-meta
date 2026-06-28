@@ -9,7 +9,17 @@
       "id": "test-plugin",
       "name": "TestPlugin",
       "description": "Some test plugin",
-      "entrypoint": "my.test.package.MyTestPlugin",
+      "entrypoints": {
+        "main": [
+          "my.test.package.MyTestPlugin_Main"
+        ],
+        "server": [
+          "my.test.package.MyTestPlugin_Server"
+        ],
+        "client": [
+          "my.test.package.MyTestPlugin_Client"
+        ]
+      },
       "version": "1.2.3",
       "dependencies": [
         {

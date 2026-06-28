@@ -26,12 +26,16 @@ package org.spongepowered.plugin.metadata.builtin.adapter;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
 import org.spongepowered.plugin.metadata.builtin.StandardPluginMetadata;
+import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
+import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 public final class StandardPluginMetadataSerializer implements JsonSerializer<StandardPluginMetadata> {
 
@@ -39,8 +43,21 @@ public final class StandardPluginMetadataSerializer implements JsonSerializer<St
     public JsonElement serialize(final StandardPluginMetadata value, final Type type, final JsonSerializationContext context) {
         final JsonObject obj = new JsonObject();
         obj.addProperty("id", value.id());
-        obj.addProperty("entrypoint", value.entrypoint());
+        StandardPluginMetadataSerializer.serializeEntrypoints(value.entrypoints(), context).ifPresent(v -> obj.add("entrypoints", v));
         obj.asMap().putAll(((JsonObject) context.serialize(value.override(), InheritableMetadata.class)).asMap());
         return obj;
+    }
+
+    /**
+     * Should be in PluginEntrypointsAdapter but Gson refuses to pass a JsonArray to a JsonDeserializer.
+     */
+    private static Optional<JsonElement> serializeEntrypoints(final PluginEntrypoints value, final JsonSerializationContext context) {
+        if (value.server().isEmpty() && value.client().isEmpty()) {
+            if (value.main().isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(GsonUtils.toArray(value.main().stream().map(JsonPrimitive::new)));
+        }
+        return Optional.of(context.serialize(value, PluginEntrypoints.class));
     }
 }

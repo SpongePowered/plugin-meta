@@ -28,6 +28,7 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
+import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
 import org.spongepowered.plugin.metadata.model.PluginLoaderSpecification;
 
@@ -59,14 +60,9 @@ public interface PluginMetadata {
     String id();
 
     /**
-     * Gets the {@link String entrypoint}.
-     * <p>
-     * Consult the vendor for how this field is used. As an example, this could be
-     * the name of a module or a fully realized path to a discrete class.
-     *
-     * @return The entrypoint
+     * @return The {@link PluginEntrypoints entrypoints}
      */
-    String entrypoint();
+    PluginEntrypoints entrypoints();
 
     /**
      * @return The {@link ArtifactVersion version}.
