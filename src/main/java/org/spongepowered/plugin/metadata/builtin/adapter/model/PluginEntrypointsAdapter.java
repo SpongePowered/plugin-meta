@@ -35,6 +35,12 @@ public final class PluginEntrypointsAdapter implements JsonSerializer<PluginEntr
 
     @Override
     public PluginEntrypoints deserialize(final JsonElement element, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+        if (element.isJsonNull()) {
+            return PluginEntrypoints.none();
+        }
+        if (element instanceof JsonArray array) {
+            return new PluginEntrypoints(array.asList().stream().map(JsonElement::getAsString).toList());
+        }
         final JsonObject obj = element.getAsJsonObject();
         return new PluginEntrypoints(
                 PluginEntrypointsAdapter.deserialize(obj, "main"),
@@ -45,6 +51,9 @@ public final class PluginEntrypointsAdapter implements JsonSerializer<PluginEntr
 
     @Override
     public JsonElement serialize(final PluginEntrypoints value, final Type type, final JsonSerializationContext context) {
+        if (value.server().isEmpty() && value.client().isEmpty()) {
+            return GsonUtils.toArray(value.main().stream().map(JsonPrimitive::new));
+        }
         final JsonObject obj = new JsonObject();
         PluginEntrypointsAdapter.serialize(obj, "main", value.main());
         PluginEntrypointsAdapter.serialize(obj, "server", value.server());

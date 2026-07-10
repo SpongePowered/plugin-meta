@@ -56,6 +56,7 @@ public final class MetadataParser {
             .registerTypeAdapter(PluginBranding.class, new PluginBrandingAdapter())
             .registerTypeAdapter(PluginContributor.class, new PluginContributorAdapter())
             .registerTypeAdapter(PluginDependency.class, new PluginDependencyAdapter())
+            .registerTypeAdapter(PluginEntrypoints.class, new PluginEntrypointsAdapter())
             .registerTypeAdapter(PluginLinks.class, new PluginLinksAdapter())
             .registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter())
             .registerTypeAdapter(VersionRange.class, new VersionRangeAdapter())

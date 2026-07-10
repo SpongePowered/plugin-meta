@@ -42,23 +42,10 @@ public final class StandardPluginMetadataBuilderDeserializer implements JsonDese
         return StandardPluginMetadata.builder()
                 .id(LegacyIds.fix(GsonUtils.require(obj, "id").getAsString()))
                 .entrypoints(
-                        GsonUtils.optional(obj, "entrypoints").map(v -> StandardPluginMetadataBuilderDeserializer.deserializeEntrypoints(v, context))
+                        GsonUtils.optional(obj, "entrypoints").map(v -> context.<PluginEntrypoints>deserialize(v, PluginEntrypoints.class))
                                 .or(() -> GsonUtils.optional(obj, "entrypoint").map(v -> new PluginEntrypoints(List.of(v.getAsString())))) // legacy
                                 .orElseGet(PluginEntrypoints::none)
                 )
                 .override(context.deserialize(element, InheritableMetadata.class));
-    }
-
-    /**
-     * Should be in PluginEntrypointsAdapter but Gson refuses to pass a JsonArray to a JsonDeserializer.
-     */
-    private static PluginEntrypoints deserializeEntrypoints(final JsonElement element, final JsonDeserializationContext context) {
-        if (element.isJsonNull()) {
-            return PluginEntrypoints.none();
-        }
-        if (element instanceof JsonArray array) {
-            return new PluginEntrypoints(array.asList().stream().map(JsonElement::getAsString).toList());
-        }
-        return context.deserialize(element, PluginEntrypoints.class);
     }
 }
