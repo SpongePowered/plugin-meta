@@ -26,6 +26,7 @@ package org.spongepowered.plugin.metadata;
 
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginConflict;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
@@ -47,14 +48,7 @@ public interface PluginMetadata {
     /**
      * Gets the {@link String id}.
      *
-     * <p>Ids must conform to the following requirements:</p>
-     *
-     * <ul>
-     *     <li>Must be between 2 and 64 characters in length</li>
-     *     <li>Must start with a lower case letter (a-z)</li>
-     *     <li>May only contain a mix of lower case letters (a-z),
-     *     numbers (0-9) and underscores (_)</li>
-     * </ul>
+     * @see Constants#VALID_ID_PATTERN
      * @return The id
      */
     String id();
@@ -107,6 +101,15 @@ public interface PluginMetadata {
      * @return The {@link PluginContributor contributors} as an unmodifiable {@link List}.
      */
     List<PluginContributor> contributors();
+
+    /**
+     * Gets the known and declared {@link PluginConflict conflicts}.
+     * This list is not exhaustive. Unknown conflicts may not be in this list.
+     * This list may contain multiple entries with the same id but with different version ranges and reasons.
+     *
+     * @return The {@link PluginConflict conflicts} as an unmodifiable {@link List}.
+     */
+    List<PluginConflict> conflicts();
 
     /**
      * Gets the {@link PluginDependency plugin dependency} by {@link String id}.

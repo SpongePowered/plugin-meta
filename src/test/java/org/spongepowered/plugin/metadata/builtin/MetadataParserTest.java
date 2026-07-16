@@ -29,6 +29,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.spongepowered.plugin.metadata.PluginMetadata;
+import org.spongepowered.plugin.metadata.model.PluginConflict;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
@@ -79,6 +80,7 @@ public class MetadataParserTest {
                     URI.create("https://github.com/SpongePowered/Sponge/issues")
             ))
             .addContributor(new PluginContributor("Spongie", "Mascot"))
+            .addConflict(new PluginConflict("bad_plugin", VersionRange.createFromVersion("3.2.1"), true, "Incompatible for some reasons"))
             .addDependency(new PluginDependency("spongeapi", VersionRange.createFromVersion("17.0.0"), PluginDependency.LoadOrder.AFTER, false))
             .build();
 

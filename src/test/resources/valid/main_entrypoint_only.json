@@ -26,6 +26,14 @@
           "description": "Mascot"
         }
       ],
+      "conflicts": [
+        {
+          "id": "bad_plugin",
+          "version": "3.2.1",
+          "fatal": true,
+          "reason": "Incompatible for some reasons"
+        }
+      ],
       "dependencies": [
         {
           "id": "spongeapi",
