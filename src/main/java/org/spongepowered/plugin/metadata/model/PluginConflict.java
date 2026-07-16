@@ -25,54 +25,38 @@
 package org.spongepowered.plugin.metadata.model;
 
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Specification for an entity considered to be a "dependency" for a {@link PluginMetadata plugin metadata}.
+ * Specification for an entity considered to be conflicting with a {@link PluginMetadata plugin metadata}.
  * <p>
- * Consult the vendor for further information on how this is used.
+ * The vendor will either log a warning or refuse to load when this entity is present.
  *
  * @see Constants#VALID_ID_PATTERN
  * @param id The {@link String id}
  * @param version The {@link VersionRange version}, as a maven range.
- * @param loadOrder The {@link LoadOrder load order}
- * @param optional Whether this dependency is optional
+ * @param fatal Whether this conflict should prevent loading
+ * @param reason The {@link String reason}
  */
-public record PluginDependency(String id, VersionRange version, LoadOrder loadOrder, boolean optional) {
+public record PluginConflict(String id, VersionRange version, boolean fatal, Optional<String> reason) {
 
-    public PluginDependency {
+    public PluginConflict {
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(version, "version");
-        Objects.requireNonNull(loadOrder, "loadOrder");
+        Objects.requireNonNull(reason, "reason");
 
         if (!Constants.VALID_ID_PATTERN.matcher(id).matches()) {
-            throw new IllegalStateException(String.format("Dependency with supplied ID '{%s}' is invalid. %s", id,
+            throw new IllegalStateException(String.format("Conflict with supplied ID '{%s}' is invalid. %s", id,
                     Constants.INVALID_ID_REQUIREMENTS_MESSAGE));
         }
     }
 
-    /**
-     * Represents the ordering of how dependencies are loaded versus others.
-     * <p>
-     * A vendor *may* choose to introduce additional behavior beyond what is
-     * documented here. It is recommended to consult with that entity on any
-     * further behavioral changes.
-     */
-    public enum LoadOrder {
-        /**
-         * The plugin can be loaded regardless of when the dependency is loaded.
-         */
-        UNDEFINED,
-        /**
-         * The plugin must be loaded before the dependency
-         */
-        BEFORE,
-        /**
-         * The plugin must be loaded after the dependency.
-         */
-        AFTER
+    public PluginConflict(String id, VersionRange version, boolean fatal, @Nullable String reason) {
+        this(id, version, fatal, Optional.ofNullable(reason));
     }
 }

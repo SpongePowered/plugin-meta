@@ -27,6 +27,7 @@ package org.spongepowered.plugin.metadata.builtin;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginConflict;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
@@ -53,6 +54,7 @@ public final class InheritableMetadata {
     private final PluginBranding branding;
     private final PluginLinks links;
     private final List<PluginContributor> contributors;
+    private final List<PluginConflict> conflicts;
     private final Map<String, PluginDependency> dependencies;
     private final Map<String, Object> properties;
 
@@ -65,6 +67,7 @@ public final class InheritableMetadata {
         this.branding = PluginBranding.none();
         this.links = PluginLinks.none();
         this.contributors = List.of();
+        this.conflicts = List.of();
         this.dependencies = Map.of();
         this.properties = Map.of();
     }
@@ -78,6 +81,7 @@ public final class InheritableMetadata {
         this.branding = builder.branding;
         this.links = builder.links;
         this.contributors = List.copyOf(builder.contributors);
+        this.conflicts = List.copyOf(builder.conflicts);
         this.dependencies = Collections.unmodifiableMap(new LinkedHashMap<>(builder.dependencies));
         this.properties = Collections.unmodifiableMap(new LinkedHashMap<>(builder.properties));
     }
@@ -114,6 +118,10 @@ public final class InheritableMetadata {
         return this.contributors;
     }
 
+    public List<PluginConflict> conflicts() {
+        return this.conflicts;
+    }
+
     public Map<String, PluginDependency> dependencies() {
         return this.dependencies;
     }
@@ -144,6 +152,7 @@ public final class InheritableMetadata {
                 && this.branding.equals(other.branding)
                 && this.links.equals(other.links)
                 && this.contributors.equals(other.contributors)
+                && this.conflicts.equals(other.conflicts)
                 && this.dependencies.equals(other.dependencies)
                 && this.properties.equals(other.properties);
     }
@@ -151,7 +160,7 @@ public final class InheritableMetadata {
     @Override
     public int hashCode() {
         return Objects.hash(this.version, this.loader, this.name, this.description, this.license,
-                this.branding, this.links, this.contributors, this.dependencies, this.properties);
+                this.branding, this.links, this.contributors, this.conflicts, this.dependencies, this.properties);
     }
 
     @Override
@@ -163,6 +172,7 @@ public final class InheritableMetadata {
                 .add("branding=" + this.branding)
                 .add("links=" + this.links)
                 .add("contributors=" + this.contributors)
+                .add("conflicts=" + this.conflicts)
                 .add("dependencies=" + this.dependencies)
                 .add("properties=" + this.properties)
                 .toString();
@@ -189,6 +199,7 @@ public final class InheritableMetadata {
         private PluginBranding branding = PluginBranding.none();
         private PluginLinks links = PluginLinks.none();
         private final List<PluginContributor> contributors = new LinkedList<>();
+        private final List<PluginConflict> conflicts = new LinkedList<>();
         private final Map<String, PluginDependency> dependencies = new LinkedHashMap<>();
         private final Map<String, Object> properties = new LinkedHashMap<>();
 
@@ -247,6 +258,23 @@ public final class InheritableMetadata {
             return this;
         }
 
+        public Builder conflicts(final Collection<PluginConflict> conflicts) {
+            Objects.requireNonNull(conflicts, "conflicts");
+            this.conflicts.clear();
+            this.conflicts.addAll(conflicts);
+            return this;
+        }
+
+        public Builder addConflicts(final Collection<PluginConflict> conflicts) {
+            this.conflicts.addAll(Objects.requireNonNull(conflicts, "conflicts"));
+            return this;
+        }
+
+        public Builder addConflict(final PluginConflict conflict) {
+            this.conflicts.add(Objects.requireNonNull(conflict, "conflict"));
+            return this;
+        }
+
         public Builder dependencies(final Collection<PluginDependency> dependencies) {
             Objects.requireNonNull(dependencies, "dependencies");
             this.dependencies.clear();
@@ -293,6 +321,8 @@ public final class InheritableMetadata {
             this.links = value.links;
             this.contributors.clear();
             this.contributors.addAll(value.contributors);
+            this.conflicts.clear();
+            this.conflicts.addAll(value.conflicts);
             this.dependencies.clear();
             this.dependencies.putAll(value.dependencies);
             this.properties.clear();
@@ -323,6 +353,7 @@ public final class InheritableMetadata {
                 this.links = override.links;
             }
             this.contributors.addAll(override.contributors);
+            this.conflicts.addAll(override.conflicts);
             this.dependencies.putAll(override.dependencies);
             this.properties.putAll(override.properties);
             return this;

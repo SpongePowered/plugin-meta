@@ -29,6 +29,7 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.spongepowered.plugin.metadata.builtin.InheritableMetadata;
 import org.spongepowered.plugin.metadata.builtin.adapter.util.GsonUtils;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginConflict;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginLinks;
@@ -51,6 +52,7 @@ public final class InheritableMetadataAdapter implements JsonSerializer<Inherita
                 .branding(GsonUtils.optional(obj, "branding").map(v -> context.<PluginBranding>deserialize(v, PluginBranding.class)).orElseGet(PluginBranding::none))
                 .links(GsonUtils.optional(obj, "links").map(v -> context.<PluginLinks>deserialize(v, PluginLinks.class)).orElseGet(PluginLinks::none))
                 .contributors(GsonUtils.stream(obj, "contributors").map(v -> context.<PluginContributor>deserialize(v, PluginContributor.class)).toList())
+                .conflicts(GsonUtils.stream(obj, "conflicts").map(v -> context.<PluginConflict>deserialize(v, PluginConflict.class)).toList())
                 .dependencies(GsonUtils.stream(obj, "dependencies").map(v -> context.<PluginDependency>deserialize(v, PluginDependency.class)).toList())
                 .properties(GsonUtils.deserializeMap(obj.get("properties"), JsonElement::getAsString, LinkedHashMap::new))
                 .build();
@@ -72,6 +74,9 @@ public final class InheritableMetadataAdapter implements JsonSerializer<Inherita
         }
         if (!value.contributors().isEmpty()) {
             obj.add("contributors", GsonUtils.toArray(value.contributors().stream().map(v -> context.serialize(v, PluginContributor.class))));
+        }
+        if (!value.conflicts().isEmpty()) {
+            obj.add("conflicts", GsonUtils.toArray(value.conflicts().stream().map(v -> context.serialize(v, PluginConflict.class))));
         }
         if (!value.dependencies().isEmpty()) {
             obj.add("dependencies", GsonUtils.toArray(value.dependencies().values().stream().map(v -> context.serialize(v, PluginDependency.class))));

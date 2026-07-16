@@ -54,6 +54,7 @@ public final class MetadataParser {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(PluginLoaderSpecification.class, new PluginLoaderSpecificationAdapter())
             .registerTypeAdapter(PluginBranding.class, new PluginBrandingAdapter())
+            .registerTypeAdapter(PluginConflict.class, new PluginConflictAdapter())
             .registerTypeAdapter(PluginContributor.class, new PluginContributorAdapter())
             .registerTypeAdapter(PluginDependency.class, new PluginDependencyAdapter())
             .registerTypeAdapter(PluginEntrypoints.class, new PluginEntrypointsAdapter())

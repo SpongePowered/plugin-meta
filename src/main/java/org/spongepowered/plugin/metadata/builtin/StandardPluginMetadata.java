@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.plugin.metadata.Constants;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 import org.spongepowered.plugin.metadata.model.PluginBranding;
+import org.spongepowered.plugin.metadata.model.PluginConflict;
 import org.spongepowered.plugin.metadata.model.PluginContributor;
 import org.spongepowered.plugin.metadata.model.PluginDependency;
 import org.spongepowered.plugin.metadata.model.PluginEntrypoints;
@@ -57,6 +58,7 @@ public final class StandardPluginMetadata implements PluginMetadata {
     private final PluginBranding branding;
     private final PluginLinks links;
     private final List<PluginContributor> contributors;
+    private final List<PluginConflict> conflicts;
     private final Map<String, PluginDependency> dependencies;
     private final Map<String, Object> properties;
 
@@ -74,6 +76,7 @@ public final class StandardPluginMetadata implements PluginMetadata {
         this.branding = metadata.branding();
         this.links = metadata.links();
         this.contributors = metadata.contributors();
+        this.conflicts = metadata.conflicts();
         this.dependencies = metadata.dependencies();
         this.properties = metadata.properties();
     }
@@ -137,6 +140,11 @@ public final class StandardPluginMetadata implements PluginMetadata {
     }
 
     @Override
+    public List<PluginConflict> conflicts() {
+        return this.conflicts;
+    }
+
+    @Override
     public Optional<PluginDependency> dependency(String id) {
         return Optional.ofNullable(this.dependencies.get(Objects.requireNonNull(id, "id")));
     }
@@ -187,6 +195,7 @@ public final class StandardPluginMetadata implements PluginMetadata {
                 .add("branding=" + this.branding)
                 .add("links=" + this.links)
                 .add("contributors=" + this.contributors)
+                .add("conflicts=" + this.conflicts)
                 .add("dependencies=" + this.dependencies)
                 .add("properties=" + this.properties)
                 .toString();
